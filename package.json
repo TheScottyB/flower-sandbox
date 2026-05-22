@@ -40,11 +40,16 @@
   "engines": {
     "node": ">=22.13.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@supabase/supabase-js": "2.105.4"
+    }
+  },
   "dependencies": {
     "@expo/metro-runtime": "~56.0.11",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@supabase/supabase-js": "~2.105.4",
+    "@supabase/supabase-js": "2.105.4",
     "babel-preset-expo": "~56.0.11",
     "expo": "~56.0.3",
     "expo-blur": "~56.0.3",
