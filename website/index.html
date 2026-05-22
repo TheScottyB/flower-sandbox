@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>FlowerSandbox — Peaceful Garden Sandbox</title>
+  <meta name="description" content="Nurture your virtual sanctuary with FlowerSandbox. Plant beautiful flowers, customize your layout, and relax with serene animations in a calming, distraction-free environment.">
+  <meta name="keywords" content="garden, flowers, relax, nature, grow, plants, mindfulness, virtual garden, sandbox, calm, iOS app">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Animated Background Petals -->
+  <div class="petals-container"></div>
+
+  <!-- Header Section -->
+  <header>
+    <a href="index.html" class="logo" id="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C11.5 5 9.5 7 7 7C4.5 7 2.5 5 2 2C2.5 5.5 4.5 7.5 7.5 7.5C10.5 7.5 11.5 10 12 12C12.5 10 13.5 7.5 16.5 7.5C19.5 7.5 21.5 5.5 22 2C21.5 5 19.5 7 17 7C14.5 7 12.5 5 12 2Z"/>
+        <path d="M12 22C12.5 19 14.5 17 17 17C19.5 17 21.5 19 22 22C21.5 18.5 19.5 16.5 16.5 16.5C13.5 16.5 12.5 14 12 12C11.5 14 10.5 16.5 7.5 16.5C4.5 16.5 2.5 18.5 2 22C2.5 19 4.5 17 7 17C9.5 17 11.5 19 12 22Z"/>
+      </svg>
+      FlowerSandbox
+    </a>
+    <nav>
+      <a href="index.html" id="nav-link-home">Home</a>
+      <a href="support.html" id="nav-link-support">Support</a>
+      <a href="privacy.html" id="nav-link-privacy">Privacy</a>
+      <a href="terms.html" id="nav-link-terms">Terms</a>
+      <button class="btn-nav" id="btn-download-top" onclick="window.location.href='#download'">Download</button>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1 id="hero-title">Your peaceful <span>digital sanctuary</span></h1>
+        <p class="hero-subtitle">
+          Escape the noise and nurture your own virtual flower garden. Experiment with colorful petals, customize layouts, and relax with serene animations designed for mindfulness.
+        </p>
+        <div class="hero-cta">
+          <a href="#download" class="btn-primary" id="btn-hero-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            Download App
+          </a>
+          <a href="#features" class="btn-secondary" id="btn-hero-secondary">Explore Features</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-visual-bg"></div>
+        <div class="hero-image-wrapper">
+          <img src="garden_hero_illustration.png" alt="FlowerSandbox Virtual Garden Showcase" id="img-hero-preview">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="section-title">
+        <h2>Features Designed for Calm</h2>
+        <p>Take a break, relax, and watch your garden blossom over time.</p>
+      </div>
+      
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card" id="feat-customization">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+              <path d="M12.1 12.1 16 16"/>
+              <path d="m14.5 9.5 4-4"/>
+            </svg>
+          </div>
+          <h3>Creative Layouts</h3>
+          <p>Arrange pots, paths, and water sources to create the perfect balance. Design unique grids, customize layouts, and showcase your floral collections.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card" id="feat-offline">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 1t22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.5a3 3 0 0 1 3 3v2a3 3 0 0 1-.36 1.41"/>
+              <path d="M18.84 13.56a5 5 0 0 0-4.4-4.4M10.84 5.56A15 15 0 0 1 22 7.5"/>
+              <path d="M12 2a15 15 0 0 1 6.54 1.5"/>
+              <path d="M2.33 6.13A15 15 0 0 0 12 9.5a15 15 0 0 0 2 .13"/>
+              <path d="M5.33 11.13A11 11 0 0 0 12 12.5a11 11 0 0 0 1.25-.07"/>
+            </svg>
+          </div>
+          <h3>Fully Offline-First</h3>
+          <p>Garden anywhere, even without an active internet connection. Your virtual sanctuary is cached locally and runs perfectly offline for uninterrupted peace.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card" id="feat-serene">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <h3>Serene Animations</h3>
+          <p>Watch gentle petals drift across the screen, swaying with dynamic wind patterns and responding softly to your touch. Perfect for relaxation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Store Submissions Screenshots Showcase -->
+    <section class="gallery">
+      <div class="section-title">
+        <h2>Beautiful Sandbox Controls</h2>
+        <p>A peek inside the mobile interface designed for simple, premium Zen gardening.</p>
+      </div>
+      <div class="gallery-wrapper">
+        <div class="gallery-item">
+          <img src="assets/iphone65.png" alt="FlowerSandbox iPhone App Interface" id="img-gallery-iphone">
+          <div class="gallery-caption">iPhone 6.7" Experience</div>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/ipad129.png" alt="FlowerSandbox iPad App Interface" id="img-gallery-ipad">
+          <div class="gallery-caption">iPad Pro 12.9" Universal Layout</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing / Subscription Section -->
+    <section class="pricing" id="download">
+      <div class="section-title">
+        <h2>Premium Sandbox Access</h2>
+        <p>Support a peaceful, indie-built, ad-free experience.</p>
+      </div>
+      <div class="pricing-card">
+        <span class="pricing-tag">Zen Monthly Pass</span>
+        <div class="pricing-price">$1.00<span>/month</span></div>
+        <p class="pricing-desc">Unlock all flower types, custom gardening skins, and infinite layout expansion slots.</p>
+        <ul class="pricing-features">
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            All Flower Types unlocked
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Serene Dark & Light Skins
+          </li>
+          <li>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            No Ads or Data Collection
+          </li>
+        </ul>
+        <a href="https://apps.apple.com/app/id6772106139" class="btn-primary" id="btn-app-store-download">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          Get on App Store
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" id="footer-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C11.5 5 9.5 7 7 7C4.5 7 2.5 5 2 2C2.5 5.5 4.5 7.5 7.5 7.5C10.5 7.5 11.5 10 12 12C12.5 10 13.5 7.5 16.5 7.5C19.5 7.5 21.5 5.5 22 2C21.5 5 19.5 7 17 7C14.5 7 12.5 5 12 2Z"/>
+            <path d="M12 22C12.5 19 14.5 17 17 17C19.5 17 21.5 19 22 22C21.5 18.5 19.5 16.5 16.5 16.5C13.5 16.5 12.5 14 12 12C11.5 14 10.5 16.5 7.5 16.5C4.5 16.5 2.5 18.5 2 22C2.5 19 4.5 17 7 17C9.5 17 11.5 19 12 22Z"/>
+          </svg>
+          FlowerSandbox
+        </a>
+        <p>A peaceful digital sanctuary to nurture beautiful flowers and relax.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Explore</h4>
+          <a href="index.html#features" id="foot-link-features">Features</a>
+          <a href="index.html#download" id="foot-link-download">Premium</a>
+        </div>
+        <div class="footer-column">
+          <h4>Support</h4>
+          <a href="support.html" id="foot-link-support">Contact Support</a>
+        </div>
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <a href="privacy.html" id="foot-link-privacy">Privacy Policy</a>
+          <a href="terms.html" id="foot-link-terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Scott Beilfuss. All rights reserved.</p>
+      <p>App Store Connect ID: 6772106139</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

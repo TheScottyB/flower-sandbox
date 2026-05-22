@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>Contact Support — FlowerSandbox</title>
+  <meta name="description" content="Need help with FlowerSandbox? Contact our support team. We're here to help you resolve app, subscription, or donation issues quickly.">
+  <meta name="keywords" content="FlowerSandbox, support, contact, customer service, help, email, feedback, app help">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Animated Background Petals -->
+  <div class="petals-container"></div>
+
+  <!-- Header Section -->
+  <header>
+    <a href="index.html" class="logo" id="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C11.5 5 9.5 7 7 7C4.5 7 2.5 5 2 2C2.5 5.5 4.5 7.5 7.5 7.5C10.5 7.5 11.5 10 12 12C12.5 10 13.5 7.5 16.5 7.5C19.5 7.5 21.5 5.5 22 2C21.5 5 19.5 7 17 7C14.5 7 12.5 5 12 2Z"/>
+        <path d="M12 22C12.5 19 14.5 17 17 17C19.5 17 21.5 19 22 22C21.5 18.5 19.5 16.5 16.5 16.5C13.5 16.5 12.5 14 12 12C11.5 14 10.5 16.5 7.5 16.5C4.5 16.5 2.5 18.5 2 22C2.5 19 4.5 17 7 17C9.5 17 11.5 19 12 22Z"/>
+      </svg>
+      FlowerSandbox
+    </a>
+    <nav>
+      <a href="index.html" id="nav-link-home">Home</a>
+      <a href="support.html" id="nav-link-support">Support</a>
+      <a href="privacy.html" id="nav-link-privacy">Privacy</a>
+      <a href="terms.html" id="nav-link-terms">Terms</a>
+      <button class="btn-nav" id="btn-download-top" onclick="window.location.href='index.html#download'">Download</button>
+    </nav>
+  </header>
+
+  <!-- Support Form Area -->
+  <main>
+    <section class="contact-section">
+      <div class="contact-card">
+        <h1 id="support-heading">Support & Contact</h1>
+        <p>Have questions, ideas, or need assistance? Fill out the form below or reach out to us directly, and we will get back to you shortly.</p>
+        
+        <div class="contact-info-grid">
+          <div class="contact-info-item">
+            <h3>Direct Email</h3>
+            <p>beilsco@gmail.com</p>
+          </div>
+        </div>
+
+        <div class="alert-success" id="success-alert">
+          Thank you! Your message has been sent. Our team will contact you shortly.
+        </div>
+
+        <form id="support-form">
+          <div class="form-group">
+            <label for="contact-name">Your Name</label>
+            <input type="text" id="contact-name" class="form-control" placeholder="Enter your full name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="contact-email">Email Address</label>
+            <input type="email" id="contact-email" class="form-control" placeholder="Enter your email address" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="contact-message">How can we help?</label>
+            <textarea id="contact-message" class="form-control" placeholder="Describe your issue or feedback in detail..." required></textarea>
+          </div>
+          
+          <button type="submit" class="btn-primary" id="btn-submit-contact" style="width: 100%; justify-content: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            Send Message
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" id="footer-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C11.5 5 9.5 7 7 7C4.5 7 2.5 5 2 2C2.5 5.5 4.5 7.5 7.5 7.5C10.5 7.5 11.5 10 12 12C12.5 10 13.5 7.5 16.5 7.5C19.5 7.5 21.5 5.5 22 2C21.5 5 19.5 7 17 7C14.5 7 12.5 5 12 2Z"/>
+            <path d="M12 22C12.5 19 14.5 17 17 17C19.5 17 21.5 19 22 22C21.5 18.5 19.5 16.5 16.5 16.5C13.5 16.5 12.5 14 12 12C11.5 14 10.5 16.5 7.5 16.5C4.5 16.5 2.5 18.5 2 22C2.5 19 4.5 17 7 17C9.5 17 11.5 19 12 22Z"/>
+          </svg>
+          FlowerSandbox
+        </a>
+        <p>A peaceful digital sanctuary to nurture beautiful flowers and relax.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Explore</h4>
+          <a href="index.html#features" id="foot-link-features">Features</a>
+          <a href="index.html#download" id="foot-link-download">Premium</a>
+        </div>
+        <div class="footer-column">
+          <h4>Support</h4>
+          <a href="support.html" id="foot-link-support">Contact Support</a>
+        </div>
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <a href="privacy.html" id="foot-link-privacy">Privacy Policy</a>
+          <a href="terms.html" id="foot-link-terms">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Scott Beilfuss. All rights reserved.</p>
+      <p>App Store Connect ID: 6772106139</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
