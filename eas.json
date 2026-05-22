@@ -10,28 +10,12 @@
       "ios": {
         "simulator": true,
         "resourceClass": "m-medium"
-      },
-      "env": {
-        "SUPABASE_PROJECT_ID": "your_dev_project_id",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://your_dev_project_id.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "your_dev_anon_key",
-        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_your_test_publishable_key",
-        "EXPO_PUBLIC_APP_ENV": "development",
-        "EXPO_PUBLIC_DEBUG_MODE": "true"
       }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
         "resourceClass": "m-medium"
-      },
-      "env": {
-        "SUPABASE_PROJECT_ID": "your_staging_project_id",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://your_staging_project_id.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "your_staging_anon_key",
-        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_your_test_publishable_key",
-        "EXPO_PUBLIC_APP_ENV": "preview",
-        "EXPO_PUBLIC_DEBUG_MODE": "false"
       }
     },
     "production": {
@@ -57,15 +41,7 @@
       "ios": {
         "simulator": true
       },
-      "environment": "development",
-      "env": {
-        "SUPABASE_PROJECT_ID": "your_dev_project_id",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://your_dev_project_id.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "your_dev_anon_key",
-        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_your_test_publishable_key",
-        "EXPO_PUBLIC_APP_ENV": "development",
-        "EXPO_PUBLIC_DEBUG_MODE": "true"
-      }
+      "environment": "development"
     }
   },
   "submit": {
