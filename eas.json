@@ -37,8 +37,7 @@
     "production": {
       "distribution": "store",
       "ios": {
-        "resourceClass": "m-medium",
-        "image": "latest"
+        "resourceClass": "m-medium"
       },
       "env": {
         "SUPABASE_PROJECT_ID": "srtlalaecgejgghwwfmk",
