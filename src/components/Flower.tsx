@@ -13,7 +13,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { flowerTypes, FlowerType } from './flowerData';
 import * as Haptics from 'expo-haptics';
 
-const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedG = Animated.createAnimatedComponent(G) as any;
 
 type FlowerProps = {
   id?: string;

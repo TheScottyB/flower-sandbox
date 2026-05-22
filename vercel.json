@@ -1,11 +1,15 @@
 {
-  "buildCommand": "npx expo export --platform web",
+  "buildCommand": "node scripts/build-web.mjs",
   "outputDirectory": "dist",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/support", "destination": "/support.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/app/_expo/(.*)", "destination": "/_expo/$1" },
+    { "source": "/app/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/app", "destination": "/app/index.html" },
+    { "source": "/app/(.*)", "destination": "/app/index.html" },
+    { "source": "/(.*)", "destination": "/$1" }
   ]
 }

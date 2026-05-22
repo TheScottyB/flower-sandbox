@@ -1,0 +1,17 @@
+# Vercel Deployment Exclusions
+node_modules/
+.expo/
+dist/
+web-build/
+ios/
+android/
+.git/
+.github/
+.eas/
+.projects/
+.worktrees/
+.claude/
+.cursor/
+.playwright-mcp/
+supabase/
+website/

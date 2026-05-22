@@ -85,3 +85,130 @@ jest.mock('react-native-reanimated', () => {
     Easing,
   };
 });
+
+// Global environment variables mock
+process.env.EXPO_PUBLIC_SUPABASE_URL = 'https://fake-supabase-url.supabase.co';
+process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY = 'fake-anon-key';
+
+// Mock expo-haptics
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: {
+    Light: 'light',
+    Medium: 'medium',
+    Heavy: 'heavy',
+  },
+  NotificationFeedbackType: {
+    Success: 'success',
+    Warning: 'warning',
+    Error: 'error',
+  },
+}));
+
+// Mock expo-constants
+jest.mock('expo-constants', () => ({
+  default: {
+    appOwnership: 'standalone',
+    expoConfig: {
+      hostUri: 'localhost:8081',
+    },
+  },
+  appOwnership: 'standalone',
+  expoConfig: {
+    hostUri: 'localhost:8081',
+  },
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => {
+  let cache = {};
+  return {
+    default: {
+      getItem: jest.fn((key) => Promise.resolve(cache[key] || null)),
+      setItem: jest.fn((key, value) => {
+        cache[key] = value.toString();
+        return Promise.resolve(null);
+      }),
+      removeItem: jest.fn((key) => {
+        delete cache[key];
+        return Promise.resolve(null);
+      }),
+      clear: jest.fn(() => {
+        cache = {};
+        return Promise.resolve(null);
+      }),
+    },
+    getItem: jest.fn((key) => Promise.resolve(cache[key] || null)),
+    setItem: jest.fn((key, value) => {
+      cache[key] = value.toString();
+      return Promise.resolve(null);
+    }),
+    removeItem: jest.fn((key) => {
+      delete cache[key];
+      return Promise.resolve(null);
+    }),
+    clear: jest.fn(() => {
+      cache = {};
+      return Promise.resolve(null);
+    }),
+  };
+});
+
+// Mock expo-iap
+jest.mock('expo-iap', () => ({
+  initConnection: jest.fn(() => Promise.resolve(true)),
+  endConnection: jest.fn(() => Promise.resolve(true)),
+  getAvailablePurchases: jest.fn(() => Promise.resolve([])),
+  requestPurchase: jest.fn(() => Promise.resolve()),
+  finishTransaction: jest.fn(() => Promise.resolve()),
+  purchaseUpdatedListener: jest.fn(() => ({ remove: jest.fn() })),
+  purchaseErrorListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
+
+// Mock expo-router
+jest.mock('expo-router', () => ({
+  router: {
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  },
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  }),
+  useLocalSearchParams: jest.fn(() => ({ success: undefined })),
+  Link: 'Link',
+}));
+
+// Mock expo-linear-gradient
+jest.mock('expo-linear-gradient', () => {
+  const React = require('react');
+  return {
+    LinearGradient: (props) => React.createElement('LinearGradient', props, props.children),
+  };
+});
+
+// Mock supabase-js
+jest.mock('@supabase/supabase-js', () => {
+  const mockAuth = {
+    signInWithPassword: jest.fn(() => Promise.resolve({ data: { user: {} }, error: null })),
+    signUp: jest.fn(() => Promise.resolve({ data: { user: {} }, error: null })),
+    getSession: jest.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+    onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+  };
+  const mockFrom = jest.fn(() => ({
+    select: jest.fn(() => ({
+      maybeSingle: jest.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+  }));
+  return {
+    createClient: jest.fn(() => ({
+      auth: mockAuth,
+      from: mockFrom,
+    })),
+  };
+});
+
