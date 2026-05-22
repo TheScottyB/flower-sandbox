@@ -106,7 +106,7 @@ Create the webhook in the [Stripe Dashboard](https://dashboard.stripe.com/webhoo
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 
-Detailed payment operations live in [STRIPE_LIVE_MODE_SETUP.md](./STRIPE_LIVE_MODE_SETUP.md).
+Detailed payment operations live in [docs/stripe-live-mode.md](./docs/stripe-live-mode.md).
 
 ## Build And Release
 
