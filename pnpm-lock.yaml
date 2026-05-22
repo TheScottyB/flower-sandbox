@@ -111,9 +111,6 @@ importers:
       '@babel/core':
         specifier: ^7.26.10
         version: 7.29.0
-      '@thescottyb/eas-app-store-kit':
-        specifier: git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1
-        version: git+https://git@github.com:TheScottyB/eas-app-store-kit.git#5f115af0a90c903ae0d957ba63e204196f56b15b
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -1302,12 +1299,6 @@ packages:
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
-
-  '@thescottyb/eas-app-store-kit@git+https://git@github.com:TheScottyB/eas-app-store-kit.git#5f115af0a90c903ae0d957ba63e204196f56b15b':
-    resolution: {commit: 5f115af0a90c903ae0d957ba63e204196f56b15b, repo: git@github.com:TheScottyB/eas-app-store-kit.git, type: git}
-    version: 0.1.1
-    engines: {node: '>=22.13.0'}
-    hasBin: true
 
   '@tootallnate/once@2.0.1':
     resolution: {integrity: sha512-HqmEUIGRJ5fSXchkVgR5F7qn48bDBzv0kWj/Kfu5e6uci4UlEeng4331LnBkWffb++Ei3FOVLxo8JJWMFBDMeQ==}
@@ -5529,7 +5520,9 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 
@@ -5609,8 +5602,6 @@ snapshots:
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
     dependencies:
       '@testing-library/dom': 10.4.1
-
-  '@thescottyb/eas-app-store-kit@git+https://git@github.com:TheScottyB/eas-app-store-kit.git#5f115af0a90c903ae0d957ba63e204196f56b15b': {}
 
   '@tootallnate/once@2.0.1': {}
 

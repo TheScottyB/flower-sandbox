@@ -19,8 +19,8 @@
     "build:production": "eas build --profile production --platform ios",
     "build:ios:workflow": "eas workflow:run build-ios-production.yml",
     "submit:ios": "eas submit --platform ios --profile production",
-    "app-store:release": "app-store-kit submit",
-    "app-store:submit-review": "app-store-kit submit --resume",
+    "app-store:release": "pnpm dlx git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1 submit",
+    "app-store:submit-review": "pnpm dlx git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1 submit --resume",
     "update:preview": "eas update --branch preview",
     "update:production": "eas update --branch production"
   },
@@ -79,7 +79,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
-    "@thescottyb/eas-app-store-kit": "git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
     "@types/react-test-renderer": "^19.1.0",
