@@ -50,3 +50,6 @@ supabase/.temp/
 
 .projects/cache
 .projects/vault
+
+# git worktrees
+.worktrees/
