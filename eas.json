@@ -24,15 +24,6 @@
       "ios": {
         "resourceClass": "m-medium",
         "image": "stable"
-      },
-      "env": {
-        "SUPABASE_PROJECT_ID": "srtlalaecgejgghwwfmk",
-        "EXPO_PUBLIC_SUPABASE_URL": "https://srtlalaecgejgghwwfmk.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydGxhbGFlY2dlamdnaHd3Zm1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MTA1MDMsImV4cCI6MjA5NDk4NjUwM30.QoGJQqw4F1_FdWl0q2HJbWsvQoVV2F8D0a3TstLZnAE",
-        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_live_51RCPcrDesriQyUxdDo8LBloI9DSGR7v7iXghqYWOp5eKKXSZuGwgKnIhn6Xz0q3e350R1tNQpumz3BoaWnTphUzZ006k2xErmg",
-        "EXPO_PUBLIC_IAP_PRODUCT_ID": "com.djscottyb.flowersandbox.premium.monthly",
-        "EXPO_PUBLIC_APP_ENV": "production",
-        "EXPO_PUBLIC_DEBUG_MODE": "false"
       }
     },
     "development-simulator": {
