@@ -19,31 +19,5 @@
       "status": "complete"
     }
   },
-  "resources": {
-    "supabase-plan": {
-      "configuration": {},
-      "createdAt": "2026-05-22T06:09:07.434Z",
-      "lastRevealedAt": "2026-05-22T06:09:07.951Z",
-      "lastStatus": "complete",
-      "name": "supabase-plan",
-      "providerId": "prvdr_61UIXYHdsyF69pZbG52n2",
-      "providerName": "Supabase",
-      "resourceId": "fres_61UjADgBCNzQiMY7G16SLnaESoSQACM6Tx5bTt3zcQLw",
-      "serviceId": "free"
-    },
-    "supabase-project": {
-      "configuration": {
-        "name": "flower-sandbox",
-        "region": "americas"
-      },
-      "createdAt": "2026-05-22T06:09:27.367Z",
-      "lastRevealedAt": "2026-05-22T06:09:27.942Z",
-      "lastStatus": "complete",
-      "name": "supabase-project",
-      "providerId": "prvdr_61UIXYHdsyF69pZbG52n2",
-      "providerName": "Supabase",
-      "resourceId": "fres_61UjAE08tEiqKoKzI16SLnaESoSQACM6Tx5bTt3zc9cm",
-      "serviceId": "project"
-    }
-  }
+  "resources": {}
 }

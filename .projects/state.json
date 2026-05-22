@@ -5,16 +5,5 @@
       "name": "Supabase"
     }
   },
-  "resources": {
-    "supabase-plan": {
-      "name": "supabase-plan",
-      "providerName": "Supabase",
-      "serviceId": "free"
-    },
-    "supabase-project": {
-      "name": "supabase-project",
-      "providerName": "Supabase",
-      "serviceId": "project"
-    }
-  }
+  "resources": {}
 }
