@@ -3,6 +3,9 @@ import { spawn } from 'node:child_process';
 import { createPrivateKey, sign as signJwt } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import process from 'node:process';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
 
 const ASC_BASE_URL = 'https://api.appstoreconnect.apple.com/v1';
 
@@ -452,22 +455,24 @@ async function ensureReviewDetails(client, appStoreVersionId) {
       },
     });
 
-    if (Object.keys(attrs).length === 0) {
-      log(`Existing App Review details found: ${existing.data.id}.`);
+    if (existing.data) {
+      if (Object.keys(attrs).length === 0) {
+        log(`Existing App Review details found: ${existing.data.id}.`);
+        return;
+      }
+
+      log(`Updating App Review details: ${existing.data.id}.`);
+      await client.request('PATCH', `/appStoreReviewDetails/${existing.data.id}`, {
+        body: {
+          data: {
+            type: 'appStoreReviewDetails',
+            id: existing.data.id,
+            attributes: attrs,
+          },
+        },
+      });
       return;
     }
-
-    log(`Updating App Review details: ${existing.data.id}.`);
-    await client.request('PATCH', `/appStoreReviewDetails/${existing.data.id}`, {
-      body: {
-        data: {
-          type: 'appStoreReviewDetails',
-          id: existing.data.id,
-          attributes: attrs,
-        },
-      },
-    });
-    return;
   } catch (error) {
     if (!(error instanceof AppStoreConnectError) || error.status !== 404) throw error;
   }
@@ -755,7 +760,15 @@ function redactSensitive(value) {
 function formatAppleError(payload) {
   if (Array.isArray(payload?.errors)) {
     return payload.errors
-      .map((error) => [error.code, error.title, error.detail].filter(Boolean).join(' - '))
+      .map((error) => {
+        const parts = [error.code, error.title, error.detail];
+        if (error.meta?.associatedErrors) {
+          parts.push(`Associated: ${JSON.stringify(error.meta.associatedErrors)}`);
+        } else if (error.meta) {
+          parts.push(`Meta: ${JSON.stringify(error.meta)}`);
+        }
+        return parts.filter(Boolean).join(' - ');
+      })
       .join('; ');
   }
   // Fallback: redact known-sensitive keys before serializing in case Apple
