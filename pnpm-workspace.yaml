@@ -1,3 +1,9 @@
+# Single-package "workspace" — required so pnpm accepts settings-only usage.
+# Without packages:, EAS iOS (pnpm install --frozen-lockfile) errors with
+# ERR_PNPM_INVALID_WORKSPACE_CONFIGURATION: packages field missing or empty.
+packages:
+  - .
+
 allowBuilds:
   dtrace-provider: false
   msgpackr-extract: true
