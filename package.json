@@ -26,7 +26,7 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/.worktrees/"
+      "<rootDir>/.worktrees/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.worktrees/"
