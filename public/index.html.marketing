@@ -123,11 +123,11 @@
       </div>
       <div class="gallery-wrapper">
         <div class="gallery-item">
-          <img src="/assets/iphone65.png" alt="FlowerSandbox iPhone App Interface" id="img-gallery-iphone">
+          <img src="/marketing-assets/iphone65.png" alt="FlowerSandbox iPhone App Interface" id="img-gallery-iphone">
           <div class="gallery-caption">iPhone 6.7" Experience</div>
         </div>
         <div class="gallery-item">
-          <img src="/assets/ipad129.png" alt="FlowerSandbox iPad App Interface" id="img-gallery-ipad">
+          <img src="/marketing-assets/ipad129.png" alt="FlowerSandbox iPad App Interface" id="img-gallery-ipad">
           <div class="gallery-caption">iPad Pro 12.9" Universal Layout</div>
         </div>
       </div>

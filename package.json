@@ -13,6 +13,8 @@
     "dev:tunnel": "npx expo start --tunnel",
     "dev:web": "npx expo start --web",
     "dev:clear": "npx expo start -c",
+    "build:web": "node scripts/build-web.mjs",
+    "preview:web": "pnpm build:web && node scripts/serve.mjs",
     "build:dev": "eas build --profile development-simulator --platform ios",
     "build:ios": "eas build --platform ios",
     "build:preview": "eas build --profile preview --platform ios",
@@ -39,6 +41,11 @@
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(.pnpm|.deno|react-native|@react-native|@react-native-community|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg))",
+      "/node_modules/react-native-reanimated/plugin/",
+      "/node_modules/@react-native/babel-preset/"
     ]
   },
   "engines": {
@@ -80,6 +87,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
+    "@babel/runtime": "^7.29.2",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
     "@types/react-test-renderer": "^19.1.0",
