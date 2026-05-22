@@ -8,9 +8,10 @@
 ## Commands
 - `pnpm run dev` - Start the development server
 - `pnpm run dev:go` - Start development server with Go optimization
-- `pnpm run test` - Run tests with watch mode
+- `pnpm run test` - Run tests once, passing when no test files exist
+- `pnpm run test:watch` - Run tests with watch mode
 - `pnpm run test -- --testNamePattern="pattern"` - Run single test
-- `pnpm run lint` - Run linting
+- `pnpm run typecheck` - Run TypeScript validation
 
 ## Build & Deployment Commands
 - `pnpm run build:ios` - Build iOS app (default profile)
@@ -34,6 +35,7 @@
 - Project: **FlowerSandbox** — built with Expo SDK 56 and expo-router
 - Supabase for backend, Stripe for payments
 - EAS Workflow automation for builds and deployments
+- Canonical Supabase project: `srtlalaecgejgghwwfmk`
 
 <!-- stripe-projects-cli managed:claude-md:start -->
 look at AGENTS.md for your rules

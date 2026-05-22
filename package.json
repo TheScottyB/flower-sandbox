@@ -5,7 +5,9 @@
   "packageManager": "pnpm@11.2.2",
   "scripts": {
     "start": "npx expo start",
-    "test": "jest --watchAll",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watchAll",
+    "typecheck": "tsc --noEmit",
     "dev": "npx expo start",
     "dev:go": "npx expo start --go",
     "dev:tunnel": "npx expo start --tunnel",

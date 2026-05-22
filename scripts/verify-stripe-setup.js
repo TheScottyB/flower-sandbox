@@ -102,9 +102,9 @@ function checkIdFormat() {
   return allValid;
 }
 
-// Check if we're using test or live mode
+// Check if we're using live product IDs
 function checkLiveMode() {
-  if (stripeConfig.includes('// PRODUCTION CONFIGURATION - LIVE MODE')) {
+  if (stripeConfig.includes('price_1RCQr6DesriQyUxd0aR0MNGG') && stripeConfig.includes('price_1RCQskDesriQyUxdWlqf7eQZ')) {
     console.log(`${colors.green}✅ Configuration set to LIVE mode${colors.reset}`);
     return true;
   } else {
@@ -122,13 +122,17 @@ const isLiveMode = checkLiveMode();
 console.log(`\n${colors.cyan}Verify Stripe Secret Key${colors.reset}`);
 console.log(`${colors.yellow}⚠️ This will not store or transmit your secret key.${colors.reset}`);
 
-rl.question('Enter the first 8 characters of your Stripe secret key: ', (keyPrefix) => {
-  if (keyPrefix.startsWith('sk_live_')) {
-    console.log(`${colors.green}✅ Using a LIVE mode secret key${colors.reset}`);
+rl.question('Enter the visible prefix of your Stripe server key: ', (keyPrefix) => {
+  if (keyPrefix.startsWith('rk_live_')) {
+    console.log(`${colors.green}✅ Using a LIVE mode restricted key${colors.reset}`);
+  } else if (keyPrefix.startsWith('sk_live_')) {
+    console.log(`${colors.yellow}⚠️ Using a LIVE mode secret key. Prefer a restricted key (rk_live_) for Edge Functions.${colors.reset}`);
   } else if (keyPrefix.startsWith('sk_test_')) {
     console.log(`${colors.red}❌ Using a TEST mode secret key. Switch to LIVE mode for production.${colors.reset}`);
+  } else if (keyPrefix.startsWith('rk_test_')) {
+    console.log(`${colors.red}❌ Using a TEST mode restricted key. Switch to LIVE mode for production.${colors.reset}`);
   } else {
-    console.log(`${colors.red}❌ Invalid secret key format. Should start with sk_live_ for live mode.${colors.reset}`);
+    console.log(`${colors.red}❌ Invalid key format. Expected rk_live_ for production Edge Functions.${colors.reset}`);
   }
   
   // Final summary
@@ -140,7 +144,7 @@ rl.question('Enter the first 8 characters of your Stripe secret key: ', (keyPref
   console.log(`Configuration in LIVE mode: ${isLiveMode ? colors.green + '✅ YES' : colors.yellow + '⚠️ MAYBE'}`);
   console.log(`${colors.reset}`);
   
-  if (noPlaceholders && validFormat && isLiveMode && keyPrefix.startsWith('sk_live_')) {
+  if (noPlaceholders && validFormat && isLiveMode && keyPrefix.startsWith('rk_live_')) {
     console.log(`${colors.green}✅ Your Stripe LIVE mode configuration looks good!${colors.reset}`);
   } else {
     console.log(`${colors.yellow}⚠️ Some issues were found with your Stripe configuration.${colors.reset}`);

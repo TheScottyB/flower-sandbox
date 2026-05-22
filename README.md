@@ -1,214 +1,134 @@
 # FlowerSandbox
 
-A React Native / Expo mobile app with Supabase auth and Stripe payments (subscriptions + donations). iOS, Android, and Web.
+FlowerSandbox is an Expo mobile app with Supabase auth and Stripe Checkout payments for a monthly subscription and one-time donations.
 
 ## Stack
 
 | Layer | Technology |
-|---|---|
-| Framework | Expo SDK 56, expo-router (file-based routing) |
-| Language | TypeScript (strict), React 19 |
-| Runtime | React Native 0.85 (New Architecture enabled) |
-| Backend | Supabase (auth, Postgres, Edge Functions) |
-| Payments | Stripe (Checkout Sessions, webhooks) |
-| Package manager | pnpm 11 (`node-linker=hoisted`) |
-| Node | 24.16.0 (pinned via Volta) |
-| Builds / OTA | EAS Build + EAS Update |
+| --- | --- |
+| App | Expo SDK 56, expo-router, React Native 0.85 |
+| Language | TypeScript strict mode |
+| Backend | Supabase Auth, Postgres, Edge Functions |
+| Payments | Stripe Checkout Sessions and signed webhooks |
+| Tooling | pnpm 11, Node 24.16.0 via Volta, EAS Build/Update |
 
-## Features
+## Current Production Resources
 
-- Auth (sign up / sign in) via Supabase
-- Monthly subscription ($1/mo) via Stripe Checkout
-- One-time donation via Stripe Checkout (anonymous)
-- Premium flower planting experience — more flowers, premium colors
-- Haptic feedback, blur views, linear gradients
-- Deep link handling for payment return URLs
+| Resource | Value |
+| --- | --- |
+| Canonical Supabase project | `srtlalaecgejgghwwfmk` (`flower-sandbox`) |
+| Supabase URL | `https://srtlalaecgejgghwwfmk.supabase.co` |
+| Stripe webhook URL | `https://srtlalaecgejgghwwfmk.supabase.co/functions/v1/stripe-webhook` |
+| Stripe webhook ID | `we_1TZnBlDesriQyUxdpD4Vku99` |
+| Subscription price | `price_1RCQr6DesriQyUxd0aR0MNGG` (`$1/month`) |
+| Donation price | `price_1RCQskDesriQyUxdWlqf7eQZ` |
+
+Use `srtlalaecgejgghwwfmk` as the source of truth. A Stripe-Projects-created Supabase project exists separately, but it does not contain the migrated schema, deployed functions, or live Stripe secrets.
 
 ## Local Development
 
-### Prerequisites
-
-- [Volta](https://volta.sh) — pins Node and manages toolchain versions automatically
-- [pnpm](https://pnpm.io) — `npm install -g pnpm` or `volta install pnpm`
-- [Expo Go](https://expo.dev/go) or an iOS/Android simulator
-
-### Setup
-
 ```bash
-git clone https://github.com/TheScottyB/flower-sandbox.git
-cd flower-sandbox
 pnpm install
-```
-
-Copy the env template and fill in your values:
-
-```bash
 cp .env.template .env
+pnpm run dev
 ```
 
-Required `.env` variables:
+Fill `.env` with public app values only. Do not put Stripe secret keys, restricted keys, webhook secrets, or Supabase service-role keys in app env files.
 
-```
-EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
-SUPABASE_PROJECT_ID=<project-ref>
-```
-
-### Running
+Useful commands:
 
 ```bash
-pnpm run dev          # start Metro (scan QR with Expo Go)
+pnpm run dev          # Metro dev server
 pnpm run dev:go       # Expo Go mode
-pnpm run dev:tunnel   # tunnel for physical devices on different networks
-pnpm run dev:clear    # clear Metro cache and restart
+pnpm run dev:tunnel   # Tunnel for physical devices
+pnpm run dev:web      # Web target
+pnpm run typecheck    # TypeScript validation
+pnpm run test         # Jest once
+pnpm run test:watch   # Jest watch mode
 ```
 
-## Project Structure
+## Project Layout
 
-```
-app/                  expo-router file-based routes
-  _layout.tsx         root layout — deep link handler
-  (auth)/             login, signup screens
-  (tabs)/             home, about, subscription tabs
-  donation-success.tsx
-hooks/                useFrameworkReady
-lib/
-  supabase.ts         Supabase client
-src/
-  components/         Flower, FlowerField SVG components
-  hooks/              useStripeProducts
-  stripe-config.ts    live product + price IDs
-  utils/polyfills.ts  URL + stream polyfills
-supabase/
-  functions/          Edge Functions (Deno)
-    stripe-checkout/
-    stripe-checkout-anonymous/
-    stripe-products/
-    stripe-webhook/
-  migrations/         Postgres schema (stripe tables + RLS)
+```text
+app/                  expo-router routes
+lib/supabase.ts       Supabase client
+src/stripe-config.ts  live product and price IDs
+src/hooks/            Stripe product loading
+supabase/functions/   Deno Edge Functions
+supabase/migrations/  Postgres schema and RLS
 ```
 
 ## Supabase
 
-### Database schema
+The migration `supabase/migrations/20250410183514_fierce_frog.sql` creates the Stripe customer, subscription, and order tables plus RLS-protected user views.
 
-The migration at `supabase/migrations/20250410183514_fierce_frog.sql` creates:
-
-- `stripe_customers` — maps Supabase user IDs to Stripe customer IDs
-- `stripe_subscriptions` — subscription state (synced from Stripe webhooks)
-- `stripe_orders` — one-time payment records
-- `stripe_user_subscriptions` view — RLS-filtered view used by the app
-- `stripe_user_orders` view — RLS-filtered view used by the app
-
-### Edge Functions
-
-| Function | Auth required | Description |
-|---|---|---|
+| Function | Auth | Purpose |
+| --- | --- | --- |
 | `stripe-products` | Anon key | Lists active Stripe products and prices |
-| `stripe-checkout` | User JWT | Creates checkout session for authenticated subscription |
-| `stripe-checkout-anonymous` | Anon key | Creates checkout session for anonymous donation |
-| `stripe-webhook` | None (sig verified) | Handles Stripe events; syncs subscription state |
+| `stripe-checkout` | User JWT | Creates authenticated subscription Checkout Sessions |
+| `stripe-checkout-anonymous` | Anon key | Creates donation Checkout Sessions |
+| `stripe-webhook` | Stripe signature | Syncs checkout, payment, and subscription events |
 
-### Deploying Supabase from scratch
+Deploy the current Supabase backend:
 
 ```bash
-# Install CLI
-brew install supabase/tap/supabase
-
-# Authenticate
-supabase login
-
-# Link to project
-supabase link --project-ref <project-ref>
-
-# Apply migrations
-supabase db push
-
-# Deploy all edge functions
-supabase functions deploy stripe-checkout stripe-checkout-anonymous \
-  stripe-products stripe-webhook
-
-# stripe-webhook must skip JWT verification (Stripe has no Supabase token)
-supabase functions deploy stripe-webhook --no-verify-jwt
-
-# Set Stripe secrets in Supabase
-supabase secrets set \
-  STRIPE_SECRET_KEY=rk_live_... \
-  STRIPE_WEBHOOK_SECRET=whsec_...
+supabase db push --project-ref srtlalaecgejgghwwfmk
+supabase functions deploy stripe-products --project-ref srtlalaecgejgghwwfmk
+supabase functions deploy stripe-checkout --project-ref srtlalaecgejgghwwfmk
+supabase functions deploy stripe-checkout-anonymous --project-ref srtlalaecgejgghwwfmk
+supabase functions deploy stripe-webhook --no-verify-jwt --project-ref srtlalaecgejgghwwfmk
 ```
 
-> **Stripe key scope** — Use a restricted API key (`rk_live_...`) with only the permissions the functions need: Checkout Sessions (write), Customers (write), Products (read), Prices (read), Subscriptions (read).
+Set production Edge Function secrets with Supabase secrets, not app env files:
+
+```bash
+supabase secrets set \
+  STRIPE_SECRET_KEY=rk_live_... \
+  STRIPE_WEBHOOK_SECRET=whsec_... \
+  --project-ref srtlalaecgejgghwwfmk
+```
 
 ## Stripe
 
-### Products
+Use a restricted API key (`rk_live_...`) for Edge Functions. The required live permissions are:
 
-| Product | Price ID | Mode |
-|---|---|---|
-| A nice sandbox to play in | `price_1RCQr6DesriQyUxd0aR0MNGG` | subscription ($1/mo) |
-| Donation to the cause | `price_1RCQskDesriQyUxdWlqf7eQZ` | payment (custom amount) |
+- Checkout Sessions: write
+- Customers: write
+- Products: read
+- Prices: read
+- Subscriptions: read
 
-### Webhook
+Create the webhook in the [Stripe Dashboard](https://dashboard.stripe.com/webhooks/create) with these events:
 
-Endpoint: `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`
-
-Events to enable:
 - `checkout.session.completed`
 - `payment_intent.succeeded`
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 
-Create the webhook from the [Stripe Dashboard](https://dashboard.stripe.com/webhooks/create), copy the signing secret, and set `STRIPE_WEBHOOK_SECRET` in Supabase.
+Detailed payment operations live in [STRIPE_LIVE_MODE_SETUP.md](./STRIPE_LIVE_MODE_SETUP.md).
 
-## Builds & Deployment
-
-### iOS
+## Build And Release
 
 ```bash
-pnpm run build:ios             # default profile
-pnpm run build:preview         # ad-hoc (internal testing)
-pnpm run build:production      # App Store
+pnpm run build:ios
+pnpm run build:preview
+pnpm run build:production
+pnpm run update:preview
+pnpm run update:production
 ```
 
-### OTA updates
+See [EAS_WORKFLOWS.md](./EAS_WORKFLOWS.md) for EAS workflow commands.
 
-```bash
-pnpm run update:preview        # push to preview branch
-pnpm run update:production     # push to production branch
-```
+## Automation
 
-### EAS Workflows
+The GitHub Actions workflow at `.github/workflows/deploy-and-update-env.yml` deploys all Edge Functions and updates Supabase secrets from GitHub Actions secrets.
 
-See [EAS_WORKFLOWS.md](./EAS_WORKFLOWS.md) for automated build + submit pipelines.
+Required GitHub secrets:
 
-```bash
-pnpm run build:ios:workflow    # trigger build-ios-production.yml
-pnpm run build:submit:workflow # trigger build-and-submit-ios.yml
-```
-
-## Environment Variables Reference
-
-| Variable | Where set | Description |
-|---|---|---|
-| `EXPO_PUBLIC_SUPABASE_URL` | `.env` | Supabase project URL |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `.env` | Supabase anon (public) key |
-| `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `.env` | Stripe publishable key (`pk_live_...`) |
-| `EXPO_PUBLIC_APP_ENV` | `.env` | `production` or `development` |
-| `SUPABASE_PROJECT_ID` | `.env` / `.env.development` | Supabase project ref |
-| `STRIPE_SECRET_KEY` | Supabase secret | Stripe restricted key for edge functions |
-| `STRIPE_WEBHOOK_SECRET` | Supabase secret | Stripe webhook signing secret |
-
-See `.env.template` for a complete example.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit with co-author: `git commit -m 'feat: description\n\nCo-Authored-By: ...'`
-4. Push and open a Pull Request
-
-## License
-
-MIT — see LICENSE file for details.
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_PROJECT_ID`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_TEST_SECRET_KEY`
+- `STRIPE_TEST_WEBHOOK_SECRET`

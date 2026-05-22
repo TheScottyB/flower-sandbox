@@ -30,20 +30,23 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.local
+.env.development
 .env*.local
-.env.*
+.env.*.local
+!.env.template
 !.env.*.template
 
 # typescript
 *.tsbuildinfo
+
 # Supabase environment variables
 .env.supabase
 .env.supabase.*
 !.env.supabase.template
-.env.development
+
+supabase/.temp/
 
 .projects/cache
 .projects/vault
-.env
-.env.local
-supabase/.temp/

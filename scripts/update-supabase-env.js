@@ -11,9 +11,8 @@
  * - SUPABASE_PROJECT_ID: Your Supabase project ID
  * 
  * Optional environment variables:
- * - STRIPE_SECRET_KEY: Your Stripe secret key
+ * - STRIPE_SECRET_KEY: Your Stripe restricted key
  * - STRIPE_WEBHOOK_SECRET: Your Stripe webhook secret
- * - Other variables you want to set
  */
 
 const { execSync } = require('child_process');
@@ -24,6 +23,12 @@ const readline = require('readline');
 // Configuration
 const ENV_FILE_PATH = path.join(__dirname, '..', '.env.supabase');
 const ENV_TEMPLATE_PATH = path.join(__dirname, '..', '.env.supabase.template');
+const SUPABASE_SECRET_KEYS = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_TEST_SECRET_KEY',
+  'STRIPE_TEST_WEBHOOK_SECRET',
+];
 
 // Create readline interface
 const rl = readline.createInterface({
@@ -57,9 +62,9 @@ function checkSupabaseCLI() {
 /**
  * Check if required environment variables are set
  */
-function checkRequiredVars() {
+function checkRequiredVars(envVars) {
   const required = ['SUPABASE_ACCESS_TOKEN', 'SUPABASE_PROJECT_ID'];
-  const missing = required.filter(v => !process.env[v]);
+  const missing = required.filter(v => !envVars[v]);
   
   if (missing.length > 0) {
     console.error(`${colors.red}Error: Missing required environment variables: ${missing.join(', ')}${colors.reset}`);
@@ -107,14 +112,12 @@ function createEnvTemplate() {
   
   const template = `# Supabase credentials
 SUPABASE_ACCESS_TOKEN=your_access_token
-SUPABASE_PROJECT_ID=your_project_id
+SUPABASE_PROJECT_ID=srtlalaecgejgghwwfmk
 
 # Stripe configuration
-STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_SECRET_KEY=rk_live_your_restricted_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
-# Other environment variables
-# ADD_YOUR_VARIABLES_HERE=value
 `;
   
   fs.writeFileSync(ENV_TEMPLATE_PATH, template);
@@ -125,7 +128,17 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
  * Update Supabase environment variables using the CLI
  */
 async function updateSupabaseEnv(envVars) {
-  const { SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_ID, ...variables } = envVars;
+  const { SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_ID } = envVars;
+  const variables = Object.fromEntries(
+    SUPABASE_SECRET_KEYS
+      .filter((key) => Object.prototype.hasOwnProperty.call(envVars, key))
+      .map((key) => [key, envVars[key]])
+  );
+
+  if (Object.keys(variables).length === 0) {
+    console.log(`${colors.yellow}No supported Supabase secrets found to update.${colors.reset}`);
+    return false;
+  }
   
   // Login to Supabase CLI if needed
   try {
@@ -146,7 +159,7 @@ async function updateSupabaseEnv(envVars) {
   // Get current environment variables
   console.log(`${colors.cyan}Fetching current environment variables...${colors.reset}`);
   try {
-    const currentEnvOutput = execSync(`supabase functions env list --project-ref ${SUPABASE_PROJECT_ID}`, { 
+    const currentEnvOutput = execSync(`supabase secrets list --project-ref ${SUPABASE_PROJECT_ID}`, {
       encoding: 'utf8',
       env: { ...process.env, SUPABASE_ACCESS_TOKEN }
     });
@@ -178,9 +191,14 @@ async function updateSupabaseEnv(envVars) {
             continue;
           }
           
-          execSync(`supabase functions env set ${key}=${value} --project-ref ${SUPABASE_PROJECT_ID}`, {
+          execSync('supabase secrets set --project-ref "$SUPABASE_PROJECT_ID" "$SECRET_ASSIGNMENT"', {
             stdio: 'inherit',
-            env: { ...process.env, SUPABASE_ACCESS_TOKEN }
+            env: {
+              ...process.env,
+              SUPABASE_ACCESS_TOKEN,
+              SUPABASE_PROJECT_ID,
+              SECRET_ASSIGNMENT: `${key}=${value}`,
+            }
           });
           
           console.log(`${colors.green}Successfully set ${key}${colors.reset}`);
@@ -228,7 +246,7 @@ async function main() {
   };
   
   // Check required variables
-  if (!checkRequiredVars()) {
+  if (!checkRequiredVars(envVars)) {
     process.exit(1);
   }
   
