@@ -9,6 +9,7 @@ import { Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 const FLOWER_TYPE_NAMES: FlowerType[] = ['rose', 'tulip', 'daisy', 'sunflower'];
+const MAX_CONCURRENT_BURSTS = 6;
 
 interface FlowerItem {
   id: string;
@@ -94,20 +95,25 @@ export const FlowerField = ({
       color: burstColor,
       type: newFlower.type,
     };
+    const atCap = flowers.length >= maxFlowers;
 
-    if (flowers.length >= maxFlowers) {
+    if (atCap) {
       setFlowers((prev) => [...prev.slice(1), newFlower]);
     } else {
       setFlowers((prev) => [...prev, newFlower]);
     }
 
-    setBursts((prev) => (prev.length >= 6 ? [...prev.slice(1), burst] : [...prev, burst]));
+    setBursts((prev) =>
+      prev.length >= MAX_CONCURRENT_BURSTS ? [...prev.slice(1), burst] : [...prev, burst]
+    );
 
-    if (onAddFlower) {
-      onAddFlower();
-    }
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!atCap) {
+      if (onAddFlower) {
+        onAddFlower();
+      }
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
     }
   }, [flowers, isPremium, maxFlowers, onAddFlower]);
   
