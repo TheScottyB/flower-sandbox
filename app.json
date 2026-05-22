@@ -9,8 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router",
-      "expo-in-app-purchases"
+      "expo-router"
     ],
     "ios": {
       "supportsTablet": true,

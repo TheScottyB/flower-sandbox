@@ -14,7 +14,7 @@
  * RevenueCat) to cryptographically confirm subscription expiry dates.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as InAppPurchases from 'expo-in-app-purchases';
 
@@ -23,6 +23,11 @@ export const IAP_PRODUCT_ID =
   'com.djscottyb.flowersandbox.premium.monthly';
 
 const STORAGE_KEY = '@flowersandbox/iap_subscribed';
+const subscribers = new Set<(value: boolean) => void>();
+
+let connectionPromise: Promise<void> | null = null;
+let purchaseListenerConfigured = false;
+let currentSubscribed = false;
 
 export type IAPState = {
   /** Whether the user currently has an active subscription. */
@@ -38,55 +43,24 @@ export type IAPState = {
 };
 
 export function useIAP(): IAPState {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(currentSubscribed);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const connected = useRef(false);
-
-  // Persist subscription status so the UI is instant on next launch
-  const persistSubscribed = useCallback(async (value: boolean) => {
-    setIsSubscribed(value);
-    await AsyncStorage.setItem(STORAGE_KEY, value ? '1' : '0');
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    subscribers.add(setIsSubscribed);
 
     const init = async () => {
       try {
-        // Load cached status while we hit the store
         const cached = await AsyncStorage.getItem(STORAGE_KEY);
         if (!cancelled && cached !== null) {
-          setIsSubscribed(cached === '1');
+          await persistSubscribed(cached === '1');
         }
 
-        await InAppPurchases.connectAsync();
-        connected.current = true;
+        await connectStore();
 
-        // Listen for purchase completions (new + deferred)
-        InAppPurchases.setPurchaseListener(async ({ responseCode, results }) => {
-          if (responseCode !== InAppPurchases.IAPResponseCode.OK || !results) return;
-
-          for (const purchase of results) {
-            if (purchase.productId === IAP_PRODUCT_ID) {
-              // Acknowledge the transaction so Apple doesn't refund it
-              if (!purchase.acknowledged) {
-                await InAppPurchases.finishTransactionAsync(purchase, false);
-              }
-              if (!cancelled) await persistSubscribed(true);
-            }
-          }
-        });
-
-        // Check purchase history to restore state on fresh installs / reinstalls
-        const { responseCode, results } =
-          await InAppPurchases.getPurchaseHistoryAsync();
-        if (cancelled) return;
-
-        if (responseCode === InAppPurchases.IAPResponseCode.OK && results) {
-          const hasSubscription = results.some((p) => p.productId === IAP_PRODUCT_ID);
-          await persistSubscribed(hasSubscription);
-        }
+        configurePurchaseListener();
       } catch (err: any) {
         if (!cancelled) {
           console.error('[useIAP] init error:', err);
@@ -101,12 +75,9 @@ export function useIAP(): IAPState {
 
     return () => {
       cancelled = true;
-      if (connected.current) {
-        InAppPurchases.disconnectAsync().catch(() => {});
-        connected.current = false;
-      }
+      subscribers.delete(setIsSubscribed);
     };
-  }, [persistSubscribed]);
+  }, []);
 
   const purchaseSubscription = useCallback(async () => {
     setError(null);
@@ -160,4 +131,48 @@ export function useIAP(): IAPState {
   }, [persistSubscribed]);
 
   return { isSubscribed, loading, error, purchaseSubscription, restorePurchases };
+}
+
+async function connectStore() {
+  if (!connectionPromise) {
+    connectionPromise = InAppPurchases.connectAsync().catch((err: any) => {
+      if (String(err?.message ?? '').includes('Already connected')) {
+        return;
+      }
+      connectionPromise = null;
+      throw err;
+    });
+  }
+
+  await connectionPromise;
+}
+
+function configurePurchaseListener() {
+  if (purchaseListenerConfigured) return;
+
+  InAppPurchases.setPurchaseListener(async ({ responseCode, results }) => {
+    if (responseCode !== InAppPurchases.IAPResponseCode.OK || !results) return;
+
+    for (const purchase of results) {
+      const isCompleted =
+        purchase.purchaseState === InAppPurchases.InAppPurchaseState.PURCHASED ||
+        purchase.purchaseState === InAppPurchases.InAppPurchaseState.RESTORED;
+
+      if (purchase.productId === IAP_PRODUCT_ID && isCompleted) {
+        await persistSubscribed(true);
+
+        if (!purchase.acknowledged) {
+          await InAppPurchases.finishTransactionAsync(purchase, false);
+        }
+      }
+    }
+  });
+
+  purchaseListenerConfigured = true;
+}
+
+async function persistSubscribed(value: boolean) {
+  currentSubscribed = value;
+  subscribers.forEach((subscriber) => subscriber(value));
+  await AsyncStorage.setItem(STORAGE_KEY, value ? '1' : '0');
 }

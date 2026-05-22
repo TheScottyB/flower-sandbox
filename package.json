@@ -23,12 +23,22 @@
     "update:production": "eas update --branch production"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/.worktrees/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.worktrees/"
+    ],
+    "watchPathIgnorePatterns": [
+      "<rootDir>/.worktrees/"
+    ]
   },
   "dependencies": {
     "@expo/metro-runtime": "~56.0.11",
     "@expo/vector-icons": "^15.0.2",
-    "@react-native-async-storage/async-storage": "^3.1.0",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@supabase/supabase-js": "^2.39.7",
     "babel-preset-expo": "~56.0.11",
     "expo": "~56.0.3",

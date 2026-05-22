@@ -36,9 +36,9 @@
     },
     "production": {
       "distribution": "store",
-      "image": "latest",
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "image": "latest"
       },
       "env": {
         "SUPABASE_PROJECT_ID": "srtlalaecgejgghwwfmk",
@@ -73,7 +73,7 @@
         "appleId": "beilsco@gmail.com",
         "ascAppId": "6477183822",
         "appleTeamId": "3X872JR6P3",
-      "sku": "FLOWERSANDBOX2024"
+        "sku": "PLAYSANDBOX2024"
       }
     }
   }
