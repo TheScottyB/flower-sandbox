@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  cancelAnimation,
   Easing,
   runOnJS,
   useAnimatedStyle,
@@ -59,15 +60,20 @@ const Particle = ({
   onDone?: () => void;
 }) => {
   const progress = useSharedValue(0);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     progress.value = withTiming(
       1,
       { duration: params.duration, easing: Easing.out(Easing.cubic) },
       (finished) => {
-        if (finished && onDone) runOnJS(onDone)();
+        if (finished && onDoneRef.current) runOnJS(onDoneRef.current)();
       }
     );
+    return () => {
+      cancelAnimation(progress);
+    };
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
