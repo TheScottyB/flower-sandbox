@@ -4,8 +4,8 @@
 - [x] Apple Developer Account (beilsco@gmail.com)
 - [x] Team ID: 3X872JR6P3
 - [x] Bundle ID registered: com.djscottyb.flowersandbox
-- [ ] **App Store Connect app record created** ← current blocker
-- [ ] ascAppId added to eas.json submit block
+- [x] App Store Connect app record created (ID: 6772106139)
+- [x] ascAppId added to eas.json submit block
 
 ## 0. Create the App Store Connect App Record (current blocker)
 1. Go to https://appstoreconnect.apple.com → My Apps → **+**
@@ -15,8 +15,8 @@
    - Primary language: English (U.S.)
    - Bundle ID: com.djscottyb.flowersandbox
    - SKU: FLOWERSANDBOX2026
-3. Save. Copy the numeric App ID from the URL (e.g. `6477183822`).
-4. Add it to `eas.json` under `submit.production.ios.ascAppId`.
+3. ~~Save. Copy the numeric App ID from the URL.~~ **Done** — App ID: 6772106139
+4. ~~Add it to `eas.json` under `submit.production.ios.ascAppId`.~~ **Done**
 5. Create the IAP subscription product:
    - Product ID: `com.djscottyb.flowersandbox.premium.monthly`
    - Type: Auto-Renewable Subscription

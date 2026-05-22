@@ -71,6 +71,7 @@
     "production": {
       "ios": {
         "appleId": "beilsco@gmail.com",
+        "ascAppId": "6772106139",
         "appleTeamId": "3X872JR6P3",
         "sku": "FLOWERSANDBOX2026"
       }
