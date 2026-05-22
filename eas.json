@@ -6,6 +6,7 @@
   "build": {
     "development": {
       "node": "22.13.0",
+      "pnpm": "11.2.2",
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
@@ -15,6 +16,7 @@
     },
     "preview": {
       "node": "22.13.0",
+      "pnpm": "11.2.2",
       "distribution": "internal",
       "ios": {
         "resourceClass": "m-medium"
@@ -22,15 +24,17 @@
     },
     "production": {
       "node": "22.13.0",
+      "pnpm": "11.2.2",
       "distribution": "store",
       "channel": "production",
       "ios": {
         "resourceClass": "m-medium",
-        "image": "stable"
+        "image": "latest"
       }
     },
     "development-simulator": {
       "node": "22.13.0",
+      "pnpm": "11.2.2",
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
@@ -45,7 +49,10 @@
         "appleId": "beilsco@gmail.com",
         "ascAppId": "6772106139",
         "appleTeamId": "3X872JR6P3",
-        "sku": "FLOWERSANDBOX2026"
+        "sku": "FLOWERSANDBOX2026",
+        "ascApiKeyPath": "/Users/scottybe/Downloads/AuthKey_XT32ZS8GHR.p8",
+        "ascApiKeyId": "XT32ZS8GHR",
+        "ascApiKeyIssuerId": "69a6de80-fbba-47e3-e053-5b8c7c11a4d1"
       }
     }
   }
