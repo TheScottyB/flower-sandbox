@@ -55,7 +55,7 @@
 - [x] Minimum iOS: 17.0
 
 ## App Store Connect Setup
-- [x] App ID: 6477183822
+- [x] App ID: 6772106139
 - [x] Apple Team ID: 3X872JR6P3
 - [ ] Age Rating Questionnaire
 - [ ] Content Rights Declaration

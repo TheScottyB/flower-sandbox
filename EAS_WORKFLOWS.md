@@ -11,7 +11,7 @@ eas workflow:run build-ios-production.yml
 ```
 - **Trigger**: Automatic on push to `main` branch
 - **Configuration**: Uses production profile for App Store distribution
-- **App ID**: com.djscottyb.flowersandbox (App Store ID: 6477183822)
+- **App ID**: com.djscottyb.flowersandbox (App Store ID: 6772106139)
 
 ### Android Production Build
 Automatically builds the Android app for production when code is pushed to the main branch.
@@ -62,7 +62,7 @@ eas workflow:run update-production.yml
    - iOS bundle ID: "com.djscottyb.flowersandbox" (explicit)
    - Android package name: "com.djscottyb.flowersandbox"
    - App ID Prefix: "3X872JR6P3" (Team ID)
-   - App Store Connect App ID: "6477183822"
+   - App Store Connect App ID: "6772106139"
    - Apple ID: "beilsco@gmail.com"
 
 3. All workflow files are configured in the `.eas/workflows/` directory
