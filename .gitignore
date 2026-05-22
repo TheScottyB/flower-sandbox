@@ -31,7 +31,6 @@ yarn-error.*
 
 # local env files
 .env*.local
-.env
 .env.*
 !.env.*.template
 
@@ -42,3 +41,9 @@ yarn-error.*
 .env.supabase.*
 !.env.supabase.template
 .env.development
+
+.projects/cache
+.projects/vault
+.env
+.env.local
+supabase/.temp/

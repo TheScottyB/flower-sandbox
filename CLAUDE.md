@@ -34,3 +34,7 @@
 - Project: **FlowerSandbox** — built with Expo SDK 56 and expo-router
 - Supabase for backend, Stripe for payments
 - EAS Workflow automation for builds and deployments
+
+<!-- stripe-projects-cli managed:claude-md:start -->
+look at AGENTS.md for your rules
+<!-- stripe-projects-cli managed:claude-md:end -->
