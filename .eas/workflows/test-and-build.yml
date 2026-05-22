@@ -9,8 +9,10 @@ jobs:
     name: Run Tests
     type: test
     script: |
-      npm ci
-      npm test
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm run typecheck
+      pnpm run test
   
   build_ios:
     name: Build iOS

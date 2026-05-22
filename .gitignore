@@ -53,3 +53,7 @@ supabase/.temp/
 
 # git worktrees
 .worktrees/
+
+# Local tooling artifacts
+.playwright-mcp/
+.claude/

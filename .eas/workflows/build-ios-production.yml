@@ -16,5 +16,6 @@ jobs:
       # App configured with:
       # - Name: "FlowerSandbox"
       # - Bundle ID: "com.djscottyb.flowersandbox"
-      # - Apple App Store ID: "6477183822"
       # - Apple Team ID: "3X872JR6P3"
+      # - App Store Connect app record: pending
+      # - Submission is intentionally disabled until the ASC app exists.
