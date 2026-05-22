@@ -22,7 +22,9 @@ Options:
   --poll-interval-seconds=<n>    Poll interval while waiting for processing. Default: 60.
   --release-type=<type>          New App Store version release type. Default: AFTER_APPROVAL.
   --allow-first-iap-unattached   Bypass the first-IAP browser-step guard.
-  --dry-run                      Print mutating API calls and EAS command without executing them.
+  --dry-run                      Print mutating API calls (POST/PATCH/DELETE) and the EAS command
+                                 without executing them. GETs still hit the live App Store Connect
+                                 API to read real state, so valid credentials are still required.
   --help                         Show this help.
 
 Required for App Store Connect API calls:
@@ -94,27 +96,53 @@ class AppStoreConnectClient {
       };
     }
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${this.token()}`,
-        'Content-Type': 'application/json',
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    // Retry transient 5xx + network errors with exponential backoff. Apple's
+    // API returns sporadic 502/503 under load; a single retry usually clears
+    // it. 4xx are not retried (those are our bug, not Apple's).
+    const MAX_ATTEMPTS = 4;
+    let lastError;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      let response;
+      try {
+        response = await fetch(url, {
+          method,
+          headers: {
+            Authorization: `Bearer ${this.token()}`,
+            'Content-Type': 'application/json',
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+      } catch (err) {
+        // Network-level failure (DNS, ECONNRESET, etc.) — retriable.
+        lastError = err;
+        if (attempt === MAX_ATTEMPTS) throw err;
+        const delay = 500 * 2 ** (attempt - 1) + Math.random() * 250;
+        log(`[retry ${attempt}/${MAX_ATTEMPTS - 1}] ${method} ${path}: ${err.message} (waiting ${Math.round(delay)}ms)`);
+        await sleep(delay);
+        continue;
+      }
 
-    const text = await response.text();
-    const payload = text ? safeJson(text) : {};
+      const text = await response.text();
+      const payload = text ? safeJson(text) : {};
 
-    if (!response.ok) {
-      throw new AppStoreConnectError(
-        `${method} ${path} failed with ${response.status}: ${formatAppleError(payload)}`,
-        response.status,
-        payload,
-      );
+      if (response.ok) return payload;
+
+      // Retry 5xx; surface 4xx immediately.
+      const retriable = response.status >= 500 && attempt < MAX_ATTEMPTS;
+      if (!retriable) {
+        throw new AppStoreConnectError(
+          `${method} ${path} failed with ${response.status}: ${formatAppleError(payload)}`,
+          response.status,
+          payload,
+        );
+      }
+      const delay = 500 * 2 ** (attempt - 1) + Math.random() * 250;
+      log(`[retry ${attempt}/${MAX_ATTEMPTS - 1}] ${method} ${path} → ${response.status} (waiting ${Math.round(delay)}ms)`);
+      await sleep(delay);
     }
 
-    return payload;
+    // Unreachable in practice — the loop either returns or throws.
+    throw lastError ?? new Error(`${method} ${path} exhausted retries`);
   }
 }
 
@@ -265,6 +293,19 @@ function assertFirstIapReady(project, options) {
   );
 }
 
+// States where attaching a new build + (re)submitting for review is sensible.
+// READY_FOR_SALE / PROCESSING_FOR_APP_STORE / IN_REVIEW / etc. are terminal or
+// in-flight — touching the version then would either fail with a cryptic Apple
+// error or silently corrupt a live submission.
+const EDITABLE_APP_STORE_STATES = new Set([
+  'PREPARE_FOR_SUBMISSION',
+  'DEVELOPER_REJECTED',
+  'REJECTED',
+  'METADATA_REJECTED',
+  'INVALID_BINARY',
+  'DEVELOPER_REMOVED_FROM_SALE',
+]);
+
 async function findOrCreateAppStoreVersion(client, project) {
   const response = await client.request('GET', `/apps/${project.appId}/appStoreVersions`, {
     query: {
@@ -277,7 +318,18 @@ async function findOrCreateAppStoreVersion(client, project) {
 
   if (response.data?.length) {
     const version = response.data[0];
-    log(`Found App Store version ${project.versionString}: ${version.id} (${version.attributes?.appVersionState}).`);
+    const state = version.attributes?.appStoreState;
+    if (state && !EDITABLE_APP_STORE_STATES.has(state)) {
+      throw new Error(
+        [
+          `App Store version ${project.versionString} (${version.id}) is in state ${state}.`,
+          'Cannot attach a new build to a version in this state.',
+          'Bump expo.version in app.json to a fresh version string, or move the existing version back to a draftable state in App Store Connect.',
+          `Editable states: ${[...EDITABLE_APP_STORE_STATES].join(', ')}.`,
+        ].join('\n'),
+      );
+    }
+    log(`Found App Store version ${project.versionString}: ${version.id} (${version.attributes?.appVersionState}, state=${state ?? 'unknown'}).`);
     return version;
   }
 
@@ -600,16 +652,36 @@ function run(command, args, { dryRun }) {
   });
 }
 
+// Canonical set of accepted CLI flags. Keep in sync with the HELP constant.
+const KNOWN_FLAGS = new Set([
+  'skip-eas-upload',
+  'skip-review-submit',
+  'skip-local-checks',
+  'version',
+  'app-id',
+  'asc-build-id',
+  'wait-processing-minutes',
+  'poll-interval-seconds',
+  'release-type',
+  'allow-first-iap-unattached',
+  'dry-run',
+  'help',
+]);
+
 function parseFlags(args) {
   const flags = new Map();
   for (const arg of args) {
     if (!arg.startsWith('--')) continue;
     const raw = arg.slice(2);
     const equalsIndex = raw.indexOf('=');
+    const name = equalsIndex === -1 ? raw : raw.slice(0, equalsIndex);
+    if (!KNOWN_FLAGS.has(name)) {
+      throw new Error(`Unknown flag --${name}. Run with --help to see accepted flags.`);
+    }
     if (equalsIndex === -1) {
       flags.set(raw, true);
     } else {
-      flags.set(raw.slice(0, equalsIndex), raw.slice(equalsIndex + 1));
+      flags.set(name, raw.slice(equalsIndex + 1));
     }
   }
   return flags;
@@ -658,13 +730,37 @@ function safeJson(text) {
   }
 }
 
+// Keys whose values are redacted from any error output. Apple sometimes
+// echoes the request body in validation errors, and we POST these as part
+// of review-detail attributes (App Review demo account credentials).
+const REDACTED_KEYS = new Set([
+  'demoAccountPassword',
+  'demoAccountName',
+  'contactEmail',
+  'contactPhone',
+]);
+
+function redactSensitive(value) {
+  if (Array.isArray(value)) return value.map(redactSensitive);
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      out[k] = REDACTED_KEYS.has(k) && v != null && v !== '' ? '[REDACTED]' : redactSensitive(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 function formatAppleError(payload) {
   if (Array.isArray(payload?.errors)) {
     return payload.errors
       .map((error) => [error.code, error.title, error.detail].filter(Boolean).join(' - '))
       .join('; ');
   }
-  return payload?.raw ?? JSON.stringify(payload);
+  // Fallback: redact known-sensitive keys before serializing in case Apple
+  // echoed our request body.
+  return payload?.raw ?? JSON.stringify(redactSensitive(payload));
 }
 
 function base64UrlJson(value) {
