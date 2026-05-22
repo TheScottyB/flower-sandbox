@@ -7,10 +7,17 @@
     "icon": "./assets/images/icon.png",
     "scheme": "flowersandbox",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "plugins": [
       "expo-router",
-      "expo-iap"
+      "expo-iap",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
@@ -46,11 +53,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "updates": {
       "enabled": true,
       "url": "https://u.expo.dev/1539cc0b-c507-4fac-8383-979f12f5bdd8"
