@@ -6,9 +6,8 @@
 // URL and URLSearchParams polyfills for React Native
 import 'react-native-url-polyfill/auto';
 
-// Required for Supabase in React Native
+// Web Streams polyfill for Supabase in React Native
 import 'web-streams-polyfill/ponyfill/es6';
-import 'stream-browserify';
 
 // Log that polyfills have been initialized
 console.log('Polyfills initialized');
