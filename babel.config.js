@@ -2,14 +2,7 @@ module.exports = function (api) {
   api.cache(true);
   return {
     presets: ['babel-preset-expo'],
-    plugins: [
-      // Keep the module-resolver for path aliasing which is useful even in native-only apps
-      ['module-resolver', {
-        root: ['.'],
-        alias: {
-          '@': './',
-        },
-      }],
-    ],
+    // Path aliases (@/*) are resolved by Metro via tsconfigPaths
+    // (default in Expo SDK 50+). No babel-plugin-module-resolver needed.
   };
 };
