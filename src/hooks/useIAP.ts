@@ -1,9 +1,14 @@
 /**
- * useIAP — StoreKit subscription hook (iOS only)
+ * useIAP — StoreKit subscription hook
  *
  * Manages the full lifecycle of a single auto-renewable subscription via
  * expo-iap (OpenIAP-compliant, Expo SDK 56 compatible).
- * Call this hook only when Platform.OS === 'ios'.
+ *
+ * Always callable from any component on any platform. On non-iOS platforms
+ * the hook returns a stable "not subscribed, not loading, no error" stub
+ * so callers don't need a `Platform.OS === 'ios' ? useIAP() : null` guard
+ * (which would violate the rules of hooks if the condition ever became
+ * non-constant).
  *
  * Product ID: com.djscottyb.flowersandbox.premium.monthly
  * Sub group:  FlowerSandbox Premium
@@ -13,6 +18,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   initConnection,
@@ -43,15 +49,19 @@ export type IAPState = {
   restorePurchases: () => Promise<void>;
 };
 
+const IS_IOS = Platform.OS === 'ios';
+
 export function useIAP(): IAPState {
+  // Initial loading is true only on iOS — non-iOS has nothing to load.
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(IS_IOS);
   const [error, setError] = useState<string | null>(null);
   // Stable ref so the purchase listener closure always calls the latest setter
   const setSubscribedRef = useRef(setIsSubscribed);
   setSubscribedRef.current = setIsSubscribed;
 
   useEffect(() => {
+    if (!IS_IOS) return; // non-iOS: nothing to subscribe to
     let cancelled = false;
 
     const persist = async (value: boolean) => {
@@ -109,6 +119,7 @@ export function useIAP(): IAPState {
   }, []);
 
   const purchaseSubscription = useCallback(async () => {
+    if (!IS_IOS) return;
     setError(null);
     try {
       await requestPurchase({
@@ -128,6 +139,7 @@ export function useIAP(): IAPState {
   }, []);
 
   const restorePurchases = useCallback(async () => {
+    if (!IS_IOS) return;
     setError(null);
     try {
       const purchases = await getAvailablePurchases();

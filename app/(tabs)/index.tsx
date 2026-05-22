@@ -17,10 +17,10 @@ export default function HomeScreen() {
   const [stripeIsPremium, setStripeIsPremium] = useState(false);
   const [flowerCount, setFlowerCount] = useState(0);
 
-  // iOS: read premium status from StoreKit
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const iap = Platform.OS === 'ios' ? useIAP() : null;
-  const isPremium = Platform.OS === 'ios' ? (iap?.isSubscribed ?? false) : stripeIsPremium;
+  // iOS: read premium status from StoreKit. useIAP no-ops on non-iOS,
+  // so it's always safe to call unconditionally.
+  const iap = useIAP();
+  const isPremium = Platform.OS === 'ios' ? iap.isSubscribed : stripeIsPremium;
 
   useEffect(() => {
     // Check if user is signed in

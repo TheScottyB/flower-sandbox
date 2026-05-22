@@ -20,8 +20,9 @@ export default function SubscriptionScreen() {
   const { success } = useLocalSearchParams<{ success?: string }>();
 
   // ── iOS: StoreKit ──────────────────────────────────────────────────────────
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const iap = Platform.OS === 'ios' ? useIAP() : null;
+  // useIAP no-ops on non-iOS (returns a stub), so it's safe to call
+  // unconditionally without violating the rules of hooks.
+  const iap = useIAP();
 
   // ── Web/Android: Stripe ───────────────────────────────────────────────────
   const [stripeLoading, setStripeLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function SubscriptionScreen() {
   // ── Unified subscription status ───────────────────────────────────────────
   const isSubscribed =
     Platform.OS === 'ios'
-      ? (iap?.isSubscribed ?? false)
+      ? iap.isSubscribed
       : subscription?.subscription_status === 'active';
 
   const currentPlan = isSubscribed ? sandbox.name : 'No active subscription';
@@ -63,8 +64,8 @@ export default function SubscriptionScreen() {
 
   // Surface IAP errors in the shared error state
   useEffect(() => {
-    if (iap?.error) setError(iap.error);
-  }, [iap?.error]);
+    if (iap.error) setError(iap.error);
+  }, [iap.error]);
 
   const fetchStripeSubscription = async () => {
     setLoadingInfo(true);
@@ -141,17 +142,17 @@ export default function SubscriptionScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     if (Platform.OS === 'ios') {
-      iap?.purchaseSubscription();
+      iap.purchaseSubscription();
     } else {
       handleStripeSubscribe();
     }
   };
 
   const handleRestore = () => {
-    iap?.restorePurchases();
+    iap.restorePurchases();
   };
 
-  const loading = Platform.OS === 'ios' ? (iap?.loading ?? true) : stripeLoading;
+  const loading = Platform.OS === 'ios' ? iap.loading : stripeLoading;
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -180,7 +181,7 @@ export default function SubscriptionScreen() {
               <Text style={styles.title}>Premium Subscription</Text>
             </View>
             
-            {(loadingInfo || (Platform.OS === 'ios' && iap?.loading)) ? (
+            {(loadingInfo || (Platform.OS === 'ios' && iap.loading)) ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#007AFF" />
                 <Text style={styles.loadingText}>Loading subscription information...</Text>
