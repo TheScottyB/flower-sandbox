@@ -15,7 +15,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.djscottyb.flowersandbox",
-      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
@@ -25,11 +24,7 @@
             ]
           }
         ],
-        "UIRequiresFullScreen": true,
-        "LSApplicationQueriesSchemes": [
-          "https",
-          "http"
-        ]
+        "UIRequiresFullScreen": true
       },
       "requireFullScreen": true,
       "associatedDomains": []
