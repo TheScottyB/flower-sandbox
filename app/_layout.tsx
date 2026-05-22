@@ -4,12 +4,10 @@ import '@/src/utils/polyfills';
 import { useEffect } from 'react';
 import { Stack, useSegments, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
 export default function RootLayout() {
-  useFrameworkReady();
   const segments = useSegments();
 
   // Handle deep links including payment returns
