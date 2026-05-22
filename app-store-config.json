@@ -1,0 +1,51 @@
+{
+  "appId": "6772106139",
+  "versionString": "1.0.0",
+  "primaryCategory": "LIFESTYLE",
+  "copyright": "© 2026 Scott Beilfuss",
+  "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+  "localization": {
+    "locale": "en-US",
+    "subtitle": "Peaceful Garden Sandbox",
+    "description": "FlowerSandbox is a peaceful, interactive digital garden where you can plant beautiful flowers, customize your garden layout, and relax with serene animations. Nurture your virtual sanctuary, experiment with colorful petals, and enjoy a calming, distraction-free environment designed for mindfulness and relaxation.",
+    "keywords": "garden,flowers,relax,nature,grow,plants,mindfulness,virtual garden,sandbox,calm",
+    "supportUrl": "https://flowersandbox.com/support",
+    "marketingUrl": "https://flowersandbox.com",
+    "privacyPolicyUrl": "https://flowersandbox.com/privacy"
+  },
+  "reviewDetails": {
+    "contactFirstName": "Scott",
+    "contactLastName": "Beilfuss",
+    "contactPhone": "+18473099047",
+    "contactEmail": "beilsco@gmail.com",
+    "demoAccountRequired": false
+  },
+  "ageRatingDeclarations": {
+    "advertising": false,
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "gunsOrOtherWeapons": "NONE",
+    "healthOrWellnessTopics": false,
+    "lootBox": false,
+    "medicalOrTreatmentInformation": "NONE",
+    "messagingAndChat": false,
+    "parentalControls": false,
+    "profanityOrCrudeHumor": "NONE",
+    "ageAssurance": false,
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "horrorOrFearThemes": "NONE",
+    "matureOrSuggestiveThemes": "NONE",
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": false,
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "violenceRealistic": "NONE"
+  },
+  "screenshots": [
+    { "displayType": "APP_IPHONE_65", "filePath": "assets/iphone65.png" },
+    { "displayType": "APP_IPAD_PRO_3GEN_129", "filePath": "assets/ipad129.png" }
+  ]
+}
