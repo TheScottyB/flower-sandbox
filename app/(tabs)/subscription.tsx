@@ -55,6 +55,13 @@ export default function SubscriptionScreen() {
   const fetchSubscription = async () => {
     setLoadingInfo(true);
     try {
+      // Only query if authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setSubscription(null);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('stripe_user_subscriptions')
         .select('subscription_status, price_id, current_period_end')
@@ -67,7 +74,11 @@ export default function SubscriptionScreen() {
       setSubscription(data);
     } catch (err) {
       console.error('Error fetching subscription:', err);
-      setError('Failed to load subscription status');
+      // Don't surface network errors to unauthenticated users
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      if (session) {
+        setError('Failed to load subscription status. Please try again.');
+      }
     } finally {
       setLoadingInfo(false);
     }
