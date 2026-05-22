@@ -120,7 +120,7 @@ pnpm run update:preview
 pnpm run update:production
 ```
 
-See [EAS_WORKFLOWS.md](./EAS_WORKFLOWS.md) for EAS workflow commands and [APP_STORE_AUTOMATION.md](./APP_STORE_AUTOMATION.md) for scripted App Review submission.
+See [docs/eas-workflows.md](./docs/eas-workflows.md) for non-submission workflows and [docs/release-to-app-store.md](./docs/release-to-app-store.md) for the full App Store submission guide.
 
 ## Automation
 
