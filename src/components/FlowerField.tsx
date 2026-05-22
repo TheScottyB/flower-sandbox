@@ -2,12 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from './Flower';
-import { FlowerType } from './flowerData';
+import { PetalBurst } from './PetalBurst';
+import { flowerTypes, FlowerType } from './flowerData';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
-const flowerTypes: FlowerType[] = ['rose', 'tulip', 'daisy', 'sunflower'];
+const FLOWER_TYPE_NAMES: FlowerType[] = ['rose', 'tulip', 'daisy', 'sunflower'];
 
 interface FlowerItem {
   id: string;
@@ -18,6 +19,14 @@ interface FlowerItem {
     y: number;
   };
   color?: string;
+}
+
+interface BurstItem {
+  id: string;
+  x: number;
+  y: number;
+  color: string;
+  type: FlowerType;
 }
 
 interface FlowerFieldProps {
@@ -39,7 +48,8 @@ export const FlowerField = ({
 }: FlowerFieldProps) => {
   // State to track flowers
   const [flowers, setFlowers] = useState<FlowerItem[]>([]);
-  
+  const [bursts, setBursts] = useState<BurstItem[]>([]);
+
   // Generate initial flowers
   useEffect(() => {
     generateInitialFlowers();
@@ -64,7 +74,7 @@ export const FlowerField = ({
     
     return {
       id: Math.random().toString(),
-      type: flowerTypes[Math.floor(Math.random() * flowerTypes.length)],
+      type: FLOWER_TYPE_NAMES[Math.floor(Math.random() * FLOWER_TYPE_NAMES.length)],
       size: Math.random() * 30 + 45, // Size between 45-75
       position: { x: posX, y: posY },
       color: isPremium 
@@ -75,21 +85,29 @@ export const FlowerField = ({
   
   // Add a new flower when the user taps the screen
   const addFlower = useCallback((x: number, y: number) => {
+    const newFlower = createRandomFlower(x, y);
+    const burstColor = newFlower.color ?? flowerTypes[newFlower.type].defaultColor;
+    const burst: BurstItem = {
+      id: `burst-${newFlower.id}`,
+      x,
+      y,
+      color: burstColor,
+      type: newFlower.type,
+    };
+
     if (flowers.length >= maxFlowers) {
-      // Optional: Remove the oldest flower to make room for a new one
-      setFlowers(prev => [...prev.slice(1), createRandomFlower(x, y)]);
+      setFlowers((prev) => [...prev.slice(1), newFlower]);
     } else {
-      setFlowers(prev => [...prev, createRandomFlower(x, y)]);
-      
-      // Trigger the callback if provided
-      if (onAddFlower) {
-        onAddFlower();
-      }
-      
-      // Add haptic feedback for real devices
-      if (Platform.OS !== 'web') {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
+      setFlowers((prev) => [...prev, newFlower]);
+    }
+
+    setBursts((prev) => (prev.length >= 6 ? [...prev.slice(1), burst] : [...prev, burst]));
+
+    if (onAddFlower) {
+      onAddFlower();
+    }
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
   }, [flowers, isPremium, maxFlowers, onAddFlower]);
   
@@ -119,6 +137,17 @@ export const FlowerField = ({
               // Make the flower "bloom" when tapped
               // This is handled inside the Flower component
             }}
+          />
+        ))}
+
+        {bursts.map((burst) => (
+          <PetalBurst
+            key={burst.id}
+            x={burst.x}
+            y={burst.y}
+            color={burst.color}
+            type={burst.type}
+            onComplete={() => setBursts((prev) => prev.filter((b) => b.id !== burst.id))}
           />
         ))}
       </View>
