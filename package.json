@@ -19,8 +19,8 @@
     "build:production": "eas build --profile production --platform ios",
     "build:ios:workflow": "eas workflow:run build-ios-production.yml",
     "submit:ios": "eas submit --platform ios --profile production",
-    "app-store:release": "node scripts/app-store-submit-review.mjs",
-    "app-store:submit-review": "node scripts/app-store-submit-review.mjs --skip-eas-upload --skip-local-checks",
+    "app-store:release": "app-store-kit submit",
+    "app-store:submit-review": "app-store-kit submit --resume",
     "update:preview": "eas update --branch preview",
     "update:production": "eas update --branch production"
   },
@@ -79,6 +79,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
+    "@thescottyb/eas-app-store-kit": "link:../eas-app-store-kit",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
     "@types/react-test-renderer": "^19.1.0",
