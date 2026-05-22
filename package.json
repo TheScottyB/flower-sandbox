@@ -28,7 +28,8 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "<rootDir>/.worktrees/"
+      "<rootDir>/.worktrees/",
+      "<rootDir>/supabase/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.worktrees/"

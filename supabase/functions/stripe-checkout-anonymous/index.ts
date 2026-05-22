@@ -1,8 +1,8 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecret);
+export const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_mock';
+export const stripe = new Stripe(stripeSecret);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,7 +20,7 @@ function corsResponse(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req) => {
+export async function handler(req: Request): Promise<Response> {
   try {
     // Handle CORS preflight requests
     if (req.method === 'OPTIONS') {
@@ -102,4 +102,8 @@ Deno.serve(async (req) => {
       500,
     );
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from '@/src/components/Flower';
 import { useIAP } from '@/src/hooks/useIAP';
+import { BlurView } from 'expo-blur';
 
 type SubscriptionStatus = {
   subscription_status: string;
@@ -18,10 +19,10 @@ type SubscriptionStatus = {
 export default function SubscriptionScreen() {
   const router = useRouter();
   const { success } = useLocalSearchParams<{ success?: string }>();
+  const { width, height } = useWindowDimensions();
+  const isWide = width >= 768;
 
   // ── iOS: StoreKit ──────────────────────────────────────────────────────────
-  // useIAP no-ops on non-iOS (returns a stub), so it's safe to call
-  // unconditionally without violating the rules of hooks.
   const iap = useIAP();
 
   // ── Web/Android: Stripe ───────────────────────────────────────────────────
@@ -41,6 +42,20 @@ export default function SubscriptionScreen() {
 
   const currentPlan = isSubscribed ? sandbox.name : 'No active subscription';
 
+  const flowerPositions = isWide
+    ? [
+        { type: 'sunflower' as const, size: 85, position: { x: width * 0.08, y: 120 } },
+        { type: 'rose' as const, size: 75, position: { x: width * 0.88, y: 180 } },
+        { type: 'daisy' as const, size: 65, position: { x: width * 0.84, y: 420 } },
+        { type: 'tulip' as const, size: 70, position: { x: width * 0.12, y: 350 } },
+      ]
+    : [
+        { type: 'sunflower' as const, size: 60, position: { x: 30, y: 60 } },
+        { type: 'rose' as const, size: 55, position: { x: width - 60, y: 100 } },
+        { type: 'daisy' as const, size: 45, position: { x: width - 40, y: 220 } },
+        { type: 'tulip' as const, size: 50, position: { x: 35, y: 180 } },
+      ];
+
   // ── Stripe helpers (web / Android only) ───────────────────────────────────
   const getBaseUrl = () => {
     if (Platform.OS === 'web') return window.location.origin;
@@ -52,7 +67,7 @@ export default function SubscriptionScreen() {
   };
 
   useEffect(() => {
-    if (Platform.OS === 'ios') return; // IAP hook handles iOS
+    if (Platform.OS === 'ios') return;
 
     if (success === 'true') {
       setSuccessMessage('Your subscription was successfully activated!');
@@ -167,126 +182,132 @@ export default function SubscriptionScreen() {
       />
       
       {/* Decorative flowers */}
-      <View style={styles.decorativeFlowers}>
-        <Flower type="sunflower" size={80} position={{ x: 50, y: 80 }} />
-        <Flower type="rose" size={70} position={{ x: 320, y: 150 }} />
-        <Flower type="daisy" size={60} position={{ x: 280, y: 70 }} />
-        <Flower type="tulip" size={65} position={{ x: 120, y: 170 }} />
+      <View style={styles.decorativeFlowers} pointerEvents="none">
+        {flowerPositions.map((flower, idx) => (
+          <Flower
+            key={idx}
+            type={flower.type}
+            size={flower.size}
+            position={flower.position}
+          />
+        ))}
       </View>
       
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.container}>
           <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.title}>Premium Subscription</Text>
-            </View>
-            
-            {(loadingInfo || (Platform.OS === 'ios' && iap.loading)) ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007AFF" />
-                <Text style={styles.loadingText}>Loading subscription information...</Text>
+            <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.title}>Premium Subscription</Text>
               </View>
-            ) : (
-              <>
-                {successMessage && (
-                  <View style={styles.successContainer}>
-                    <Text style={styles.successText}>{successMessage}</Text>
-                  </View>
-                )}
-                
-                {error && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{error}</Text>
-                  </View>
-                )}
-                
-                <View style={styles.statusBanner}>
-                  <Text style={styles.statusLabel}>Status:</Text>
-                  <Text style={[styles.statusValue, isSubscribed ? styles.activeText : styles.inactiveText]}>
-                    {isSubscribed ? 'Active' : 'Not Subscribed'}
-                  </Text>
+              
+              {(loadingInfo || (Platform.OS === 'ios' && iap.loading)) ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#007AFF" />
+                  <Text style={styles.loadingText}>Loading subscription information...</Text>
                 </View>
-                
-                <View style={styles.planCard}>
-                  <View style={styles.flowerIconContainer}>
-                    <Flower type="sunflower" size={50} />
+              ) : (
+                <>
+                  {successMessage && (
+                    <View style={styles.successContainer}>
+                      <Text style={styles.successText}>{successMessage}</Text>
+                    </View>
+                  )}
+                  
+                  {error && (
+                    <View style={styles.errorContainer}>
+                      <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                  )}
+                  
+                  <View style={styles.statusBanner}>
+                    <Text style={styles.statusLabel}>Status:</Text>
+                    <Text style={[styles.statusValue, isSubscribed ? styles.activeText : styles.inactiveText]}>
+                      {isSubscribed ? 'Active' : 'Not Subscribed'}
+                    </Text>
                   </View>
                   
-                  <View style={styles.planHeaderContainer}>
-                    <Text style={styles.planName}>{sandbox.name}</Text>
-                    <View style={styles.priceBadge}>
-                      <Text style={styles.priceBadgeText}>{sandbox.price}</Text>
+                  <View style={styles.planCard}>
+                    <View style={styles.flowerIconContainer}>
+                      <Flower type="sunflower" size={50} />
                     </View>
-                  </View>
-                  
-                  <Text style={styles.planDescription}>{sandbox.description}</Text>
-                  
-                  <View style={styles.benefitsList}>
-                    <View style={styles.benefitItem}>
-                      <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Premium Flower Colors</Text>
-                    </View>
-                    <View style={styles.benefitItem}>
-                      <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Plant Up to 50 Flowers</Text>
-                    </View>
-                    <View style={styles.benefitItem}>
-                      <Text style={styles.benefitCheck}>✓</Text>
-                      <Text style={styles.benefitText}>Special Flower Varieties</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {isSubscribed && (
-                  <View style={styles.statusCard}>
-                    <Text style={styles.statusTitle}>Subscription Details</Text>
                     
-                    <View style={styles.infoItem}>
-                      <Text style={styles.label}>Current Plan:</Text>
-                      <Text style={styles.value}>
-                        <Text style={styles.activeStatus}>{currentPlan}</Text>
-                      </Text>
+                    <View style={styles.planHeaderContainer}>
+                      <Text style={styles.planName}>{sandbox.name}</Text>
+                      <View style={styles.priceBadge}>
+                        <Text style={styles.priceBadgeText}>{sandbox.price}</Text>
+                      </View>
                     </View>
+                    
+                    <Text style={styles.planDescription}>{sandbox.description}</Text>
+                    
+                    <View style={styles.benefitsList}>
+                      <View style={styles.benefitItem}>
+                        <Text style={styles.benefitCheck}>✓</Text>
+                        <Text style={styles.benefitText}>Premium Flower Colors</Text>
+                      </View>
+                      <View style={styles.benefitItem}>
+                        <Text style={styles.benefitCheck}>✓</Text>
+                        <Text style={styles.benefitText}>Plant Up to 50 Flowers</Text>
+                      </View>
+                      <View style={styles.benefitItem}>
+                        <Text style={styles.benefitCheck}>✓</Text>
+                        <Text style={styles.benefitText}>Special Flower Varieties</Text>
+                      </View>
+                    </View>
+                  </View>
 
-                    {subscription?.current_period_end && (
+                  {isSubscribed && (
+                    <View style={styles.statusCard}>
+                      <Text style={styles.statusTitle}>Subscription Details</Text>
+                      
                       <View style={styles.infoItem}>
-                        <Text style={styles.label}>Renews on:</Text>
+                        <Text style={styles.label}>Current Plan:</Text>
                         <Text style={styles.value}>
-                          {formatDate(subscription.current_period_end)}
+                          <Text style={styles.activeStatus}>{currentPlan}</Text>
                         </Text>
                       </View>
-                    )}
-                  </View>
-                )}
 
-                {!isSubscribed && (
-                  <TouchableOpacity
-                    style={[styles.button, loading && styles.buttonDisabled]}
-                    onPress={handleSubscribe}
-                    disabled={loading}>
-                    {loading ? (
-                      <ActivityIndicator color="#FFFFFF" size="small" />
-                    ) : (
-                      <Text style={styles.buttonText}>Subscribe Now</Text>
-                    )}
-                  </TouchableOpacity>
-                )}
-                
-                {isSubscribed && (
-                  <View style={styles.thankYouContainer}>
-                    <Text style={styles.thankYouText}>Thank you for your support!</Text>
-                    <Text style={styles.enjoyText}>Enjoy your premium features!</Text>
-                  </View>
-                )}
+                      {subscription?.current_period_end && (
+                        <View style={styles.infoItem}>
+                          <Text style={styles.label}>Renews on:</Text>
+                          <Text style={styles.value}>
+                            {formatDate(subscription.current_period_end)}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
 
-                {/* Restore Purchases — required by Apple for IAP apps */}
-                {Platform.OS === 'ios' && !isSubscribed && (
-                  <TouchableOpacity style={styles.restoreButton} onPress={handleRestore}>
-                    <Text style={styles.restoreText}>Restore Purchases</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
+                  {!isSubscribed && (
+                    <TouchableOpacity
+                      style={[styles.button, loading && styles.buttonDisabled]}
+                      onPress={handleSubscribe}
+                      disabled={loading}>
+                      {loading ? (
+                        <ActivityIndicator color="#FFFFFF" size="small" />
+                      ) : (
+                        <Text style={styles.buttonText}>Subscribe Now</Text>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  
+                  {isSubscribed && (
+                    <View style={styles.thankYouContainer}>
+                      <Text style={styles.thankYouText}>Thank you for your support!</Text>
+                      <Text style={styles.enjoyText}>Enjoy your premium features!</Text>
+                    </View>
+                  )}
+
+                  {/* Restore Purchases — required by Apple for IAP apps */}
+                  {Platform.OS === 'ios' && !isSubscribed && (
+                    <TouchableOpacity style={styles.restoreButton} onPress={handleRestore}>
+                      <Text style={styles.restoreText}>Restore Purchases</Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </BlurView>
           </View>
         </View>
       </ScrollView>
@@ -316,7 +337,8 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 110,
   },
   container: {
     flex: 1,
@@ -328,22 +350,28 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 450,
     borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'transparent',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  cardBlur: {
+    width: '100%',
+    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
   },
   cardHeader: {
     padding: 24,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderBottomColor: 'rgba(0,0,0,0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
   title: {
     fontSize: 28,
@@ -405,17 +433,17 @@ const styles = StyleSheet.create({
   },
   planCard: {
     margin: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#FFE4B5',
+    borderColor: 'rgba(255, 228, 181, 0.8)',
     shadowColor: '#E2A76F',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -426,12 +454,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   priceBadge: {
-    backgroundColor: '#FFF0DB',
+    backgroundColor: 'rgba(255, 240, 219, 0.8)',
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: '#FFD599',
+    borderColor: 'rgba(255, 213, 153, 0.8)',
   },
   priceBadgeText: {
     color: '#B86E00',
@@ -458,11 +486,11 @@ const styles = StyleSheet.create({
   },
   statusCard: {
     margin: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'rgba(226, 232, 240, 0.8)',
   },
   statusTitle: {
     fontSize: 18,

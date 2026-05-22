@@ -2,9 +2,9 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
-const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecret);
+export const supabase = createClient(Deno.env.get('SUPABASE_URL') || 'https://mock-project.supabase.co', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'mock-key');
+export const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_mock';
+export const stripe = new Stripe(stripeSecret);
 
 // Helper function to create responses with CORS headers
 function corsResponse(body: string | object | null, status = 200) {
@@ -28,7 +28,7 @@ function corsResponse(body: string | object | null, status = 200) {
   });
 }
 
-Deno.serve(async (req) => {
+export async function handler(req: Request): Promise<Response> {
   try {
     if (req.method === 'OPTIONS') {
       return corsResponse({}, 204);
@@ -194,7 +194,11 @@ Deno.serve(async (req) => {
     const isClientError = ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError'].includes(error.type);
     return corsResponse({ error: isClientError ? error.message : 'Payment service error. Please try again later.' }, isClientError ? (error.statusCode || 400) : 500);
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}
 
 type ExpectedType = 'string' | { values: string[] };
 type Expectations<T> = { [K in keyof T]: ExpectedType };

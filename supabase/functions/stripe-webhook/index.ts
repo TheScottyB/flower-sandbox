@@ -1,4 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+declare const EdgeRuntime: any;
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
@@ -6,13 +7,13 @@ import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 type StripeEvent = any;
 type StripeCheckoutSession = any;
 
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
-const stripe = new Stripe(stripeSecret);
+export const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_mock';
+export const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || 'whsec_mock';
+export const stripe = new Stripe(stripeSecret);
 
-const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+export const supabase = createClient(Deno.env.get('SUPABASE_URL') || 'https://mock-project.supabase.co', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'mock-key');
 
-Deno.serve(async (req) => {
+export async function handler(req: Request): Promise<Response> {
   try {
     // Handle OPTIONS request for CORS preflight
     if (req.method === 'OPTIONS') {
@@ -50,7 +51,11 @@ Deno.serve(async (req) => {
     console.error('Error processing webhook:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}
+
+if (import.meta.main) {
+  Deno.serve(handler);
+}
 
 async function handleEvent(event: StripeEvent) {
   const stripeData = event?.data?.object ?? {};

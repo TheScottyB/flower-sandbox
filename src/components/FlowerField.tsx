@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from './Flower';
 import { PetalBurst } from './PetalBurst';
@@ -7,7 +7,6 @@ import { flowerTypes, FlowerType } from './flowerData';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
 const FLOWER_TYPE_NAMES: FlowerType[] = ['rose', 'tulip', 'daisy', 'sunflower'];
 const MAX_CONCURRENT_BURSTS = 6;
 
@@ -16,8 +15,8 @@ interface FlowerItem {
   type: FlowerType;
   size: number;
   position: {
-    x: number;
-    y: number;
+    x: number; // Percentage (0.0 to 1.0)
+    y: number; // Percentage (0.0 to 1.0)
   };
   color?: string;
 }
@@ -35,6 +34,7 @@ interface FlowerFieldProps {
   isPremium?: boolean;
   onAddFlower?: () => void;
   maxFlowers?: number;
+  rightOffset?: number;
 }
 
 /**
@@ -46,47 +46,58 @@ export const FlowerField = ({
   isPremium = false,
   onAddFlower,
   maxFlowers = 20,
+  rightOffset = 0,
 }: FlowerFieldProps) => {
+  const { width, height } = useWindowDimensions();
+
   // State to track flowers
   const [flowers, setFlowers] = useState<FlowerItem[]>([]);
   const [bursts, setBursts] = useState<BurstItem[]>([]);
 
-  // Generate initial flowers
-  useEffect(() => {
-    generateInitialFlowers();
-  }, []);
-  
-  const generateInitialFlowers = () => {
-    const initialFlowers: FlowerItem[] = [];
-    const initialCount = Math.min(count, maxFlowers);
+  // Create a random flower with relative coordinates
+  const createRandomFlower = useCallback((x?: number, y?: number, currentWidth: number = width, currentHeight: number = height): FlowerItem => {
+    let rx: number;
+    let ry: number;
     
-    for (let i = 0; i < initialCount; i++) {
-      initialFlowers.push(createRandomFlower());
+    const w = currentWidth > 0 ? currentWidth : 375;
+    const h = currentHeight > 0 ? currentHeight : 812;
+    const usableWidth = w - rightOffset;
+
+    if (x !== undefined && y !== undefined) {
+      rx = x / w;
+      ry = y / h;
+    } else {
+      // Choose a random percentage within bounds so they don't clip outside viewports
+      rx = (Math.random() * usableWidth * 0.8 + usableWidth * 0.1) / w;
+      ry = Math.random() * 0.6 + 0.15;
     }
-    
-    setFlowers(initialFlowers);
-  };
-  
-  // Create a random flower
-  const createRandomFlower = (x?: number, y?: number): FlowerItem => {
-    // Use provided coordinates or random ones
-    const posX = x !== undefined ? x : Math.random() * width * 0.8 + width * 0.1;
-    const posY = y !== undefined ? y : Math.random() * height * 0.5 + height * 0.2;
     
     return {
       id: Math.random().toString(),
       type: FLOWER_TYPE_NAMES[Math.floor(Math.random() * FLOWER_TYPE_NAMES.length)],
       size: Math.random() * 30 + 45, // Size between 45-75
-      position: { x: posX, y: posY },
+      position: { x: rx, y: ry },
       color: isPremium 
         ? `hsl(${Math.random() * 360}, ${60 + Math.random() * 20}%, ${50 + Math.random() * 20}%)`
         : undefined
     };
-  };
+  }, [isPremium]);
+
+  // Generate initial flowers
+  useEffect(() => {
+    const initialFlowers: FlowerItem[] = [];
+    const initialCount = Math.min(count, maxFlowers);
+    
+    for (let i = 0; i < initialCount; i++) {
+      initialFlowers.push(createRandomFlower(undefined, undefined, width, height));
+    }
+    
+    setFlowers(initialFlowers);
+  }, [count, maxFlowers, createRandomFlower]);
   
   // Add a new flower when the user taps the screen
   const addFlower = useCallback((x: number, y: number) => {
-    const newFlower = createRandomFlower(x, y);
+    const newFlower = createRandomFlower(x, y, width, height);
     const burstColor = newFlower.color ?? flowerTypes[newFlower.type].defaultColor;
     const burst: BurstItem = {
       id: `burst-${newFlower.id}`,
@@ -115,7 +126,7 @@ export const FlowerField = ({
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     }
-  }, [flowers, isPremium, maxFlowers, onAddFlower]);
+  }, [flowers, maxFlowers, onAddFlower, createRandomFlower, width, height]);
   
   // Handle taps on the background
   const handleBackgroundPress = (event: any) => {
@@ -136,7 +147,10 @@ export const FlowerField = ({
             key={flower.id}
             type={flower.type}
             size={flower.size}
-            position={flower.position}
+            position={{
+              x: flower.position.x * width,
+              y: flower.position.y * height
+            }}
             color={flower.color}
             isPremium={isPremium}
             onPress={() => {

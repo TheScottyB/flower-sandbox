@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, SafeAreaView, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, SafeAreaView, ActivityIndicator, Platform, useWindowDimensions } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Flower } from '@/src/components/Flower';
+import { BlurView } from 'expo-blur';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  const isWide = width >= 768;
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -54,6 +57,20 @@ export default function SignUpScreen() {
     }
   };
 
+  const flowerPositions = isWide
+    ? [
+        { type: 'tulip' as const, size: 80, position: { x: width * 0.08, y: 140 } },
+        { type: 'daisy' as const, size: 70, position: { x: width * 0.88, y: 200 } },
+        { type: 'rose' as const, size: 75, position: { x: width * 0.12, y: 440 } },
+        { type: 'sunflower' as const, size: 85, position: { x: width * 0.84, y: 460 } },
+      ]
+    : [
+        { type: 'tulip' as const, size: 60, position: { x: 25, y: 70 } },
+        { type: 'daisy' as const, size: 50, position: { x: width - 65, y: 120 } },
+        { type: 'rose' as const, size: 55, position: { x: width - 50, y: 310 } },
+        { type: 'sunflower' as const, size: 60, position: { x: 30, y: 230 } },
+      ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
@@ -62,10 +79,15 @@ export default function SignUpScreen() {
       />
       
       {/* Decorative flowers */}
-      <View style={styles.decorativeFlowers}>
-        <Flower type="tulip" size={55} position={{ x: 40, y: 100 }} />
-        <Flower type="daisy" size={50} position={{ x: 340, y: 150 }} />
-        <Flower type="sunflower" size={60} position={{ x: 270, y: 80 }} />
+      <View style={styles.decorativeFlowers} pointerEvents="none">
+        {flowerPositions.map((flower, idx) => (
+          <Flower
+            key={idx}
+            type={flower.type}
+            size={flower.size}
+            position={flower.position}
+          />
+        ))}
       </View>
       
       <ScrollView 
@@ -73,63 +95,67 @@ export default function SignUpScreen() {
         keyboardShouldPersistTaps="handled">
         <View style={styles.container}>
           <View style={styles.card}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join our flower sandbox community</Text>
+            <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+              <View style={styles.cardInner}>
+                <Text style={styles.title}>Create Account</Text>
+                <Text style={styles.subtitle}>Join our flower sandbox community</Text>
 
-            {error && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
+                {error && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                )}
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    placeholderTextColor="#A0AEC0"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Password</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Create a password"
+                    placeholderTextColor="#A0AEC0"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                  />
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={handleSignUp}
+                  disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                  )}
+                </TouchableOpacity>
+
+                <View style={styles.footer}>
+                  <Text style={styles.footerText}>Already have an account? </Text>
+                  <Link href="/login" style={styles.link}>
+                    <Text style={styles.linkText}>Login</Text>
+                  </Link>
+                </View>
+                
+                <View style={styles.appInfo}>
+                  <Text style={styles.appInfoText}>
+                    FlowerSandbox
+                  </Text>
+                </View>
               </View>
-            )}
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                placeholderTextColor="#A0AEC0"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Create a password"
-                placeholderTextColor="#A0AEC0"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleSignUp}
-              disabled={loading}>
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.buttonText}>Sign Up</Text>
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have an account? </Text>
-              <Link href="/login" style={styles.link}>
-                <Text style={styles.linkText}>Login</Text>
-              </Link>
-            </View>
-            
-            <View style={styles.appInfo}>
-              <Text style={styles.appInfoText}>
-                FlowerSandbox
-              </Text>
-            </View>
+            </BlurView>
           </View>
         </View>
       </ScrollView>
@@ -156,27 +182,38 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
+    paddingVertical: 40,
     zIndex: 2,
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 24,
+    width: '100%',
+    maxWidth: 450,
+    borderRadius: 24,
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
     shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowRadius: 16,
+    elevation: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  cardBlur: {
+    width: '100%',
+    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
+  },
+  cardInner: {
+    padding: 24,
   },
   title: {
     fontSize: 28,
@@ -201,21 +238,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: 'rgba(0, 0, 0, 0.08)',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     color: '#333333',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
   },
   button: {
     backgroundColor: '#007AFF',
@@ -277,7 +306,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
   },
   appInfoText: {
     color: '#999999',
