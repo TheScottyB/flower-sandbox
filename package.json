@@ -40,11 +40,6 @@
   "engines": {
     "node": ">=22.13.0"
   },
-  "pnpm": {
-    "overrides": {
-      "@supabase/supabase-js": "2.105.4"
-    }
-  },
   "dependencies": {
     "@expo/metro-runtime": "~56.0.11",
     "@expo/vector-icons": "^15.0.2",

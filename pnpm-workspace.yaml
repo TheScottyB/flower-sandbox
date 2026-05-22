@@ -4,6 +4,13 @@
 packages:
   - .
 
+overrides:
+  # See package.json#dependencies for the rationale. supabase-js 2.106+
+  # introduces a dynamic `import(OTEL_PKG)` that Hermes can't parse.
+  # Override blocks any transitive bump past 2.105.4 until the upstream
+  # fixes the import or RN ships a newer Hermes.
+  "@supabase/supabase-js": "2.105.4"
+
 allowBuilds:
   dtrace-provider: false
   msgpackr-extract: true
