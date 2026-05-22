@@ -1,16 +1,16 @@
-# App Store Submission Plan - Play in the Sandbox Looking at Flowers
+# App Store Submission Plan - FlowerSandbox
 
 ## Prerequisites (Already Completed)
 - [x] Apple Developer Account (beilsco@gmail.com)
 - [x] Team ID: 3X872JR6P3
 - [x] App Store Connect App ID: 6477183822
-- [x] Bundle ID: com.djscottyb.playsandbox
+- [x] Bundle ID: com.djscottyb.flowersandbox
 
 ## 1. App Store Connect Setup
 1. Login to App Store Connect (https://appstoreconnect.apple.com)
 2. Verify app information:
-   - App Name: "Play in the Sandbox Looking at Flowers"
-   - Bundle ID: com.djscottyb.playsandbox
+   - App Name: "FlowerSandbox"
+   - Bundle ID: com.djscottyb.flowersandbox
    - SKU: PLAYSANDBOX2024
 
 ## 2. Required Assets
@@ -44,12 +44,22 @@
 ## 5. Build Submission Steps
 1. Create production build:
    ```bash
+   # Manual build
    eas build --platform ios --profile production
+   
+   # OR use automated workflow (triggers on push to main)
+   # Configured in .eas/workflows/build-ios-production.yml
+   git push origin main
    ```
 
 2. Submit build to App Store:
    ```bash
-   eas submit --platform ios
+   # Manual submission with specific build
+   eas submit --platform ios --id <build-id>
+   
+   # OR use automated workflow (triggers on push to release)
+   # Configured in .eas/workflows/build-and-submit-ios.yml 
+   git push origin release
    ```
 
 3. Monitor build processing in App Store Connect
@@ -107,17 +117,26 @@
 
 ## Command Reference
 ```bash
-# Generate production build
+# Generate production build manually
 eas build --platform ios --profile production
 
-# Submit to App Store
+# Submit to App Store manually
 eas submit --platform ios
+
+# Run workflow for build only
+eas workflow:run build-ios-production.yml
+
+# Run workflow for build and submit
+eas workflow:run build-and-submit-ios.yml
 
 # Check build status
 eas build:list
 
 # View build logs
 eas build:view
+
+# View workflow status
+eas workflow:list
 ```
 
 ## Contact Information

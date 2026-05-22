@@ -170,7 +170,7 @@ export default function LoginScreen() {
                 
                 <View style={styles.appInfo}>
                   <Text style={styles.appInfoText}>
-                    Play in the Sandbox Looking at Flowers
+                    FlowerSandbox
                   </Text>
                 </View>
               </View>

@@ -1,3 +1,6 @@
+// Import polyfills first to ensure they're loaded before any other code
+import '@/src/utils/polyfills';
+
 import { useEffect } from 'react';
 import { Stack, useSegments, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -16,7 +19,10 @@ export default function RootLayout() {
       console.log('Deep link received:', url);
       
       try {
-        // Parse the URL
+        // Verify URL is valid before parsing
+        new URL(url); // This will throw if the URL is invalid
+        
+        // Parse the URL using Expo Linking
         const parsedUrl = Linking.parse(url);
         console.log('Parsed deep link:', parsedUrl);
         
@@ -50,6 +56,8 @@ export default function RootLayout() {
         }
       } catch (error) {
         console.error('Error handling deep link:', error);
+        // Handle invalid URLs gracefully, don't crash
+        router.replace('/');
       }
     };
 

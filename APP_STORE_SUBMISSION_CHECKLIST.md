@@ -10,7 +10,7 @@
   - [ ] Same screens as iPhone
 
 ## App Store Information
-- [ ] App Name: "Play in the Sandbox Looking at Flowers"
+- [ ] App Name: "FlowerSandbox"
 - [ ] Subtitle (30 characters max)
 - [ ] Privacy Policy URL (need to host PRIVACY_POLICY.md)
 - [ ] Terms of Service URL (need to host TERMS_OF_SERVICE.md)
@@ -50,7 +50,7 @@
 ## Build Information
 - [x] Version: 1.0.0
 - [x] Build: 1
-- [x] Bundle ID: com.djscottyb.playsandbox
+- [x] Bundle ID: com.djscottyb.flowersandbox
 - [x] SDK: Latest Expo
 - [x] Minimum iOS: 17.0
 

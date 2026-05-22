@@ -3,7 +3,7 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      'expo-router/babel',
+      // Keep the module-resolver for path aliasing which is useful even in native-only apps
       ['module-resolver', {
         root: ['.'],
         alias: {

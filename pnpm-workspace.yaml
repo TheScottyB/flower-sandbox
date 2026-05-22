@@ -1,0 +1,5 @@
+allowBuilds:
+  dtrace-provider: false
+  msgpackr-extract: true
+# Expo SDK 56 packages were published recently; exclude from minimum release age policy
+minimumReleaseAge: 0

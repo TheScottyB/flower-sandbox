@@ -1,4 +1,4 @@
-# MyApp - Premium Subscription App
+# FlowerSandbox - Premium Subscription App
 
 A premium mobile application built with Expo and React Native, featuring Stripe integration for subscriptions and payments.
 
@@ -24,8 +24,8 @@ A premium mobile application built with Expo and React Native, featuring Stripe 
 
 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/my-app.git
-cd my-app
+git clone https://github.com/TheScottyB/flower-sandbox.git
+cd flower-sandbox
 ```
 
 2. Install dependencies
@@ -42,6 +42,47 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 4. Update the Stripe configuration in `src/stripe-config.ts` with your live product and price IDs from the Stripe dashboard.
+
+## Environment Variables Management
+
+This project uses EAS (Expo Application Services) for building and deploying with specific environment configurations.
+
+### Environment Profiles
+
+We have configured the following build environments in `eas.json`:
+
+- **Development**: For local testing and development builds
+- **Preview**: For internal testing with ad-hoc distribution
+- **Production**: For App Store releases
+- **Development-simulator**: For simulator testing
+
+### Environment Variable Types
+
+- **Public Variables** (in eas.json):
+  - Prefixed with `EXPO_PUBLIC_`
+  - Examples: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_APP_ENV`
+
+- **Secret Variables** (using EAS secrets):
+  - Set with `eas env:create`
+  - Example: `SUPABASE_PROJECT_ID`
+
+### Managing Environment Variables
+
+```bash
+# Set a secret variable
+eas env:create --scope project --name VARIABLE_NAME --type string
+
+# Pull variables for local development
+eas env:pull --environment development
+
+# Build with specific environment
+eas build --platform ios --profile preview
+
+# Publish updates with consistent environment
+eas update --environment development
+```
+
+See `.env.template` for documentation on all environment variables used in this project.
 
 ### Running the App
 

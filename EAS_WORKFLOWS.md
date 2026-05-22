@@ -9,6 +9,9 @@ Automatically builds the iOS app for production when code is pushed to the main 
 ```
 eas workflow:run build-ios-production.yml
 ```
+- **Trigger**: Automatic on push to `main` branch
+- **Configuration**: Uses production profile for App Store distribution
+- **App ID**: com.djscottyb.flowersandbox (App Store ID: 6477183822)
 
 ### Android Production Build
 Automatically builds the Android app for production when code is pushed to the main branch.
@@ -54,10 +57,10 @@ eas workflow:run update-production.yml
    - Select this GitHub repository and connect it
 
 2. App configuration:
-   - Name: "Play in the Sandbox Looking at Flowers"
+   - Name: "FlowerSandbox"
    - Description: "playinginthesandbox"
-   - iOS bundle ID: "com.djscottyb.playsandbox" (explicit)
-   - Android package name: "com.djscottyb.playsandbox"
+   - iOS bundle ID: "com.djscottyb.flowersandbox" (explicit)
+   - Android package name: "com.djscottyb.flowersandbox"
    - App ID Prefix: "3X872JR6P3" (Team ID)
    - App Store Connect App ID: "6477183822"
    - Apple ID: "beilsco@gmail.com"

@@ -5,7 +5,6 @@ node_modules/
 .expo/
 dist/
 web-build/
-expo-env.d.ts
 
 # native
 *.orig.*
@@ -23,12 +22,18 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# pnpm
+.pnpm-debug.log*
+
 # macos
 .DS_Store
 *.pem
 
 # local env files
 .env*.local
+.env
+.env.*
+!.env.*.template
 
 # typescript
 *.tsbuildinfo
@@ -36,3 +41,4 @@ yarn-error.*
 .env.supabase
 .env.supabase.*
 !.env.supabase.template
+.env.development

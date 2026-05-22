@@ -160,7 +160,7 @@ export default function HomeScreen() {
             </View>
             
             <View style={styles.content}>
-              <Text style={styles.titleText}>Play in the Sandbox</Text>
+              <Text style={styles.titleText}>FlowerSandbox</Text>
               <Text style={styles.subtitle}>
                 Tap anywhere to plant flowers {isPremium && "- Premium Mode Active!"}
               </Text>

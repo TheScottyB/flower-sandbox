@@ -1,9 +1,9 @@
-# Privacy Policy for Play in the Sandbox Looking at Flowers
+# Privacy Policy for FlowerSandbox
 
 Last Updated: April 10, 2024
 
 ## 1. Introduction
-This Privacy Policy explains how Play in the Sandbox Looking at Flowers ("we", "our", or "app") collects, uses, and protects your information.
+This Privacy Policy explains how FlowerSandbox ("we", "our", or "app") collects, uses, and protects your information.
 
 ## 2. Information We Collect
 

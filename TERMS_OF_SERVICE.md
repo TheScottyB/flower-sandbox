@@ -1,9 +1,9 @@
-# Terms of Service for Play in the Sandbox Looking at Flowers
+# Terms of Service for FlowerSandbox
 
 Last Updated: April 10, 2024
 
 ## 1. Acceptance of Terms
-By downloading, installing, or using Play in the Sandbox Looking at Flowers ("the App"), you agree to these Terms of Service.
+By downloading, installing, or using FlowerSandbox ("the App"), you agree to these Terms of Service.
 
 ## 2. Subscription Terms
 ### 2.1 Subscription Service
