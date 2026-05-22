@@ -17,11 +17,13 @@
    - SKU: FLOWERSANDBOX2026
 3. ~~Save. Copy the numeric App ID from the URL.~~ **Done** — App ID: 6772106139
 4. ~~Add it to `eas.json` under `submit.production.ios.ascAppId`.~~ **Done**
-5. Create the IAP subscription product:
+5. ~~Create the IAP subscription product.~~ **Done**
    - Product ID: `com.djscottyb.flowersandbox.premium.monthly`
-   - Type: Auto-Renewable Subscription
-   - Subscription group: FlowerSandbox Premium
-   - Price tier: $0.99/month (or your chosen tier)
+   - Subscription Group ID: 22106738
+   - Status: Missing Metadata — **still required before submission:**
+     - Add a price tier (ASC → subscription → Subscription Prices)
+     - Add English localization: Display Name + Description
+       (ASC → subscription → Subscription Localizations → Create)
 
 ## 1. App Store Connect Setup
 1. Login to App Store Connect (https://appstoreconnect.apple.com)
@@ -54,7 +56,9 @@
 ## 4. Technical Requirements
 - [x] Encryption Declaration (set in app.json: ITSAppUsesNonExemptEncryption = false)
 - [x] No push notification entitlements (removed — not implemented)
-- [ ] IAP subscription product configured in App Store Connect (see Step 0)
+- [x] IAP subscription product created (com.djscottyb.flowersandbox.premium.monthly)
+- [ ] IAP subscription price tier set
+- [ ] IAP subscription English localization added (display name + description)
 - [ ] iOS sandbox purchase + restore tested on a real device
 
 ## 5. Build Submission Steps
