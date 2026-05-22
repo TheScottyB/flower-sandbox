@@ -1,6 +1,6 @@
 # Terms of Service for FlowerSandbox
 
-Last Updated: April 10, 2024
+Last Updated: May 22, 2026
 
 ## 1. Acceptance of Terms
 By downloading, installing, or using FlowerSandbox ("the App"), you agree to these Terms of Service.

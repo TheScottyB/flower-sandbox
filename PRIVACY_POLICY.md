@@ -1,6 +1,6 @@
 # Privacy Policy for FlowerSandbox
 
-Last Updated: April 10, 2024
+Last Updated: May 22, 2026
 
 ## 1. Introduction
 This Privacy Policy explains how FlowerSandbox ("we", "our", or "app") collects, uses, and protects your information.
