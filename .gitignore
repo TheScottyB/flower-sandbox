@@ -56,10 +56,11 @@ supabase/.temp/
 .playwright-mcp/
 .claude/
 
+
+# Vercel
+.vercel/
+
 .projects/cache
 .projects/vault
 .env
 .env.local
-
-# Vercel
-.vercel/

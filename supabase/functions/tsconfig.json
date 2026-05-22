@@ -2,13 +2,14 @@
   "compilerOptions": {
     "target": "es2021",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "lib": ["es2021", "dom"],
     "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "typeRoots": ["."]
   },
   "include": ["./**/*.ts"],

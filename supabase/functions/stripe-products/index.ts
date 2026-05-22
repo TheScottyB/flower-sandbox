@@ -53,14 +53,14 @@ export async function handler(req: Request): Promise<Response> {
     // Filter products based on type if specified
     let filteredProducts = productsResponse.data;
     if (productType) {
-      filteredProducts = filteredProducts.filter(product => 
+      filteredProducts = filteredProducts.filter((product: any) => 
         product.metadata.type === productType
       );
     }
 
     // Get prices for each product
     const productData = await Promise.all(
-      filteredProducts.map(async (product) => {
+      filteredProducts.map(async (product: any) => {
         const prices = await stripe.prices.list({
           product: product.id,
           active: true,
