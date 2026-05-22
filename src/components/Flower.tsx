@@ -126,12 +126,15 @@ export const Flower = React.memo(({
   // Allow custom colors for premium users
   const flowerColor = color || flowerData.defaultColor;
   
-  // Random stem height variation
-  const stemHeight = 40 + (Math.random() * 20);
-  const adjustedStem = flowerData.stem.replace(
-    'M50 100 C50 100, 50 80, 50 60', 
-    `M50 100 C50 100, 50 ${80 - (stemHeight - 40)}, 50 ${60 - (stemHeight - 40)}`
-  );
+  // Random stem height — computed once per mount so existing flowers
+  // don't visibly wiggle when the parent (FlowerField) re-renders.
+  const adjustedStem = React.useMemo(() => {
+    const stemHeight = 40 + Math.random() * 20;
+    return flowerData.stem.replace(
+      'M50 100 C50 100, 50 80, 50 60',
+      `M50 100 C50 100, 50 ${80 - (stemHeight - 40)}, 50 ${60 - (stemHeight - 40)}`,
+    );
+  }, [flowerData.stem]);
   
   return (
     <TouchableOpacity 
