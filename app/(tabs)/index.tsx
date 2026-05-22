@@ -193,18 +193,20 @@ export default function HomeScreen() {
       </View>
       
       <View style={styles.buttonsWrapper}>
-        <Link href="/subscription" onPress={handleSubscribe} asChild>
-          <TouchableOpacity
-            style={[
-              styles.subscribeButton,
-              isPremium && styles.subscribedButton
-            ]}>
-            <Sparkles size={20} color="#FFF" style={styles.btnIcon} />
-            <Text style={styles.buttonText}>
-              {isPremium ? 'Premium Active' : 'Subscribe Now'}
-            </Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity
+          style={StyleSheet.flatten([
+            styles.subscribeButton,
+            isPremium && styles.subscribedButton
+          ])}
+          onPress={() => {
+            handleSubscribe();
+            router.push('/subscription');
+          }}>
+          <Sparkles size={20} color="#FFF" style={styles.btnIcon} />
+          <Text style={styles.buttonText}>
+            {isPremium ? 'Premium Active' : 'Subscribe Now'}
+          </Text>
+        </TouchableOpacity>
         
         {Platform.OS !== 'ios' && (
           <TouchableOpacity
@@ -237,6 +239,7 @@ export default function HomeScreen() {
           maxFlowers={isPremium ? 50 : 15}
           onAddFlower={handleFlowerPlanted}
           rightOffset={isWide ? 350 : 0}
+          style={isWide ? styles.desktopSandboxField : styles.mobileSandboxField}
         />
         
         {isWide ? (
@@ -317,11 +320,44 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFEBCD',
+    backgroundColor: '#EBF2E6',
   },
   container: {
     flex: 1,
     position: 'relative',
+    backgroundColor: '#EBF2E6',
+  },
+  mobileSandboxField: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    right: 16,
+    bottom: 170,
+    borderRadius: 24,
+    borderWidth: 4,
+    borderColor: '#8C7A6B',
+    backgroundColor: '#FFEBCD',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  desktopSandboxField: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: 390,
+    bottom: 20,
+    borderRadius: 28,
+    borderWidth: 4,
+    borderColor: '#8C7A6B',
+    backgroundColor: '#FFEBCD',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
   },
   // Mobile Bottom Drawer Styles
   drawerContainer: {

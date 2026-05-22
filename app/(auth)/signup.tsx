@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, SafeAreaView, ActivityIndicator, Platform, useWindowDimensions } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
+import { X } from 'lucide-react-native';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,17 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+
+  const handleClose = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  };
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -97,6 +109,14 @@ export default function SignUpScreen() {
           <View style={styles.card}>
             <BlurView intensity={80} tint="light" style={styles.cardBlur}>
               <View style={styles.cardInner}>
+                <TouchableOpacity 
+                  onPress={handleClose} 
+                  style={styles.closeButton}
+                  accessibilityLabel="Close"
+                  activeOpacity={0.7}
+                >
+                  <X size={18} color="#555" />
+                </TouchableOpacity>
                 <Text style={styles.title}>Create Account</Text>
                 <Text style={styles.subtitle}>Join our flower sandbox community</Text>
 
@@ -312,5 +332,17 @@ const styles = StyleSheet.create({
     color: '#999999',
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, StyleSheet, useWindowDimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, TouchableWithoutFeedback } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from './Flower';
 import { PetalBurst } from './PetalBurst';
@@ -35,6 +35,7 @@ interface FlowerFieldProps {
   onAddFlower?: () => void;
   maxFlowers?: number;
   rightOffset?: number;
+  style?: any;
 }
 
 /**
@@ -47,29 +48,39 @@ export const FlowerField = ({
   onAddFlower,
   maxFlowers = 20,
   rightOffset = 0,
+  style,
 }: FlowerFieldProps) => {
   const { width, height } = useWindowDimensions();
 
-  // State to track flowers
+  // State to track flowers and layout dimensions
   const [flowers, setFlowers] = useState<FlowerItem[]>([]);
   const [bursts, setBursts] = useState<BurstItem[]>([]);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  const onLayout = useCallback((event: any) => {
+    const { width: layoutWidth, height: layoutHeight } = event.nativeEvent.layout;
+    setDimensions({ width: layoutWidth, height: layoutHeight });
+  }, []);
+
+  const isWide = width >= 768;
+  const fallbackWidth = isWide ? (width - 410) : (width - 32);
+  const fallbackHeight = isWide ? (height - 40) : (height - 250);
+
+  const activeWidth = dimensions.width || fallbackWidth;
+  const activeHeight = dimensions.height || fallbackHeight;
 
   // Create a random flower with relative coordinates
-  const createRandomFlower = useCallback((x?: number, y?: number, currentWidth: number = width, currentHeight: number = height): FlowerItem => {
+  const createRandomFlower = useCallback((x?: number, y?: number, containerWidth?: number, containerHeight?: number): FlowerItem => {
     let rx: number;
     let ry: number;
     
-    const w = currentWidth > 0 ? currentWidth : 375;
-    const h = currentHeight > 0 ? currentHeight : 812;
-    const usableWidth = w - rightOffset;
-
-    if (x !== undefined && y !== undefined) {
-      rx = x / w;
-      ry = y / h;
+    if (x !== undefined && y !== undefined && containerWidth && containerHeight) {
+      rx = x / containerWidth;
+      ry = y / containerHeight;
     } else {
       // Choose a random percentage within bounds so they don't clip outside viewports
-      rx = (Math.random() * usableWidth * 0.8 + usableWidth * 0.1) / w;
-      ry = Math.random() * 0.6 + 0.15;
+      rx = Math.random() * 0.8 + 0.1;
+      ry = Math.random() * 0.7 + 0.15;
     }
     
     return {
@@ -89,7 +100,7 @@ export const FlowerField = ({
     const initialCount = Math.min(count, maxFlowers);
     
     for (let i = 0; i < initialCount; i++) {
-      initialFlowers.push(createRandomFlower(undefined, undefined, width, height));
+      initialFlowers.push(createRandomFlower());
     }
     
     setFlowers(initialFlowers);
@@ -97,7 +108,7 @@ export const FlowerField = ({
   
   // Add a new flower when the user taps the screen
   const addFlower = useCallback((x: number, y: number) => {
-    const newFlower = createRandomFlower(x, y, width, height);
+    const newFlower = createRandomFlower(x, y, activeWidth, activeHeight);
     const burstColor = newFlower.color ?? flowerTypes[newFlower.type].defaultColor;
     const burst: BurstItem = {
       id: `burst-${newFlower.id}`,
@@ -126,7 +137,7 @@ export const FlowerField = ({
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     }
-  }, [flowers, maxFlowers, onAddFlower, createRandomFlower, width, height]);
+  }, [flowers, maxFlowers, onAddFlower, createRandomFlower, activeWidth, activeHeight]);
   
   // Handle taps on the background
   const handleBackgroundPress = (event: any) => {
@@ -136,11 +147,19 @@ export const FlowerField = ({
   
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
-      <View style={styles.container}>
+      <View style={[styles.container, style]} onLayout={onLayout}>
         <LinearGradient
           colors={['#FFEBCD', '#FFF8E1']}
           style={styles.sandbox}
         />
+        
+        {/* Sandbox Inner Frame (Dashed Soil border) */}
+        <View style={styles.sandboxInnerFrame} pointerEvents="none" />
+        
+        {/* Sandbox Instruction Label */}
+        <View style={styles.sandboxLabel} pointerEvents="none">
+          <Text style={styles.sandboxLabelText}>🌸 Tap sandbox to plant flowers</Text>
+        </View>
         
         {flowers.map(flower => (
           <Flower
@@ -148,8 +167,8 @@ export const FlowerField = ({
             type={flower.type}
             size={flower.size}
             position={{
-              x: flower.position.x * width,
-              y: flower.position.y * height
+              x: flower.position.x * activeWidth,
+              y: flower.position.y * activeHeight
             }}
             color={flower.color}
             isPremium={isPremium}
@@ -185,5 +204,38 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
+  },
+  sandboxLabel: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    zIndex: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  sandboxLabelText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#8C7A6B',
+  },
+  sandboxInnerFrame: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    right: 8,
+    bottom: 8,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(140, 122, 107, 0.35)',
+    borderRadius: 16,
   },
 });

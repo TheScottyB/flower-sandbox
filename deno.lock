@@ -6067,8 +6067,10 @@
     "packageJson": {
       "dependencies": [
         "npm:@babel/core@^7.26.10",
+        "npm:@babel/runtime@^7.29.2",
         "npm:@expo/metro-runtime@~56.0.11",
         "npm:@expo/vector-icons@^15.0.2",
+        "npm:@playwright/test@^1.60.0",
         "npm:@react-native-async-storage/async-storage@^2.2.0",
         "npm:@supabase/supabase-js@2.105.4",
         "npm:@types/jest@^29.5.14",
@@ -6093,6 +6095,7 @@
         "npm:jest-expo@~56.0.4",
         "npm:jest@^29.2.1",
         "npm:lucide-react-native@^1.16.0",
+        "npm:playwright@^1.60.0",
         "npm:react-dom@19.2.3",
         "npm:react-native-reanimated@4.3.1",
         "npm:react-native-safe-area-context@5.7",

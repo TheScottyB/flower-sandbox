@@ -132,6 +132,7 @@ CREATE POLICY "Users can view their own order data"
 -- View for user subscriptions
 CREATE VIEW stripe_user_subscriptions WITH (security_invoker = true) AS
 SELECT
+    c.user_id,
     c.customer_id,
     s.subscription_id,
     s.status as subscription_status,

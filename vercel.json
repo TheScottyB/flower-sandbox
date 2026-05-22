@@ -6,10 +6,8 @@
     { "source": "/support", "destination": "/support.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/app/_expo/(.*)", "destination": "/_expo/$1" },
-    { "source": "/app/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/app", "destination": "/app/index.html" },
-    { "source": "/app/(.*)", "destination": "/app/index.html" },
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/app/_expo/:path*", "destination": "/_expo/:path*" },
+    { "source": "/app/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/app/:path*", "destination": "/app/index.html" }
   ]
 }
