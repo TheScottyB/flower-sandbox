@@ -36,7 +36,6 @@
     },
     "production": {
       "distribution": "store",
-      "node": "22.13.0",
       "ios": {
         "resourceClass": "m-medium",
         "image": "stable"
