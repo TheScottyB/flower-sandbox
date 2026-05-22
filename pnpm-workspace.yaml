@@ -7,5 +7,9 @@ packages:
 allowBuilds:
   dtrace-provider: false
   msgpackr-extract: true
-# Expo SDK 56 packages were published recently; exclude from minimum release age policy
-minimumReleaseAge: 0
+
+# Supply-chain defense: refuse packages younger than 7 days unless explicitly
+# excluded. Catches typosquats and post-publish compromises. Was previously
+# 0 (disabled) because Expo SDK 56 packages were freshly released — they're
+# now well past 7 days, so the global guard is safe to re-enable.
+minimumReleaseAge: 7
