@@ -175,7 +175,6 @@ Deno.serve(async (req) => {
     // create Checkout Session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      payment_method_types: ['card'],
       line_items: [
         {
           price: price_id,
@@ -191,8 +190,9 @@ Deno.serve(async (req) => {
 
     return corsResponse({ sessionId: session.id, url: session.url });
   } catch (error: any) {
-    console.error(`Checkout error: ${error.message}`);
-    return corsResponse({ error: error.message }, 500);
+    console.error(`Checkout error: ${error.type} - ${error.message}`);
+    const isClientError = ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError'].includes(error.type);
+    return corsResponse({ error: isClientError ? error.message : 'Payment service error. Please try again later.' }, isClientError ? (error.statusCode || 400) : 500);
   }
 });
 

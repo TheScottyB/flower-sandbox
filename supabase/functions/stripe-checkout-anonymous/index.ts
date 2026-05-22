@@ -64,7 +64,6 @@ Deno.serve(async (req) => {
       console.log('Creating Stripe checkout session...');
       // Create Checkout Session with explicit error handling
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
         line_items: [
           {
             price: price_id,
@@ -88,18 +87,12 @@ Deno.serve(async (req) => {
         url: session.url 
       });
     } catch (stripeError: any) {
-      console.error('Stripe error:', stripeError);
-      
-      // Handle specific Stripe errors
-      if (stripeError.type === 'StripeInvalidRequestError') {
-        console.error('Stripe invalid request:', stripeError.message);
-        return corsResponse({ error: stripeError.message }, 400);
-      }
-
-      console.error('Stripe error:', stripeError.message);
+      console.error('Stripe error:', stripeError.type, stripeError.message);
+      // Return specific message for invalid request errors; generic for others
+      const isClientError = ['StripeInvalidRequestError', 'StripePermissionError', 'StripeAuthenticationError'].includes(stripeError.type);
       return corsResponse(
-        { error: 'Payment service error. Please try again later.' },
-        500,
+        { error: isClientError ? stripeError.message : 'Payment service error. Please try again later.' },
+        isClientError ? (stripeError.statusCode || 400) : 500,
       );
     }
   } catch (error) {
