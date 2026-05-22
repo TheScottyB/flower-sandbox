@@ -87,7 +87,7 @@
 
 ## Submission Command
 ```bash
-eas build --platform ios --profile production && eas submit --platform ios
+pnpm run app-store:release
 ```
 
-Note: Keep this checklist updated as items are completed. Use it as a reference during the submission process.
+Note: Keep this checklist updated as items are completed. Use it as a reference during the submission process. See `APP_STORE_AUTOMATION.md` for required App Store Connect API credentials and the first-IAP attachment guard.

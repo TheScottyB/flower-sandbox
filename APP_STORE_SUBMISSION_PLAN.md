@@ -63,15 +63,15 @@
 
 ## 5. Build Submission Steps
 
-> **Prerequisite**: complete Step 0 (ASC app record + ascAppId in eas.json) before submitting.
+> **Prerequisite**: complete Step 0 (ASC app record + ascAppId in eas.json) before submitting. For the scripted path, also see [APP_STORE_AUTOMATION.md](./APP_STORE_AUTOMATION.md).
 
 1. Create production build:
    ```bash
    # Manual
    eas build --platform ios --profile production
 
-   # Automated (triggers on push to main)
-   git push origin main
+   # Automated workflow
+   eas workflow:run build-ios-production.yml
    ```
 
 2. Submit build to App Store (only after ASC app record exists):
@@ -79,8 +79,11 @@
    # Manual — prompts for build ID
    eas submit --platform ios --profile production
 
-   # Automated (triggers on push to release branch)
-   git push origin release
+   # Scripted build upload + App Review submission
+   pnpm run app-store:release
+
+   # EAS workflow equivalent
+   eas workflow:run build-and-submit-ios.yml
    ```
 
 3. Monitor build processing in App Store Connect

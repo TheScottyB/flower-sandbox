@@ -114,11 +114,13 @@ Detailed payment operations live in [STRIPE_LIVE_MODE_SETUP.md](./STRIPE_LIVE_MO
 pnpm run build:ios
 pnpm run build:preview
 pnpm run build:production
+pnpm run submit:ios
+pnpm run app-store:release
 pnpm run update:preview
 pnpm run update:production
 ```
 
-See [EAS_WORKFLOWS.md](./EAS_WORKFLOWS.md) for EAS workflow commands.
+See [EAS_WORKFLOWS.md](./EAS_WORKFLOWS.md) for EAS workflow commands and [APP_STORE_AUTOMATION.md](./APP_STORE_AUTOMATION.md) for scripted App Review submission.
 
 ## Automation
 

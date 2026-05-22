@@ -2,7 +2,7 @@ name: Android production build
 
 # Manual trigger only — see comment in build-ios-production.yml.
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   # push:
   #   branches: ['main']
 

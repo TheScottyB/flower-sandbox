@@ -20,13 +20,13 @@ eas workflow:run build-android-production.yml
 ```
 
 ### Submit iOS
-Submits an iOS app to the App Store when code is pushed to the main branch.
+Submits the latest completed iOS production build to App Store Connect.
 ```
 eas workflow:run submit-ios.yml
 ```
 
 ### Build and Submit iOS
-Builds and submits the iOS app to the App Store when code is pushed to the release branch.
+Runs checks, builds the iOS app, uploads it to App Store Connect, then runs the App Store Connect API review-submission script.
 ```
 eas workflow:run build-and-submit-ios.yml
 ```
@@ -66,6 +66,7 @@ eas workflow:run update-production.yml
    - Apple ID: "beilsco@gmail.com"
 
 3. All workflow files are configured in the `.eas/workflows/` directory
+4. For App Review submission, add the `APP_STORE_CONNECT_*`, `APP_REVIEW_*`, and `APP_STORE_FIRST_IAP_ATTACHED` variables described in [APP_STORE_AUTOMATION.md](./APP_STORE_AUTOMATION.md) to the EAS production environment.
 
 ## Running Workflows Manually
 

@@ -1,0 +1,44 @@
+name: Build, upload, and submit iOS for review
+
+on:
+  workflow_dispatch: {}
+  # Uncomment once the account-side App Store metadata and first IAP attachment
+  # are ready and you want pushes to release branches to submit automatically.
+  # push:
+  #   branches: ['release']
+
+jobs:
+  test:
+    name: Run checks
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Typecheck
+        run: pnpm run typecheck
+      - name: Test
+        run: pnpm run test -- --runInBand
+
+  build_ios:
+    name: Build iOS
+    needs: [test]
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  submit_ios:
+    name: Upload build to App Store Connect
+    needs: [build_ios]
+    type: submit
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production
+
+  submit_review:
+    name: Submit App Review
+    needs: [submit_ios]
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Submit app version for review
+        run: pnpm run app-store:submit-review

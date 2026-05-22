@@ -7,16 +7,17 @@ on:
 jobs:
   test:
     name: Run Tests
-    type: test
-    script: |
-      corepack enable
-      pnpm install --frozen-lockfile
-      pnpm run typecheck
-      pnpm run test
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Typecheck
+        run: pnpm run typecheck
+      - name: Test
+        run: pnpm run test -- --runInBand
   
   build_ios:
     name: Build iOS
-    needs: test
+    needs: [test]
     type: build
     params:
       platform: ios
@@ -24,7 +25,7 @@ jobs:
   
   build_android:
     name: Build Android
-    needs: test
+    needs: [test]
     type: build
     params:
       platform: android

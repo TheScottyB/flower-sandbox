@@ -30,8 +30,6 @@ yarn-error.*
 *.pem
 
 # local env files
-.env
-.env.local
 .env.development
 .env*.local
 .env.*.local
@@ -48,8 +46,6 @@ yarn-error.*
 
 supabase/.temp/
 
-.projects/cache
-.projects/vault
 
 # git worktrees
 .worktrees/
@@ -57,3 +53,8 @@ supabase/.temp/
 # Local tooling artifacts
 .playwright-mcp/
 .claude/
+
+.projects/cache
+.projects/vault
+.env
+.env.local

@@ -1,0 +1,24 @@
+name: Submit latest iOS production build
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  get_ios_build:
+    name: Get latest iOS store build
+    type: get-build
+    params:
+      platform: ios
+      profile: production
+      distribution: store
+      channel: production
+      app_identifier: com.djscottyb.flowersandbox
+      wait_for_in_progress: true
+
+  submit_ios:
+    name: Upload latest build to App Store Connect
+    needs: [get_ios_build]
+    type: submit
+    params:
+      build_id: ${{ needs.get_ios_build.outputs.build_id }}
+      profile: production

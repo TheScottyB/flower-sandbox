@@ -5,7 +5,7 @@ name: iOS production build
 # spawn a build. Until then, run via `eas workflow:run build-ios-production.yml`
 # or via the EAS dashboard.
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   # push:
   #   branches: ['main']
 
@@ -16,11 +16,9 @@ jobs:
     params:
       platform: ios
       profile: production
-      channel: production
-      autoSubmit: false
       # App configured with:
       # - Name: "FlowerSandbox"
       # - Bundle ID: "com.djscottyb.flowersandbox"
       # - Apple Team ID: "3X872JR6P3"
-      # - App Store Connect app record: pending
-      # - Submission is intentionally disabled until the ASC app exists.
+      # - App Store Connect app ID: "6772106139"
+      # Submission is handled by submit-ios.yml or build-and-submit-ios.yml.

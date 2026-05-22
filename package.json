@@ -18,6 +18,9 @@
     "build:preview": "eas build --profile preview --platform ios",
     "build:production": "eas build --profile production --platform ios",
     "build:ios:workflow": "eas workflow:run build-ios-production.yml",
+    "submit:ios": "eas submit --platform ios --profile production",
+    "app-store:release": "node scripts/app-store-submit-review.mjs",
+    "app-store:submit-review": "node scripts/app-store-submit-review.mjs --skip-eas-upload --skip-local-checks",
     "update:preview": "eas update --branch preview",
     "update:production": "eas update --branch production"
   },
