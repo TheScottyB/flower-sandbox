@@ -1,17 +1,34 @@
 # App Store Submission Plan - FlowerSandbox
 
-## Prerequisites (Already Completed)
+## Prerequisites
 - [x] Apple Developer Account (beilsco@gmail.com)
 - [x] Team ID: 3X872JR6P3
-- [x] App Store Connect App ID: 6477183822
-- [x] Bundle ID: com.djscottyb.flowersandbox
+- [x] Bundle ID registered: com.djscottyb.flowersandbox
+- [ ] **App Store Connect app record created** ← current blocker
+- [ ] ascAppId added to eas.json submit block
+
+## 0. Create the App Store Connect App Record (current blocker)
+1. Go to https://appstoreconnect.apple.com → My Apps → **+**
+2. Fill in:
+   - Platform: iOS
+   - Name: FlowerSandbox
+   - Primary language: English (U.S.)
+   - Bundle ID: com.djscottyb.flowersandbox
+   - SKU: FLOWERSANDBOX2026
+3. Save. Copy the numeric App ID from the URL (e.g. `6477183822`).
+4. Add it to `eas.json` under `submit.production.ios.ascAppId`.
+5. Create the IAP subscription product:
+   - Product ID: `com.djscottyb.flowersandbox.premium.monthly`
+   - Type: Auto-Renewable Subscription
+   - Subscription group: FlowerSandbox Premium
+   - Price tier: $0.99/month (or your chosen tier)
 
 ## 1. App Store Connect Setup
 1. Login to App Store Connect (https://appstoreconnect.apple.com)
-2. Verify app information:
+2. Confirm app information:
    - App Name: "FlowerSandbox"
    - Bundle ID: com.djscottyb.flowersandbox
-   - SKU: PLAYSANDBOX2024
+   - SKU: FLOWERSANDBOX2026
 
 ## 2. Required Assets
 - [ ] App Icon (1024x1024px PNG)
@@ -35,43 +52,43 @@
 - [ ] Price and Availability
 
 ## 4. Technical Requirements
-- [x] Encryption Declaration (Already set in app.json)
-- [ ] Push Notification Entitlements
-- [ ] In-App Purchase Configuration
-  - Subscription Products
-  - One-time Donations
+- [x] Encryption Declaration (set in app.json: ITSAppUsesNonExemptEncryption = false)
+- [x] No push notification entitlements (removed — not implemented)
+- [ ] IAP subscription product configured in App Store Connect (see Step 0)
+- [ ] iOS sandbox purchase + restore tested on a real device
 
 ## 5. Build Submission Steps
+
+> **Prerequisite**: complete Step 0 (ASC app record + ascAppId in eas.json) before submitting.
+
 1. Create production build:
    ```bash
-   # Manual build
+   # Manual
    eas build --platform ios --profile production
-   
-   # OR use automated workflow (triggers on push to main)
-   # Configured in .eas/workflows/build-ios-production.yml
+
+   # Automated (triggers on push to main)
    git push origin main
    ```
 
-2. Submit build to App Store:
+2. Submit build to App Store (only after ASC app record exists):
    ```bash
-   # Manual submission with specific build
-   eas submit --platform ios --id <build-id>
-   
-   # OR use automated workflow (triggers on push to release)
-   # Configured in .eas/workflows/build-and-submit-ios.yml 
+   # Manual — prompts for build ID
+   eas submit --platform ios --profile production
+
+   # Automated (triggers on push to release branch)
    git push origin release
    ```
 
 3. Monitor build processing in App Store Connect
 
 ## 6. App Review Preparation
-- [ ] Test Account Credentials
-  - Username: (to be created)
+- [ ] Test Account Credentials (Apple Sandbox account for reviewer)
+  - Username: (to be created in App Store Connect → Users & Access → Sandbox)
   - Password: (to be created)
 - [ ] Demo Instructions
   - How to access all features
-  - Test subscription flow
-  - Test donation flow
+  - Test StoreKit subscription flow (iOS)
+  - Test donation flow (web only — not available on iOS)
 
 ## 7. Post-Submission Plan
 1. Monitor App Review Status
@@ -117,17 +134,17 @@
 
 ## Command Reference
 ```bash
-# Generate production build manually
+# Production build (manual)
 eas build --platform ios --profile production
 
-# Submit to App Store manually
-eas submit --platform ios
+# Submit to App Store (manual, after ASC app record exists)
+eas submit --platform ios --profile production
 
-# Run workflow for build only
-eas workflow:run build-ios-production.yml
+# Trigger build via automated workflow (push to main)
+git push origin main
 
-# Run workflow for build and submit
-eas workflow:run build-and-submit-ios.yml
+# Trigger build+submit via automated workflow (push to release)
+git push origin release
 
 # Check build status
 eas build:list
@@ -137,6 +154,9 @@ eas build:view
 
 # View workflow status
 eas workflow:list
+
+# Deploy Supabase edge functions
+supabase functions deploy delete-account --project-ref srtlalaecgejgghwwfmk
 ```
 
 ## Contact Information
