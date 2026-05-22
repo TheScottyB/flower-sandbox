@@ -1,8 +1,13 @@
 name: iOS production build
 
+# Manual trigger only. Re-enable push trigger by uncommenting `on.push` below
+# once the build pipeline is reliably green and you want every main commit to
+# spawn a build. Until then, run via `eas workflow:run build-ios-production.yml`
+# or via the EAS dashboard.
 on:
-  push:
-    branches: ['main']
+  workflow_dispatch:
+  # push:
+  #   branches: ['main']
 
 jobs:
   build_ios:
