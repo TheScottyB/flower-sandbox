@@ -149,7 +149,27 @@ class AppStoreConnectClient {
   }
 }
 
+let currentAppName = 'your app';
+
 async function main() {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
+      if (match) {
+        const key = match[1];
+        let val = match[2].trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (process.env[key] === undefined) {
+          process.env[key] = val;
+        }
+      }
+    });
+  }
+
   const flags = parseFlags(process.argv.slice(2));
   if (flags.has('help')) {
     process.stdout.write(HELP);
@@ -171,6 +191,7 @@ async function main() {
   };
 
   const project = await loadProjectConfig(options);
+  currentAppName = project.appName;
 
   log(`Target app: ${project.appName} (${project.bundleIdentifier})`);
   log(`App Store Connect app ID: ${project.appId}`);
@@ -206,6 +227,7 @@ async function main() {
 
   await attachBuildToVersion(client, appStoreVersion.id, build.id);
   await ensureReviewDetails(client, appStoreVersion.id);
+  await configureAppStoreMetadataAndScreenshots(client, project, appStoreVersion.id);
 
   const result = await submitForReview(client, project.appId, appStoreVersion.id);
   if (result.alreadySubmitted) {
@@ -237,6 +259,7 @@ async function loadProjectConfig(options) {
   return {
     appId,
     appName: expo.name ?? expo.slug ?? 'unknown',
+    slug: expo.slug ?? 'unknown',
     bundleIdentifier,
     iapProductId: process.env.EXPO_PUBLIC_IAP_PRODUCT_ID || productionEnv.EXPO_PUBLIC_IAP_PRODUCT_ID,
     releaseType: options.releaseType,
@@ -528,6 +551,439 @@ function collectReviewDetailAttributes() {
   return attrs;
 }
 
+async function uploadScreenshot(client, setId, filePath) {
+  const fileName = path.basename(filePath);
+  const fileBuffer = fs.readFileSync(filePath);
+  const fileSize = fileBuffer.length;
+  
+  log(`Reserving screenshot slot for ${fileName} (${fileSize} bytes)...`);
+  const reserveRes = await client.request('POST', '/appScreenshots', {
+    body: {
+      data: {
+        type: 'appScreenshots',
+        attributes: {
+          fileName: fileName,
+          fileSize: fileSize
+        },
+        relationships: {
+          appScreenshotSet: {
+            data: {
+              type: 'appScreenshotSets',
+              id: setId
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  const screenshotId = reserveRes.data.id;
+  const uploadOps = reserveRes.data.attributes.uploadOperations;
+  log(`Reserved screenshot ID: ${screenshotId}. Uploading chunks...`);
+  
+  for (const op of uploadOps) {
+    const chunk = fileBuffer.slice(op.offset, op.offset + op.length);
+    log(`Uploading chunk: offset ${op.offset}, length ${op.length}...`);
+    
+    const headers = {};
+    if (op.requestHeaders) {
+      op.requestHeaders.forEach(h => {
+        headers[h.name] = h.value;
+      });
+    }
+    
+    const uploadRes = await fetch(op.url, {
+      method: op.method || 'PUT',
+      headers: headers,
+      body: chunk
+    });
+    
+    if (!uploadRes.ok) {
+      throw new Error(`Failed to upload chunk: HTTP ${uploadRes.status} - ${await uploadRes.text()}`);
+    }
+  }
+  
+  log(`Upload complete for ${fileName}. Committing screenshot...`);
+  const md5 = crypto.createHash('md5').update(fileBuffer).digest('hex');
+  await client.request('PATCH', `/appScreenshots/${screenshotId}`, {
+    body: {
+      data: {
+        type: 'appScreenshots',
+        id: screenshotId,
+        attributes: {
+          sourceFileChecksum: md5,
+          uploaded: true
+        }
+      }
+    }
+  });
+  log(`Successfully committed screenshot ${fileName}`);
+  return screenshotId;
+}
+
+async function pollScreenshots(client, ids) {
+  if (!ids || ids.length === 0) return;
+  log(`Polling status for ${ids.length} uploaded screenshot(s)...`);
+  const pending = new Set(ids);
+  const maxAttempts = 60;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    log(`Checking screenshot processing status (Attempt ${attempt}/${maxAttempts})...`);
+    for (const id of pending) {
+      try {
+        const res = await client.request('GET', `/appScreenshots/${id}`);
+        const state = res.data.attributes.assetDeliveryState?.state;
+        log(`Screenshot ID ${id}: state is ${state}`);
+        if (state === 'COMPLETE') {
+          pending.delete(id);
+        } else if (state === 'FAILED') {
+          throw new Error(`Screenshot ID ${id} processing failed on Apple's servers.`);
+        }
+      } catch (err) {
+        log(`Warning checking screenshot ${id} (will retry): ${err.message}`);
+      }
+    }
+    if (pending.size === 0) {
+      log('All uploaded screenshots are successfully processed and COMPLETE.');
+      return;
+    }
+    await sleep(10000);
+  }
+  throw new Error(`Timeout waiting for screenshots to process on Apple's servers.`);
+}
+
+function getMetadata(slug, appName) {
+  const metadata = {
+    copyright: process.env.APP_STORE_COPYRIGHT || '© 2026 Scott Beilfuss',
+    supportUrl: process.env.APP_STORE_SUPPORT_URL || `https://thescottybe.github.io/${slug}`,
+    marketingUrl: process.env.APP_STORE_MARKETING_URL || `https://thescottybe.github.io/${slug}`,
+    privacyPolicyUrl: process.env.APP_STORE_PRIVACY_POLICY_URL || `https://thescottybe.github.io/${slug}/privacy`
+  };
+
+  if (slug === 'flower-sandbox') {
+    metadata.description = process.env.APP_STORE_DESCRIPTION || "FlowerSandbox is a peaceful, interactive digital garden where you can plant beautiful flowers, customize your garden layout, and relax with serene animations. Nurture your virtual sanctuary, experiment with colorful petals, and enjoy a calming, distraction-free environment designed for mindfulness and relaxation.";
+    metadata.keywords = process.env.APP_STORE_KEYWORDS || "garden,flowers,relax,nature,grow,plants,mindfulness,virtual garden,sandbox,calm";
+    metadata.subtitle = process.env.APP_STORE_SUBTITLE || "Peaceful Garden Sandbox";
+    metadata.primaryCategory = process.env.APP_STORE_PRIMARY_CATEGORY || 'LIFESTYLE';
+  } else if (slug === 'mortgage-flipcard') {
+    metadata.description = process.env.APP_STORE_DESCRIPTION || "Mortgage FlipCard is a useful, intuitive, and novel mortgage planning companion built around interactive 3D cards. Easily compare different mortgage scenarios side-by-side. Flip cards to reveal comprehensive financial breakdowns, amortization schedules, and localized climate hazard risk metrics (flood, wildfire, wind) based on the property's zip code. Plan your home purchase smarter with offline-first tools, beautiful custom skins/themes, and advanced AI scenario coaching.";
+    metadata.keywords = process.env.APP_STORE_KEYWORDS || "mortgage,calculator,loan,compare,amortization,home,payment,climate,risk,finance";
+    metadata.subtitle = process.env.APP_STORE_SUBTITLE || "Compare Scenarios & Hazards";
+    metadata.primaryCategory = process.env.APP_STORE_PRIMARY_CATEGORY || 'FINANCE';
+  } else if (slug === 'creative-story-canvas' || slug === 'react-example') {
+    metadata.description = process.env.APP_STORE_DESCRIPTION || "Creative Story Canvas is an elegant and powerful writing companion designed for authors, screenwriters, and creative minds. Organize your ideas, structure your plots, and draft your stories on a beautiful, distraction-free interface built for focus. Whether you are outlining your next novel or writing daily micro-fiction, Creative Story Canvas helps you map your creative thoughts visually and bring your stories to life.";
+    metadata.keywords = process.env.APP_STORE_KEYWORDS || "writing,story,creative,plot,novel,author,screenplay,editor,notebook";
+    metadata.subtitle = process.env.APP_STORE_SUBTITLE || "Creative Writing Companion";
+    metadata.primaryCategory = process.env.APP_STORE_PRIMARY_CATEGORY || 'BOOKS';
+  } else {
+    metadata.description = process.env.APP_STORE_DESCRIPTION || `${appName} is a beautiful and premium companion app designed to elevate your daily productivity and lifestyle.`;
+    metadata.keywords = process.env.APP_STORE_KEYWORDS || "utility,companion,helper,premium,lifestyle";
+    metadata.subtitle = process.env.APP_STORE_SUBTITLE || "Your Premium Companion";
+    metadata.primaryCategory = process.env.APP_STORE_PRIMARY_CATEGORY || 'UTILITIES';
+  }
+
+  return metadata;
+}
+
+async function configureAppStoreMetadataAndScreenshots(client, project, appStoreVersionId) {
+  log('--- STARTING METADATA UPDATE & SCREENSHOT UPLOAD FLOW ---');
+
+  const localeCode = 'en-US';
+  log(`Retrieving version localizations for ${localeCode}...`);
+  const locsResponse = await client.request('GET', `/appStoreVersions/${appStoreVersionId}/appStoreVersionLocalizations`);
+  let locId = null;
+  if (locsResponse.data && locsResponse.data.length > 0) {
+    const match = locsResponse.data.find(l => l.attributes.locale === localeCode) || locsResponse.data[0];
+    locId = match.id;
+    log(`Found existing version localization ID: ${locId} (${match.attributes.locale})`);
+  } else {
+    log(`Creating version localization for ${localeCode}...`);
+    const createLocResponse = await client.request('POST', `/appStoreVersionLocalizations`, {
+      body: {
+        data: {
+          type: 'appStoreVersionLocalizations',
+          attributes: {
+            locale: localeCode
+          },
+          relationships: {
+            appStoreVersion: {
+              data: {
+                type: 'appStoreVersions',
+                id: appStoreVersionId
+              }
+            }
+          }
+        }
+      }
+    });
+    locId = createLocResponse.data.id;
+    log(`Created version localization ID: ${locId}`);
+  }
+
+  const slug = project.slug;
+  const meta = getMetadata(slug, project.appName);
+  const copyright = meta.copyright;
+  const description = meta.description;
+  const keywords = meta.keywords;
+  const supportUrl = meta.supportUrl;
+  const marketingUrl = meta.marketingUrl;
+  const privacyPolicyUrl = meta.privacyPolicyUrl;
+  const subtitle = meta.subtitle;
+  const primaryCategory = meta.primaryCategory;
+
+  log(`Updating version copyright: ${copyright}`);
+  await client.request('PATCH', `/appStoreVersions/${appStoreVersionId}`, {
+    body: {
+      data: {
+        type: 'appStoreVersions',
+        id: appStoreVersionId,
+        attributes: {
+          copyright: copyright
+        }
+      }
+    }
+  });
+
+  log('Updating version localization metadata...');
+  await client.request('PATCH', `/appStoreVersionLocalizations/${locId}`, {
+    body: {
+      data: {
+        type: 'appStoreVersionLocalizations',
+        id: locId,
+        attributes: {
+          description,
+          keywords,
+          supportUrl,
+          marketingUrl
+        }
+      }
+    }
+  });
+
+  log('Retrieving app info metadata...');
+  const appInfosRes = await client.request('GET', `/apps/${project.appId}/appInfos`);
+  const appInfoId = appInfosRes.data[0].id;
+  log(`App Info ID: ${appInfoId}`);
+
+  log(`Setting Primary Category to ${primaryCategory}...`);
+  await client.request('PATCH', `/appInfos/${appInfoId}`, {
+    body: {
+      data: {
+        type: 'appInfos',
+        id: appInfoId,
+        relationships: {
+          primaryCategory: {
+            data: {
+              type: 'appCategories',
+              id: primaryCategory
+            }
+          }
+        }
+      }
+    }
+  });
+
+  log('Retrieving app info localizations...');
+  const appInfoLocsRes = await client.request('GET', `/appInfos/${appInfoId}/appInfoLocalizations`);
+  if (appInfoLocsRes.data && appInfoLocsRes.data.length > 0) {
+    const appInfoLocId = appInfoLocsRes.data[0].id;
+    log(`App Info Localization ID: ${appInfoLocId}`);
+    log('Updating privacy policy URL and subtitle on app info localization...');
+    await client.request('PATCH', `/appInfoLocalizations/${appInfoLocId}`, {
+      body: {
+        data: {
+          type: 'appInfoLocalizations',
+          id: appInfoLocId,
+          attributes: {
+            privacyPolicyUrl,
+            subtitle
+          }
+        }
+      }
+    });
+  }
+
+  log('Updating content rights declaration to DOES_NOT_USE_THIRD_PARTY_CONTENT...');
+  await client.request('PATCH', `/apps/${project.appId}`, {
+    body: {
+      data: {
+        type: 'apps',
+        id: project.appId,
+        attributes: {
+          contentRightsDeclaration: 'DOES_NOT_USE_THIRD_PARTY_CONTENT'
+        }
+      }
+    }
+  });
+
+  log('Updating age rating declarations questionnaire...');
+  await client.request('PATCH', `/ageRatingDeclarations/${appInfoId}`, {
+    body: {
+      data: {
+        type: 'ageRatingDeclarations',
+        id: appInfoId,
+        attributes: {
+          advertising: false,
+          alcoholTobaccoOrDrugUseOrReferences: 'NONE',
+          contests: 'NONE',
+          gambling: false,
+          gamblingSimulated: 'NONE',
+          gunsOrOtherWeapons: 'NONE',
+          healthOrWellnessTopics: false,
+          lootBox: false,
+          medicalOrTreatmentInformation: 'NONE',
+          messagingAndChat: false,
+          parentalControls: false,
+          profanityOrCrudeHumor: 'NONE',
+          ageAssurance: false,
+          sexualContentGraphicAndNudity: 'NONE',
+          sexualContentOrNudity: 'NONE',
+          horrorOrFearThemes: 'NONE',
+          matureOrSuggestiveThemes: 'NONE',
+          unrestrictedWebAccess: false,
+          userGeneratedContent: false,
+          violenceCartoonOrFantasy: 'NONE',
+          violenceRealisticProlongedGraphicOrSadistic: 'NONE',
+          violenceRealistic: 'NONE'
+        }
+      }
+    }
+  });
+
+  log('Setting App Pricing to Free...');
+  try {
+    const pricePointsRes = await client.request('GET', `/apps/${project.appId}/appPricePoints`, {
+      query: { 'filter[territory]': 'USA' }
+    });
+    const freePricePoint = pricePointsRes.data?.find(p => p.attributes?.customerPrice === '0.0');
+    if (!freePricePoint) {
+      throw new Error('Could not find Free (0.0 USD) Price Point in the Apple API response.');
+    }
+    log(`Found Free Price Point ID: ${freePricePoint.id}`);
+
+    await client.request('POST', `/appPriceSchedules`, {
+      body: {
+        data: {
+          type: 'appPriceSchedules',
+          relationships: {
+            app: { data: { type: 'apps', id: project.appId } },
+            baseTerritory: { data: { type: 'territories', id: 'USA' } },
+            manualPrices: {
+              data: [
+                {
+                  type: 'appPrices',
+                  id: '${temp-free-price}'
+                }
+              ]
+            }
+          }
+        },
+        included: [
+          {
+            type: 'appPrices',
+            id: '${temp-free-price}',
+            attributes: { startDate: null },
+            relationships: {
+              appPricePoint: {
+                data: {
+                  type: 'appPricePoints',
+                  id: freePricePoint.id
+                }
+              }
+            }
+          }
+        ]
+      }
+    });
+    log('Successfully set App Pricing to Free.');
+  } catch (pricingError) {
+    log(`Warning: Failed to set App Pricing via API: ${pricingError.message}`);
+    log('If pricing is already set, this warning can be ignored.');
+  }
+
+  const screenshotGroups = [
+    {
+      displayType: 'APP_IPHONE_65',
+      files: ['./assets/iphone65.png', './assets/iphone65_back.png']
+    },
+    {
+      displayType: 'APP_IPAD_PRO_3GEN_129',
+      files: ['./assets/ipad129.png', './assets/ipad129_back.png']
+    }
+  ];
+
+  log('Fetching existing app screenshot sets...');
+  const setsRes = await client.request('GET', `/appStoreVersionLocalizations/${locId}/appScreenshotSets`);
+  const uploadedIds = [];
+
+  for (const group of screenshotGroups) {
+    const { displayType, files } = group;
+    const existingFiles = files
+      .map(f => path.isAbsolute(f) ? f : path.resolve(process.cwd(), f))
+      .filter(f => fs.existsSync(f));
+
+    if (existingFiles.length === 0) {
+      log(`No files found on disk for ${displayType}. Skipping.`);
+      continue;
+    }
+
+    let set = setsRes.data ? setsRes.data.find(s => s.attributes.screenshotDisplayType === displayType) : null;
+    if (!set) {
+      log(`Creating appScreenshotSet for ${displayType}...`);
+      const createSetRes = await client.request('POST', '/appScreenshotSets', {
+        body: {
+          data: {
+            type: 'appScreenshotSets',
+            attributes: { screenshotDisplayType: displayType },
+            relationships: {
+              appStoreVersionLocalization: {
+                data: { type: 'appStoreVersionLocalizations', id: locId }
+              }
+            }
+          }
+        }
+      });
+      set = createSetRes.data;
+    } else {
+      log(`Found existing set for ${displayType} (ID: ${set.id})`);
+    }
+
+    if (client.dryRun && set.id.startsWith('dry-run-')) {
+      log(`[dry-run] Skipping screenshot query and upload for mock set ${set.id}`);
+      continue;
+    }
+
+    const screenshotsRes = await client.request('GET', `/appScreenshotSets/${set.id}/appScreenshots`);
+    if (screenshotsRes.data && screenshotsRes.data.length > 0) {
+      log(`Clearing ${screenshotsRes.data.length} existing screenshot(s) from set ${displayType}...`);
+      for (const s of screenshotsRes.data) {
+        log(`Deleting screenshot: ${s.attributes.fileName} (ID: ${s.id})...`);
+        try {
+          await client.request('DELETE', `/appScreenshots/${s.id}`);
+          log(`Successfully deleted screenshot ${s.id}`);
+        } catch (err) {
+          log(`Failed to delete screenshot ${s.id}: ${err.message}`);
+        }
+      }
+    }
+
+    for (const absolutePath of existingFiles) {
+      const fileName = path.basename(absolutePath);
+      log(`Uploading ${fileName} to set ${displayType}...`);
+      const screenshotId = await uploadScreenshot(client, set.id, absolutePath);
+      if (screenshotId) {
+        uploadedIds.push(screenshotId);
+      }
+    }
+  }
+
+  if (uploadedIds.length > 0) {
+    log(`Waiting for Apple to process ${uploadedIds.length} uploaded screenshot(s)...`);
+    await pollScreenshots(client, uploadedIds);
+  }
+
+  log('--- METADATA UPDATE & SCREENSHOT UPLOAD FLOW COMPLETE ---');
+}
+
 async function submitForReview(client, appId, appStoreVersionId) {
   const activeSubmissions = await listActiveReviewSubmissions(client, appId);
 
@@ -808,5 +1264,17 @@ function log(message) {
 
 main().catch((error) => {
   process.stderr.write(`${error.stack ?? error.message}\n`);
+  if (error.message.includes('409') || error.message.toLowerCase().includes('privacy') || error.message.toLowerCase().includes('data usage') || error.message.includes('APP_DATA_USAGES_REQUIRED')) {
+    process.stdout.write('\n\x1b[33m💡 TROUBLESHOOTING TIP:\x1b[0m\n');
+    process.stdout.write('This error indicates that the App Privacy (Data Usages) questionnaire is not completed or published for your app.\n');
+    process.stdout.write('Please log into App Store Connect:\n');
+    process.stdout.write('  1. Navigate to: https://appstoreconnect.apple.com\n');
+    process.stdout.write(`  2. Select your app "${currentAppName}"\n`);
+    process.stdout.write('  3. In the left sidebar under "General", select "App Privacy"\n');
+    process.stdout.write('  4. Click "Get Started" and complete the questionnaire (declare no data is collected, as this is an offline-first app)\n');
+    process.stdout.write('  5. Click "Publish" at the top right of the App Privacy page\n');
+    process.stdout.write('Once published, re-run this submission script.\n\n');
+  }
   process.exitCode = 1;
 });
+

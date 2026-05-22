@@ -13,6 +13,8 @@ import Svg, { Path, G } from 'react-native-svg';
 import { flowerTypes, FlowerType } from './flowerData';
 import * as Haptics from 'expo-haptics';
 
+const AnimatedG = Animated.createAnimatedComponent(G);
+
 type FlowerProps = {
   id?: string;
   type?: FlowerType;
@@ -38,7 +40,7 @@ export const Flower = React.memo(({
   // Animation values
   const rotation = useSharedValue(0);
   const swayRotation = useSharedValue(0);
-  const scale = useSharedValue(0);
+  const scale = useSharedValue(1);
   const petalScale = useSharedValue(1);
   
   // Initialize flower with animations
@@ -161,7 +163,7 @@ export const Flower = React.memo(({
             />
             
             {/* Flower petals */}
-            <Animated.View style={petalStyle}>
+            <AnimatedG style={petalStyle}>
               <G>
                 {flowerData.petals.map((petal, index) => (
                   <Path
@@ -172,7 +174,7 @@ export const Flower = React.memo(({
                   />
                 ))}
               </G>
-            </Animated.View>
+            </AnimatedG>
             
             {/* Center */}
             <Path

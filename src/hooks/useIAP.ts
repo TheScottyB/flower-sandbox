@@ -20,6 +20,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import {
   initConnection,
   endConnection,
@@ -50,18 +51,20 @@ export type IAPState = {
 };
 
 const IS_IOS = Platform.OS === 'ios';
+const IS_EXPO_GO = Constants.appOwnership === 'expo';
+const USE_IAP = IS_IOS && !IS_EXPO_GO;
 
 export function useIAP(): IAPState {
-  // Initial loading is true only on iOS — non-iOS has nothing to load.
+  // Initial loading is true only on iOS (when not in Expo Go) — non-iOS/Expo Go has nothing to load.
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [loading, setLoading] = useState(IS_IOS);
+  const [loading, setLoading] = useState(USE_IAP);
   const [error, setError] = useState<string | null>(null);
   // Stable ref so the purchase listener closure always calls the latest setter
   const setSubscribedRef = useRef(setIsSubscribed);
   setSubscribedRef.current = setIsSubscribed;
 
   useEffect(() => {
-    if (!IS_IOS) return; // non-iOS: nothing to subscribe to
+    if (!USE_IAP) return; // non-iOS / Expo Go: nothing to subscribe to
     let cancelled = false;
 
     const persist = async (value: boolean) => {
@@ -119,7 +122,7 @@ export function useIAP(): IAPState {
   }, []);
 
   const purchaseSubscription = useCallback(async () => {
-    if (!IS_IOS) return;
+    if (!USE_IAP) return;
     setError(null);
     try {
       await requestPurchase({
@@ -139,7 +142,7 @@ export function useIAP(): IAPState {
   }, []);
 
   const restorePurchases = useCallback(async () => {
-    if (!IS_IOS) return;
+    if (!USE_IAP) return;
     setError(null);
     try {
       const purchases = await getAvailablePurchases();
