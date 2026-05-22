@@ -26,14 +26,15 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/.worktrees/"
+      "<rootDir>/.worktrees/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.worktrees/"
     ],
     "watchPathIgnorePatterns": [
       "<rootDir>/.worktrees/"
-    ]
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"]
   },
   "dependencies": {
     "@expo/metro-runtime": "~56.0.11",
@@ -72,7 +73,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
+    "@types/react-test-renderer": "^19.1.0",
     "babel-plugin-module-resolver": "^5.0.0",
     "jest": "^29.2.1",
     "jest-expo": "~56.0.4",
