@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Linking, Image, ActivityIndicator, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Linking, ActivityIndicator, ScrollView, SafeAreaView } from 'react-native';
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '@/lib/supabase';
@@ -8,13 +8,19 @@ import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { FlowerField } from '@/src/components/FlowerField';
+import { useIAP } from '@/src/hooks/useIAP';
 
 export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const [stripeIsPremium, setStripeIsPremium] = useState(false);
   const [flowerCount, setFlowerCount] = useState(0);
+
+  // iOS: read premium status from StoreKit
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const iap = Platform.OS === 'ios' ? useIAP() : null;
+  const isPremium = Platform.OS === 'ios' ? (iap?.isSubscribed ?? false) : stripeIsPremium;
 
   useEffect(() => {
     // Check if user is signed in
@@ -22,18 +28,20 @@ export default function HomeScreen() {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setUser(data.session.user);
-        
-        // Check if the user has an active subscription
-        try {
-          const { data: subscriptionData } = await supabase
-            .from('stripe_user_subscriptions')
-            .select('subscription_status')
-            .eq('user_id', data.session.user.id)
-            .maybeSingle();
-            
-          setIsPremium(subscriptionData?.subscription_status === 'active');
-        } catch (error) {
-          console.error('Error checking subscription status:', error);
+
+        // Web/Android: check Stripe subscription status from Supabase
+        if (Platform.OS !== 'ios') {
+          try {
+            const { data: subscriptionData } = await supabase
+              .from('stripe_user_subscriptions')
+              .select('subscription_status')
+              .eq('user_id', data.session.user.id)
+              .maybeSingle();
+              
+            setStripeIsPremium(subscriptionData?.subscription_status === 'active');
+          } catch (error) {
+            console.error('Error checking subscription status:', error);
+          }
         }
       }
     };
@@ -51,8 +59,8 @@ export default function HomeScreen() {
         ? `http://${Constants.expoConfig.hostUri}`
         : 'http://localhost:8081';
     }
-    // For production
-    return 'https://myapp.example.com'; // Your production URL
+    // For production — deep link back into the app
+    return 'flowersandbox://';
   };
 
   const handleDonate = async () => {
@@ -208,23 +216,26 @@ export default function HomeScreen() {
                 </Link>
               </View>
               
-              <TouchableOpacity
-                style={[
-                  styles.donateButton,
-                  Platform.select({
-                    web: styles.buttonWeb,
-                    default: {}
-                  }),
-                  loading && styles.buttonDisabled
-                ]}
-                onPress={handleDonate}
-                disabled={loading}>
-                {loading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Text style={styles.buttonText}>Support Us</Text>
-                )}
-              </TouchableOpacity>
+              {/* Donation via Stripe — web/Android only; removed from iOS (Apple IAP policy) */}
+              {Platform.OS !== 'ios' && (
+                <TouchableOpacity
+                  style={[
+                    styles.donateButton,
+                    Platform.select({
+                      web: styles.buttonWeb,
+                      default: {}
+                    }),
+                    loading && styles.buttonDisabled
+                  ]}
+                  onPress={handleDonate}
+                  disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.buttonText}>Support Us</Text>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </BlurView>
         </ScrollView>

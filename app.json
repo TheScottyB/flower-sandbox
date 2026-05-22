@@ -9,17 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-in-app-purchases"
     ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.djscottyb.flowersandbox",
       "buildNumber": "1",
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to let you take profile pictures.",
-        "UIBackgroundModes": [
-          "remote-notification"
-        ],
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
@@ -28,7 +25,6 @@
             ]
           }
         ],
-        "NSUserTrackingUsageDescription": "This allows us to provide a better app experience by understanding how you use the app.",
         "UIRequiresFullScreen": true,
         "LSApplicationQueriesSchemes": [
           "https",

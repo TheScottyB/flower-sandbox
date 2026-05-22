@@ -14,7 +14,7 @@ jobs:
       channel: production
       autoSubmit: false
       # App configured with:
-      # - Name: "Play in the Sandbox Looking at Flowers"
-      # - Bundle ID: "com.djscottyb.playsandbox"
+      # - Name: "FlowerSandbox"
+      # - Bundle ID: "com.djscottyb.flowersandbox"
       # - Apple App Store ID: "6477183822"
       # - Apple Team ID: "3X872JR6P3"

@@ -16,9 +16,9 @@
 ## 2. Required Assets
 - [ ] App Icon (1024x1024px PNG)
 - [ ] Screenshots:
-  - iPhone 6.7" Display (iPhone 14 Pro Max): 1290x2796px
-  - iPhone 6.5" Display (iPhone 14 Plus): 1284x2778px
-  - iPad Pro 12.9" Display: 2048x2732px
+  - **Required**: iPhone 6.9" Display (iPhone 16 Pro Max): 1320x2868px
+  - **Required**: iPad Pro 13" Display: 2064x2752px
+  - *Optional*: iPhone 6.5" (1284x2778px) — only required if 6.9" screenshots are not provided
 - [ ] App Preview Videos (optional)
 - [ ] App Privacy Details
   - Data Collection Practices

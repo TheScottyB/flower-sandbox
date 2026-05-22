@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, Linking, ActivityIndicator, SafeAreaView, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
@@ -7,6 +7,7 @@ import { products } from '@/src/stripe-config';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from '@/src/components/Flower';
+import { useIAP } from '@/src/hooks/useIAP';
 
 type SubscriptionStatus = {
   subscription_status: string;
@@ -17,145 +18,144 @@ type SubscriptionStatus = {
 export default function SubscriptionScreen() {
   const router = useRouter();
   const { success } = useLocalSearchParams<{ success?: string }>();
-  const [loading, setLoading] = useState(false);
+
+  // ── iOS: StoreKit ──────────────────────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const iap = Platform.OS === 'ios' ? useIAP() : null;
+
+  // ── Web/Android: Stripe ───────────────────────────────────────────────────
+  const [stripeLoading, setStripeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
-  const [loadingInfo, setLoadingInfo] = useState(true);
+  const [loadingInfo, setLoadingInfo] = useState(Platform.OS !== 'ios');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { sandbox } = products;
 
+  // ── Unified subscription status ───────────────────────────────────────────
+  const isSubscribed =
+    Platform.OS === 'ios'
+      ? (iap?.isSubscribed ?? false)
+      : subscription?.subscription_status === 'active';
+
+  const currentPlan = isSubscribed ? sandbox.name : 'No active subscription';
+
+  // ── Stripe helpers (web / Android only) ───────────────────────────────────
   const getBaseUrl = () => {
-    if (Platform.OS === 'web') {
-      return window.location.origin;
-    }
-    // For development
-    if (__DEV__) {
-      return Constants.expoConfig?.hostUri 
+    if (Platform.OS === 'web') return window.location.origin;
+    if (__DEV__)
+      return Constants.expoConfig?.hostUri
         ? `http://${Constants.expoConfig.hostUri}`
         : 'http://localhost:8081';
-    }
-    // For production
-    return 'https://myapp.example.com'; // Your production URL
+    return 'flowersandbox://';
   };
 
   useEffect(() => {
+    if (Platform.OS === 'ios') return; // IAP hook handles iOS
+
     if (success === 'true') {
       setSuccessMessage('Your subscription was successfully activated!');
-      if (Platform.OS !== 'web') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
     } else if (success === 'false') {
       setError('The subscription process was cancelled.');
     }
-    
-    fetchSubscription();
+    fetchStripeSubscription();
   }, [success]);
 
-  const fetchSubscription = async () => {
+  // Surface IAP errors in the shared error state
+  useEffect(() => {
+    if (iap?.error) setError(iap.error);
+  }, [iap?.error]);
+
+  const fetchStripeSubscription = async () => {
     setLoadingInfo(true);
     try {
-      // Only query if authenticated
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setSubscription(null);
-        return;
-      }
+      if (!session) { setSubscription(null); return; }
 
-      const { data, error } = await supabase
+      const { data, error: dbErr } = await supabase
         .from('stripe_user_subscriptions')
         .select('subscription_status, price_id, current_period_end')
         .maybeSingle();
 
-      if (error) {
-        throw error;
-      }
-
+      if (dbErr) throw dbErr;
       setSubscription(data);
     } catch (err) {
       console.error('Error fetching subscription:', err);
-      // Don't surface network errors to unauthenticated users
-      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
-      if (session) {
-        setError('Failed to load subscription status. Please try again.');
-      }
+      const { data: { session } } = await supabase.auth
+        .getSession()
+        .catch(() => ({ data: { session: null } }));
+      if (session) setError('Failed to load subscription status. Please try again.');
     } finally {
       setLoadingInfo(false);
     }
   };
 
-  const handleSubscribe = async () => {
-    setLoading(true);
+  const handleStripeSubscribe = async () => {
+    setStripeLoading(true);
     setError(null);
-    
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
 
     try {
-      const { data: session } = await supabase.auth.getSession();
-
-      if (!session?.session?.access_token) {
-        router.push('/login');
-        return;
-      }
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.access_token) { router.push('/login'); return; }
 
       const baseUrl = getBaseUrl();
-      const response = await fetch(`${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.session.access_token}`,
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/stripe-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionData.session.access_token}`,
+          },
+          body: JSON.stringify({
+            price_id: sandbox.priceId,
+            success_url: `${baseUrl}/subscription?success=true`,
+            cancel_url: `${baseUrl}/subscription?success=false`,
+            mode: sandbox.mode,
+          }),
         },
-        body: JSON.stringify({
-          price_id: sandbox.priceId,
-          success_url: `${baseUrl}/subscription?success=true`,
-          cancel_url: `${baseUrl}/subscription?success=false`,
-          mode: sandbox.mode,
-        }),
-      });
+      );
 
       const { error: stripeError, url } = await response.json();
-
-      if (stripeError) {
-        throw new Error(stripeError);
-      }
+      if (stripeError) throw new Error(stripeError);
 
       if (url) {
-        console.log('Redirecting to subscription checkout:', url);
         if (Platform.OS === 'web') {
           window.location.href = url;
         } else {
-          try {
-            await Linking.openURL(url);
-          } catch (linkError) {
-            console.error('Error opening checkout URL:', linkError);
-            setError('Unable to open subscription page. Please try again.');
-          }
+          await Linking.openURL(url);
         }
       } else {
-        console.error('No checkout URL returned from server');
         setError('Failed to create subscription checkout. Please try again.');
       }
     } catch (err) {
-      console.error('Error creating checkout session:', err);
-      setError('Failed to start checkout process');
+      console.error('Stripe checkout error:', err);
+      setError('Failed to start checkout process.');
     } finally {
-      setLoading(false);
+      setStripeLoading(false);
     }
   };
 
-  const isSubscribed = subscription?.subscription_status === 'active';
-  const currentPlan = isSubscribed ? sandbox.name : 'No active subscription';
-  
+  const handleSubscribe = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    if (Platform.OS === 'ios') {
+      iap?.purchaseSubscription();
+    } else {
+      handleStripeSubscribe();
+    }
+  };
+
+  const handleRestore = () => {
+    iap?.restorePurchases();
+  };
+
+  const loading = Platform.OS === 'ios' ? (iap?.loading ?? true) : stripeLoading;
+
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    return date.toLocaleDateString(undefined, options);
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
   return (
@@ -180,7 +180,7 @@ export default function SubscriptionScreen() {
               <Text style={styles.title}>Premium Subscription</Text>
             </View>
             
-            {loadingInfo ? (
+            {(loadingInfo || (Platform.OS === 'ios' && iap?.loading)) ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#007AFF" />
                 <Text style={styles.loadingText}>Loading subscription information...</Text>
@@ -276,6 +276,13 @@ export default function SubscriptionScreen() {
                     <Text style={styles.thankYouText}>Thank you for your support!</Text>
                     <Text style={styles.enjoyText}>Enjoy your premium features!</Text>
                   </View>
+                )}
+
+                {/* Restore Purchases — required by Apple for IAP apps */}
+                {Platform.OS === 'ios' && !isSubscribed && (
+                  <TouchableOpacity style={styles.restoreButton} onPress={handleRestore}>
+                    <Text style={styles.restoreText}>Restore Purchases</Text>
+                  </TouchableOpacity>
                 )}
               </>
             )}
@@ -553,5 +560,17 @@ const styles = StyleSheet.create({
   enjoyText: {
     fontSize: 16,
     color: '#64748B',
+  },
+  restoreButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
+  },
+  restoreText: {
+    color: '#007AFF',
+    fontSize: 15,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
 });

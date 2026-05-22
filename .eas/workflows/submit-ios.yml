@@ -2,7 +2,7 @@ name: Submit iOS app
 
 on:
   push:
-    branches: ['main']
+    branches: ['release']
 
 jobs:
   submit_ios:
@@ -11,9 +11,8 @@ jobs:
     params:
       platform: ios
       # App configured with:
-      # - Name: "Play in the Sandbox Looking at Flowers"
-      # - Description: "playinginthesandbox"
-      # - Bundle ID: "com.djscottyb.playsandbox" (explicit)
+      # - Name: "FlowerSandbox"
+      # - Bundle ID: "com.djscottyb.flowersandbox" (explicit)
       # - App ID Prefix: "3X872JR6P3" (Team ID)
       # The following parameters are configured in eas.json under submit.production.ios
       # - appleId: "beilsco@gmail.com"
