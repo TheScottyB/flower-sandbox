@@ -60,3 +60,6 @@ supabase/.temp/
 .projects/vault
 .env
 .env.local
+
+# Vercel
+.vercel/
