@@ -262,13 +262,13 @@ export default function AboutScreen() {
                 <View style={styles.cardInner}>
                   <Text style={styles.sectionTitle}>Account</Text>
                   <Text style={styles.description}>
-                    Sign in to manage your subscription and account.
+                    Sign in to sync your subscription and garden layout across multiple devices.
                   </Text>
                   <TouchableOpacity
                     style={styles.signInButton}
                     onPress={() => router.push('/login')}
                   >
-                    <Text style={styles.signInText}>Sign In</Text>
+                    <Text style={styles.signInText}>Sync Account</Text>
                   </TouchableOpacity>
                 </View>
               </BlurView>

@@ -304,7 +304,7 @@ export default function HomeScreen() {
                       style={styles.sidebarLoginBtn}
                     >
                       <LogIn size={16} color="#007AFF" />
-                      <Text style={styles.loginText}>Login</Text>
+                      <Text style={styles.loginText}>Sync Account</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -354,7 +354,7 @@ export default function HomeScreen() {
                       onPress={() => router.push('/login')}
                       style={styles.loginBtnMobile}
                     >
-                      <Text style={styles.loginTextMobile}>Login</Text>
+                      <Text style={styles.loginTextMobile}>Sync</Text>
                     </TouchableOpacity>
                   )}
                   <View style={styles.chevronWrapper}>

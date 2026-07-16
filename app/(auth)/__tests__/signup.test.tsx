@@ -56,6 +56,9 @@ describe('SignUpScreen', () => {
     expect(signUpMock).toHaveBeenCalledWith({
       email: 'test@example.com',
       password: 'password123',
+      options: {
+        emailRedirectTo: 'https://flowersandbox.com/app/login',
+      },
     });
     const infoText = tree.root.find(
       (node) => node.props.style && node.props.style.color === '#166534',

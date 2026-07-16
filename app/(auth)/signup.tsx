@@ -59,10 +59,20 @@ export default function SignUpScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
+    const getRedirectUrl = () => {
+      if (Platform.OS === 'web') {
+        return `${window.location.origin}/app/login`;
+      }
+      return 'https://flowersandbox.com/app/login';
+    };
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
+        options: {
+          emailRedirectTo: getRedirectUrl(),
+        },
       });
 
       if (error) {
