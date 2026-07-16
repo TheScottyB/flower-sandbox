@@ -8,6 +8,7 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watchAll",
     "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
     "dev": "npx expo start",
     "dev:go": "npx expo start --go",
     "dev:tunnel": "npx expo start --tunnel",
@@ -96,6 +97,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/runtime": "^7.29.2",
+    "@biomejs/biome": "2.4.15",
     "@playwright/test": "^1.60.0",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",

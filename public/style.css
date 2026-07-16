@@ -1,6 +1,6 @@
 /* style.css - Modern, premium design system for FlowerSandbox landing page */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap");
 
 :root {
   --bg-color: #0b1311;
@@ -8,7 +8,7 @@
   --card-bg: rgba(18, 33, 29, 0.6);
   --card-border: rgba(61, 139, 122, 0.15);
   --card-border-hover: rgba(242, 179, 194, 0.3);
-  
+
   --primary: #3c8273;
   --primary-glow: rgba(60, 130, 115, 0.4);
   --accent: #f2b3c2;
@@ -16,10 +16,10 @@
   --text: #edf4f2;
   --text-muted: #95aaa6;
   --text-dark: #0b1311;
-  
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Outfit', sans-serif;
-  
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Outfit", sans-serif;
+
   --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --shadow-subtle: 0 8px 30px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 30px rgba(60, 130, 115, 0.2);
@@ -56,7 +56,11 @@ body {
 
 .petal {
   position: absolute;
-  background: radial-gradient(circle, var(--accent) 0%, rgba(242, 179, 194, 0.2) 100%);
+  background: radial-gradient(
+    circle,
+    var(--accent) 0%,
+    rgba(242, 179, 194, 0.2) 100%
+  );
   border-radius: 100% 0 100% 50% / 100% 0 100% 50%;
   opacity: 0.3;
   transform-origin: center;
@@ -132,7 +136,7 @@ nav a {
 }
 
 nav a::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -269,7 +273,11 @@ nav a:hover::after {
   position: absolute;
   width: 120%;
   height: 120%;
-  background: radial-gradient(circle, rgba(60, 130, 115, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(60, 130, 115, 0.15) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
   z-index: 1;
   pointer-events: none;
 }
@@ -347,7 +355,9 @@ nav a:hover::after {
 .feature-card:hover {
   transform: translateY(-10px);
   border-color: var(--card-border-hover);
-  box-shadow: var(--shadow-subtle), 0 10px 20px rgba(60, 130, 115, 0.05);
+  box-shadow:
+    var(--shadow-subtle),
+    0 10px 20px rgba(60, 130, 115, 0.05);
 }
 
 .feature-icon {
@@ -409,7 +419,9 @@ nav a:hover::after {
 
 .gallery-item:hover {
   transform: translateY(-15px) scale(1.03);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), var(--shadow-glow);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.6),
+    var(--shadow-glow);
   border-color: #27433c;
 }
 
@@ -428,7 +440,11 @@ nav a:hover::after {
 /* Pricing / Subscription Section */
 .pricing {
   padding: 6rem 5% 8rem;
-  background: radial-gradient(circle at 50% 50%, rgba(60, 130, 115, 0.08) 0%, rgba(0, 0, 0, 0) 60%);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(60, 130, 115, 0.08) 0%,
+    rgba(0, 0, 0, 0) 60%
+  );
   position: relative;
   z-index: 2;
   text-align: center;
@@ -437,18 +453,26 @@ nav a:hover::after {
 .pricing-card {
   max-width: 450px;
   margin: 4rem auto 0;
-  background: linear-gradient(180deg, rgba(22, 41, 36, 0.8) 0%, rgba(13, 24, 21, 0.8) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(22, 41, 36, 0.8) 0%,
+    rgba(13, 24, 21, 0.8) 100%
+  );
   border: 1px solid rgba(242, 179, 194, 0.2);
   border-radius: 24px;
   padding: 3.5rem 2.5rem;
   backdrop-filter: blur(15px);
-  box-shadow: var(--shadow-subtle), 0 0 40px rgba(242, 179, 194, 0.05);
+  box-shadow:
+    var(--shadow-subtle),
+    0 0 40px rgba(242, 179, 194, 0.05);
   transition: var(--transition-smooth);
 }
 
 .pricing-card:hover {
   border-color: var(--accent);
-  box-shadow: var(--shadow-subtle), 0 0 50px rgba(242, 179, 194, 0.15);
+  box-shadow:
+    var(--shadow-subtle),
+    0 0 50px rgba(242, 179, 194, 0.15);
 }
 
 .pricing-tag {
@@ -618,8 +642,14 @@ textarea.form-control {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Legal Pages (Privacy / Terms) */
@@ -668,7 +698,8 @@ textarea.form-control {
   color: var(--accent);
 }
 
-.legal-content p, .legal-content ul {
+.legal-content p,
+.legal-content ul {
   margin-bottom: 1.5rem;
   color: var(--text-muted);
   font-size: 1.05rem;
@@ -762,32 +793,32 @@ footer {
     text-align: center;
     gap: 3rem;
   }
-  
+
   .hero-content h1 {
     font-size: 3rem;
   }
-  
+
   .hero-subtitle {
     margin-left: auto;
     margin-right: auto;
   }
-  
+
   .hero-cta {
     justify-content: center;
   }
-  
+
   .hero-image-wrapper {
     max-width: 400px;
   }
-  
+
   .section-title h2 {
     font-size: 2.3rem;
   }
-  
+
   .legal-card {
     padding: 2.5rem;
   }
-  
+
   .legal-card h1 {
     font-size: 2.2rem;
   }
@@ -797,38 +828,40 @@ footer {
   header {
     padding: 1.5rem 5%;
   }
-  
+
   .logo {
     font-size: 1.3rem;
   }
-  
+
   nav {
     gap: 1rem;
   }
-  
+
   .btn-nav {
     display: none; /* Hide on mobile to simplify layout */
   }
-  
+
   .hero-cta {
     flex-direction: column;
     width: 100%;
   }
-  
-  .btn-primary, .btn-secondary {
+
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
     justify-content: center;
   }
-  
-  .contact-card, .legal-card {
+
+  .contact-card,
+  .legal-card {
     padding: 1.8rem;
   }
-  
+
   .footer-content {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .footer-links {
     flex-direction: column;
     gap: 2rem;

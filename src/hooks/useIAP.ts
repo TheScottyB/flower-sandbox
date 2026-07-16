@@ -17,20 +17,20 @@
  * subscriptions — no server-side receipt validation needed for status checks.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import {
-  initConnection,
   endConnection,
   fetchProducts,
-  getAvailablePurchases,
-  requestPurchase,
   finishTransaction,
-  purchaseUpdatedListener,
+  getAvailablePurchases,
+  initConnection,
   purchaseErrorListener,
+  purchaseUpdatedListener,
+  requestPurchase,
 } from 'expo-iap';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
 
 export const IAP_PRODUCT_ID =
   process.env.EXPO_PUBLIC_IAP_PRODUCT_ID ??
@@ -89,18 +89,24 @@ export function useIAP(): IAPState {
       try {
         // Warm the UI with cached status while we hit the store
         const cached = await AsyncStorage.getItem(STORAGE_KEY);
-        if (!cancelled && cached !== null) setSubscribedRef.current(cached === '1');
+        if (!cancelled && cached !== null)
+          setSubscribedRef.current(cached === '1');
 
         await initConnection();
 
         // Fetch product metadata so the UI shows the StoreKit title and price
         // instead of the hardcoded Stripe catalog values (fixes 3.1.2 mismatch).
         try {
-          const skProducts = await fetchProducts({ skus: [IAP_PRODUCT_ID], type: 'subs' });
+          const skProducts = await fetchProducts({
+            skus: [IAP_PRODUCT_ID],
+            type: 'subs',
+          });
           const product = skProducts?.[0] as any;
           if (!cancelled && product) {
-            const title: string | null = product.displayNameIOS ?? product.displayName ?? null;
-            const price: string | null = product.displayPrice ?? product.localizedPrice ?? null;
+            const title: string | null =
+              product.displayNameIOS ?? product.displayName ?? null;
+            const price: string | null =
+              product.displayPrice ?? product.localizedPrice ?? null;
             if (title) setProductTitle(title);
             if (price) setProductPrice(price);
           }
@@ -175,15 +181,26 @@ export function useIAP(): IAPState {
     setError(null);
     try {
       const purchases = await getAvailablePurchases();
-      const hasSubscription = purchases.some((p) => p.productId === IAP_PRODUCT_ID);
+      const hasSubscription = purchases.some(
+        (p) => p.productId === IAP_PRODUCT_ID,
+      );
       setIsSubscribed(hasSubscription);
       await AsyncStorage.setItem(STORAGE_KEY, hasSubscription ? '1' : '0');
-      if (!hasSubscription) setError('No previous subscription found for this Apple ID.');
+      if (!hasSubscription)
+        setError('No previous subscription found for this Apple ID.');
     } catch (err: any) {
       console.error('[useIAP] restore error:', err);
       setError('Restore failed. Please try again.');
     }
   }, []);
 
-  return { isSubscribed, loading, error, productTitle, productPrice, purchaseSubscription, restorePurchases };
+  return {
+    isSubscribed,
+    loading,
+    error,
+    productTitle,
+    productPrice,
+    purchaseSubscription,
+    restorePurchases,
+  };
 }

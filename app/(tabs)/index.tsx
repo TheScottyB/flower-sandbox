@@ -1,16 +1,37 @@
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Linking, ActivityIndicator, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { supabase } from '@/lib/supabase';
-import { products } from '@/src/stripe-config';
-import { useState, useEffect } from 'react';
-import Constants from 'expo-constants';
 import { BlurView } from 'expo-blur';
+import Constants from 'expo-constants';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  LogIn,
+  Sparkles,
+  User,
+} from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+import { supabase } from '@/lib/supabase';
 import { FlowerField } from '@/src/components/FlowerField';
 import { useIAP } from '@/src/hooks/useIAP';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { ChevronUp, ChevronDown, Sparkles, Heart, CheckCircle2, User, LogIn } from 'lucide-react-native';
+import { products } from '@/src/stripe-config';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -41,15 +62,17 @@ export default function HomeScreen() {
               .select('subscription_status')
               .eq('user_id', data.session.user.id)
               .maybeSingle();
-              
-            setStripeIsPremium(subscriptionData?.subscription_status === 'active');
+
+            setStripeIsPremium(
+              subscriptionData?.subscription_status === 'active',
+            );
           } catch (error) {
             console.error('Error checking subscription status:', error);
           }
         }
       }
     };
-    
+
     checkUser();
   }, []);
 
@@ -58,7 +81,7 @@ export default function HomeScreen() {
       return window.location.origin;
     }
     if (__DEV__) {
-      return Constants.expoConfig?.hostUri 
+      return Constants.expoConfig?.hostUri
         ? `http://${Constants.expoConfig.hostUri}`
         : 'http://localhost:8081';
     }
@@ -68,27 +91,32 @@ export default function HomeScreen() {
   const handleDonate = async () => {
     setError(null);
     setLoading(true);
-    
+
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const baseUrl = getBaseUrl();
-      const response = await fetch(`${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/stripe-checkout-anonymous`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/stripe-checkout-anonymous`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            price_id: products.donation.priceId,
+            mode: products.donation.mode,
+            success_url: `${baseUrl}/donation-success`,
+            cancel_url: `${baseUrl}/`,
+          }),
         },
-        body: JSON.stringify({
-          price_id: products.donation.priceId,
-          mode: products.donation.mode,
-          success_url: `${baseUrl}/donation-success`,
-          cancel_url: `${baseUrl}/`,
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -99,21 +127,21 @@ export default function HomeScreen() {
       }
 
       const { url, sessionId } = data;
-      
+
       if (url) {
         if (Platform.OS === 'web') {
           window.location.href = url;
         } else {
           try {
             await Linking.openURL(url);
-          } catch (linkError) {
+          } catch (_linkError) {
             setError('Unable to open payment page. Please try again.');
           }
         }
       } else {
         setError('Failed to create checkout session. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -127,7 +155,7 @@ export default function HomeScreen() {
   };
 
   const handleFlowerPlanted = () => {
-    setFlowerCount(prev => prev + 1);
+    setFlowerCount((prev) => prev + 1);
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -137,7 +165,7 @@ export default function HomeScreen() {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    setDrawerExpanded(prev => !prev);
+    setDrawerExpanded((prev) => !prev);
   };
 
   const animatedDrawerStyle = useAnimatedStyle(() => {
@@ -145,39 +173,50 @@ export default function HomeScreen() {
     const translateVal = drawerExpanded ? 0 : 390;
     return {
       transform: [
-        { translateY: withSpring(translateVal, { damping: 18, stiffness: 150 }) }
-      ]
+        {
+          translateY: withSpring(translateVal, { damping: 18, stiffness: 150 }),
+        },
+      ],
     };
   });
 
   const renderContent = () => (
     <View style={styles.panelContent}>
       <Text style={styles.flowerCount}>
-        🌸 Flowers planted: <Text style={styles.countNumber}>{flowerCount}</Text>
+        🌸 Flowers planted:{' '}
+        <Text style={styles.countNumber}>{flowerCount}</Text>
       </Text>
-      
+
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
-      
+
       <View style={styles.featuresContainer}>
         <View style={styles.featureItem}>
           <CheckCircle2 size={18} color="#34C759" style={styles.featureIcon} />
           <View style={styles.featureTextWrapper}>
             <Text style={styles.featureTitle}>Beautiful Flowers</Text>
-            <Text style={styles.featureDescription}>Plant multiple animated flower types in your garden.</Text>
+            <Text style={styles.featureDescription}>
+              Plant multiple animated flower types in your garden.
+            </Text>
           </View>
         </View>
-        
+
         <View style={styles.featureItem}>
-          <Sparkles size={18} color={isPremium ? "#FFD60A" : "#8E8E93"} style={styles.featureIcon} />
+          <Sparkles
+            size={18}
+            color={isPremium ? '#FFD60A' : '#8E8E93'}
+            style={styles.featureIcon}
+          />
           <View style={styles.featureTextWrapper}>
             <Text style={styles.featureTitle}>
-              Premium Colors {isPremium && "(Active)"}
+              Premium Colors {isPremium && '(Active)'}
             </Text>
-            <Text style={styles.featureDescription}>Unlock unique HSL color gradients and rare varieties.</Text>
+            <Text style={styles.featureDescription}>
+              Unlock unique HSL color gradients and rare varieties.
+            </Text>
           </View>
         </View>
 
@@ -185,37 +224,38 @@ export default function HomeScreen() {
           <CheckCircle2 size={18} color="#34C759" style={styles.featureIcon} />
           <View style={styles.featureTextWrapper}>
             <Text style={styles.featureTitle}>
-              Garden Expansion {isPremium && "(Active)"}
+              Garden Expansion {isPremium && '(Active)'}
             </Text>
-            <Text style={styles.featureDescription}>Plant up to {isPremium ? '50' : '15'} flowers in your garden.</Text>
+            <Text style={styles.featureDescription}>
+              Plant up to {isPremium ? '50' : '15'} flowers in your garden.
+            </Text>
           </View>
         </View>
       </View>
-      
+
       <View style={styles.buttonsWrapper}>
         <TouchableOpacity
           style={StyleSheet.flatten([
             styles.subscribeButton,
-            isPremium && styles.subscribedButton
+            isPremium && styles.subscribedButton,
           ])}
           onPress={() => {
             handleSubscribe();
             router.push('/subscription');
-          }}>
+          }}
+        >
           <Sparkles size={20} color="#FFF" style={styles.btnIcon} />
           <Text style={styles.buttonText}>
             {isPremium ? 'Premium Active' : 'Subscribe Now'}
           </Text>
         </TouchableOpacity>
-        
+
         {Platform.OS !== 'ios' && (
           <TouchableOpacity
-            style={[
-              styles.donateButton,
-              loading && styles.buttonDisabled
-            ]}
+            style={[styles.donateButton, loading && styles.buttonDisabled]}
             onPress={handleDonate}
-            disabled={loading}>
+            disabled={loading}
+          >
             {loading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
@@ -233,15 +273,17 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <FlowerField 
+        <FlowerField
           count={isPremium ? 10 : 5}
           isPremium={isPremium}
           maxFlowers={isPremium ? 50 : 15}
           onAddFlower={handleFlowerPlanted}
           rightOffset={isWide ? 350 : 0}
-          style={isWide ? styles.desktopSandboxField : styles.mobileSandboxField}
+          style={
+            isWide ? styles.desktopSandboxField : styles.mobileSandboxField
+          }
         />
-        
+
         {isWide ? (
           /* Sidebar view for Web & Tablet */
           <View style={styles.sidebarContainer}>
@@ -257,17 +299,24 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   ) : (
-                    <TouchableOpacity onPress={() => router.push('/login')} style={styles.sidebarLoginBtn}>
+                    <TouchableOpacity
+                      onPress={() => router.push('/login')}
+                      style={styles.sidebarLoginBtn}
+                    >
                       <LogIn size={16} color="#007AFF" />
                       <Text style={styles.loginText}>Login</Text>
                     </TouchableOpacity>
                   )}
                 </View>
                 <Text style={styles.subtitle}>
-                  Interact with the field on the left to plant and nurture your garden.
+                  Interact with the field on the left to plant and nurture your
+                  garden.
                 </Text>
               </View>
-              <ScrollView style={styles.sidebarScroll} contentContainerStyle={styles.sidebarScrollContent}>
+              <ScrollView
+                style={styles.sidebarScroll}
+                contentContainerStyle={styles.sidebarScrollContent}
+              >
                 {renderContent()}
               </ScrollView>
             </BlurView>
@@ -276,7 +325,11 @@ export default function HomeScreen() {
           /* Collapsible Bottom Drawer for Mobile */
           <Animated.View style={[styles.drawerContainer, animatedDrawerStyle]}>
             <BlurView intensity={85} tint="light" style={styles.drawerBlur}>
-              <TouchableOpacity activeOpacity={0.9} onPress={toggleDrawer} style={styles.drawerHeader}>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={toggleDrawer}
+                style={styles.drawerHeader}
+              >
                 <View style={styles.dragHandle} />
                 <View style={styles.drawerHeaderMain}>
                   <View style={styles.drawerTitleRow}>
@@ -290,23 +343,34 @@ export default function HomeScreen() {
                     )}
                   </View>
                   <Text style={styles.drawerSubtitle}>
-                    {flowerCount} planted • {drawerExpanded ? 'Tap to close' : 'Tap to expand features'}
+                    {flowerCount} planted •{' '}
+                    {drawerExpanded ? 'Tap to close' : 'Tap to expand features'}
                   </Text>
                 </View>
-                
+
                 <View style={styles.headerButtons}>
                   {!user && (
-                    <TouchableOpacity onPress={() => router.push('/login')} style={styles.loginBtnMobile}>
+                    <TouchableOpacity
+                      onPress={() => router.push('/login')}
+                      style={styles.loginBtnMobile}
+                    >
                       <Text style={styles.loginTextMobile}>Login</Text>
                     </TouchableOpacity>
                   )}
                   <View style={styles.chevronWrapper}>
-                    {drawerExpanded ? <ChevronDown size={22} color="#555" /> : <ChevronUp size={22} color="#555" />}
+                    {drawerExpanded ? (
+                      <ChevronDown size={22} color="#555" />
+                    ) : (
+                      <ChevronUp size={22} color="#555" />
+                    )}
                   </View>
                 </View>
               </TouchableOpacity>
-              
-              <ScrollView style={styles.drawerScroll} contentContainerStyle={styles.drawerScrollContent}>
+
+              <ScrollView
+                style={styles.drawerScroll}
+                contentContainerStyle={styles.drawerScrollContent}
+              >
                 {renderContent()}
               </ScrollView>
             </BlurView>
@@ -377,7 +441,10 @@ const styles = StyleSheet.create({
   },
   drawerBlur: {
     flex: 1,
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.96)' : 'rgba(255, 255, 255, 0.65)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.96)'
+        : 'rgba(255, 255, 255, 0.65)',
   },
   drawerHeader: {
     paddingHorizontal: 20,
@@ -463,7 +530,10 @@ const styles = StyleSheet.create({
   },
   sidebarBlur: {
     flex: 1,
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.96)' : 'rgba(255, 255, 255, 0.65)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.96)'
+        : 'rgba(255, 255, 255, 0.65)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
   },

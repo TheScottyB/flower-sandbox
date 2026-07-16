@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { spawnSync } from 'child_process';
-import { fileURLToPath } from 'url';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
@@ -15,7 +15,14 @@ console.log('Starting custom web build for FlowerSandbox...');
 try {
   // 1. Run Expo Web Export
   console.log('Running "pnpm exec expo export --platform web"...');
-  const args = ['exec', 'expo', 'export', '--platform', 'web', ...process.argv.slice(2)];
+  const args = [
+    'exec',
+    'expo',
+    'export',
+    '--platform',
+    'web',
+    ...process.argv.slice(2),
+  ];
   const result = spawnSync('pnpm', args, {
     cwd: rootDir,
     stdio: 'inherit',
@@ -37,7 +44,9 @@ try {
   const distIndex = path.join(distDir, 'index.html');
   const distAppIndex = path.join(distAppDir, 'index.html');
   if (fs.existsSync(distIndex)) {
-    console.log('Moving generated app loader from dist/index.html to dist/app/index.html...');
+    console.log(
+      'Moving generated app loader from dist/index.html to dist/app/index.html...',
+    );
     fs.renameSync(distIndex, distAppIndex);
   } else {
     throw new Error('Generated dist/index.html not found!');
@@ -57,7 +66,6 @@ try {
     console.log('Removing dist/index.html.marketing...');
     fs.unlinkSync(distTempIndex);
   }
-
 } catch (error) {
   console.error('Build step failed:', error);
   process.exit(1);

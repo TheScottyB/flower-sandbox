@@ -46,7 +46,11 @@ jest.mock('react-native-reanimated', () => {
   const React = require('react');
 
   const AnimatedView = React.forwardRef(function AnimatedView(props, ref) {
-    return React.createElement('AnimatedView', { ...props, ref }, props.children);
+    return React.createElement(
+      'AnimatedView',
+      { ...props, ref },
+      props.children,
+    );
   });
 
   const identity = (t) => t;
@@ -187,17 +191,24 @@ jest.mock('expo-router', () => ({
 jest.mock('expo-linear-gradient', () => {
   const React = require('react');
   return {
-    LinearGradient: (props) => React.createElement('LinearGradient', props, props.children),
+    LinearGradient: (props) =>
+      React.createElement('LinearGradient', props, props.children),
   };
 });
 
 // Mock supabase-js
 jest.mock('@supabase/supabase-js', () => {
   const mockAuth = {
-    signInWithPassword: jest.fn(() => Promise.resolve({ data: { user: {} }, error: null })),
+    signInWithPassword: jest.fn(() =>
+      Promise.resolve({ data: { user: {} }, error: null }),
+    ),
     signUp: jest.fn(() => Promise.resolve({ data: { user: {} }, error: null })),
-    getSession: jest.fn(() => Promise.resolve({ data: { session: null }, error: null })),
-    onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+    getSession: jest.fn(() =>
+      Promise.resolve({ data: { session: null }, error: null }),
+    ),
+    onAuthStateChange: jest.fn(() => ({
+      data: { subscription: { unsubscribe: jest.fn() } },
+    })),
   };
   const mockFrom = jest.fn(() => ({
     select: jest.fn(() => ({
@@ -211,4 +222,3 @@ jest.mock('@supabase/supabase-js', () => {
     })),
   };
 });
-

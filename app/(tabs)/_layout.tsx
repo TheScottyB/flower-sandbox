@@ -1,13 +1,29 @@
-import { Tabs } from 'expo-router';
-import { Home, Info, CreditCard } from 'lucide-react-native';
-import { View, StyleSheet, useWindowDimensions, Platform, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Tabs } from 'expo-router';
+import { CreditCard, Home, Info } from 'lucide-react-native';
 import React from 'react';
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Custom Animated Tab Button
-function TabBarButton({ isFocused, label, icon: Icon, onPress, onLongPress }: any) {
+function TabBarButton({
+  isFocused,
+  label,
+  icon: Icon,
+  onPress,
+  onLongPress,
+}: any) {
   const scale = useSharedValue(isFocused ? 1.15 : 1);
 
   React.useEffect(() => {
@@ -15,7 +31,7 @@ function TabBarButton({ isFocused, label, icon: Icon, onPress, onLongPress }: an
       damping: 15,
       stiffness: 180,
     });
-  }, [isFocused]);
+  }, [isFocused, scale]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -35,7 +51,12 @@ function TabBarButton({ isFocused, label, icon: Icon, onPress, onLongPress }: an
       <Animated.View style={[styles.iconWrapper, animatedStyle]}>
         <Icon size={24} color={isFocused ? '#007AFF' : '#718096'} />
       </Animated.View>
-      <View style={[styles.dot, { backgroundColor: isFocused ? '#007AFF' : 'transparent' }]} />
+      <View
+        style={[
+          styles.dot,
+          { backgroundColor: isFocused ? '#007AFF' : 'transparent' },
+        ]}
+      />
     </TouchableOpacity>
   );
 }
@@ -53,15 +74,21 @@ export default function TabLayout() {
         const { state, descriptors, navigation } = props;
 
         return (
-          <View style={[
-            styles.tabBarWrapper, 
-            { bottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16 }
-          ]}>
+          <View
+            style={[
+              styles.tabBarWrapper,
+              {
+                bottom:
+                  Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16,
+              },
+            ]}
+          >
             <BlurView intensity={80} tint="light" style={styles.blurContainer}>
               <View style={styles.tabBarContainer}>
                 {state.routes.map((route, index) => {
                   const { options } = descriptors[route.key];
-                  const label = options.title !== undefined ? options.title : route.name;
+                  const label =
+                    options.title !== undefined ? options.title : route.name;
                   const isFocused = state.index === index;
 
                   const onPress = () => {
@@ -135,7 +162,10 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.65)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.95)'
+        : 'rgba(255, 255, 255, 0.65)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
     shadowColor: '#000',

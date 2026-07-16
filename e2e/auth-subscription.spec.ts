@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Authentication and Subscription Flow', () => {
   test.skip(
@@ -6,7 +6,9 @@ test.describe('Authentication and Subscription Flow', () => {
     'Set E2E_RUN_STRIPE_FLOW=1 to run the live auth and Stripe Checkout integration flow.',
   );
 
-  test('should sign up a user and redirect to Stripe Checkout', async ({ page }) => {
+  test('should sign up a user and redirect to Stripe Checkout', async ({
+    page,
+  }) => {
     // Generate a unique test email to prevent collisions in the database
     const testEmail = `e2e-test-${Date.now()}-${Math.floor(Math.random() * 1000)}@example.com`;
     const testPassword = 'password123';
@@ -15,8 +17,8 @@ test.describe('Authentication and Subscription Flow', () => {
     await page.goto('/app/signup');
     await expect(page).toHaveURL(/\/app\/signup/);
 
-    page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
-    page.on('pageerror', err => console.error('BROWSER ERROR:', err.message));
+    page.on('console', (msg) => console.log('BROWSER LOG:', msg.text()));
+    page.on('pageerror', (err) => console.error('BROWSER ERROR:', err.message));
 
     // 2. Fill registration form
     const emailInput = page.locator('input[placeholder*="email" i]');
@@ -29,7 +31,10 @@ test.describe('Authentication and Subscription Flow', () => {
     await passwordInput.fill(testPassword);
 
     // 3. Click Sign Up button
-    const signUpButton = page.locator('[role="button"], button, div').filter({ hasText: /^Sign Up$/ }).first();
+    const signUpButton = page
+      .locator('[role="button"], button, div')
+      .filter({ hasText: /^Sign Up$/ })
+      .first();
     await expect(signUpButton).toBeVisible();
     await signUpButton.click();
 
@@ -46,9 +51,12 @@ test.describe('Authentication and Subscription Flow', () => {
     await expect(subStatusText).toBeVisible({ timeout: 10000 });
 
     // 6. Click "Subscribe Now" button to trigger checkout redirect
-    const subscribeButton = page.locator('[role="button"], button, div').filter({ hasText: /^Subscribe Now$/ }).first();
+    const subscribeButton = page
+      .locator('[role="button"], button, div')
+      .filter({ hasText: /^Subscribe Now$/ })
+      .first();
     await expect(subscribeButton).toBeVisible();
-    
+
     console.log('Clicking "Subscribe Now" and waiting for Stripe redirect...');
     await subscribeButton.click();
 

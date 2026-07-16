@@ -1,13 +1,24 @@
-import { useEffect, useState } from 'react';
-import { Alert, ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, useWindowDimensions } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { supabase } from '@/lib/supabase';
-import * as Haptics from 'expo-haptics';
-import { Platform } from 'react-native';
-import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
 import Constants from 'expo-constants';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { supabase } from '@/lib/supabase';
+import { Flower } from '@/src/components/Flower';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 
 export default function AboutScreen() {
@@ -25,9 +36,11 @@ export default function AboutScreen() {
       setLoadingUser(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      },
+    );
 
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -61,7 +74,9 @@ export default function AboutScreen() {
   const confirmDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         router.replace('/login');
         return;
@@ -81,7 +96,10 @@ export default function AboutScreen() {
       const result = await response.json();
 
       if (!response.ok) {
-        Alert.alert('Error', result.error ?? 'Failed to delete account. Please try again.');
+        Alert.alert(
+          'Error',
+          result.error ?? 'Failed to delete account. Please try again.',
+        );
         return;
       }
 
@@ -89,7 +107,10 @@ export default function AboutScreen() {
       router.replace('/login');
     } catch (err) {
       console.error('Error deleting account:', err);
-      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      Alert.alert(
+        'Error',
+        'Network error. Please check your connection and try again.',
+      );
     } finally {
       setDeletingAccount(false);
     }
@@ -97,21 +118,48 @@ export default function AboutScreen() {
 
   const flowerPositions = isWide
     ? [
-        { type: 'tulip' as const, size: 80, position: { x: width * 0.08, y: 140 } },
-        { type: 'daisy' as const, size: 70, position: { x: width * 0.88, y: 200 } },
-        { type: 'rose' as const, size: 75, position: { x: width * 0.12, y: 440 } },
-        { type: 'sunflower' as const, size: 85, position: { x: width * 0.84, y: 460 } },
+        {
+          type: 'tulip' as const,
+          size: 80,
+          position: { x: width * 0.08, y: 140 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 70,
+          position: { x: width * 0.88, y: 200 },
+        },
+        {
+          type: 'rose' as const,
+          size: 75,
+          position: { x: width * 0.12, y: 440 },
+        },
+        {
+          type: 'sunflower' as const,
+          size: 85,
+          position: { x: width * 0.84, y: 460 },
+        },
       ]
     : [
         { type: 'tulip' as const, size: 60, position: { x: 25, y: 70 } },
-        { type: 'daisy' as const, size: 50, position: { x: width - 65, y: 120 } },
-        { type: 'rose' as const, size: 55, position: { x: width - 50, y: 310 } },
+        {
+          type: 'daisy' as const,
+          size: 50,
+          position: { x: width - 65, y: 120 },
+        },
+        {
+          type: 'rose' as const,
+          size: 55,
+          position: { x: width - 50, y: 310 },
+        },
         { type: 'sunflower' as const, size: 60, position: { x: 30, y: 230 } },
       ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient colors={['#FFEBCD', '#FFF8E1']} style={styles.background} />
+      <LinearGradient
+        colors={['#FFEBCD', '#FFF8E1']}
+        style={styles.background}
+      />
 
       {/* Decorative flowers */}
       <View style={styles.decorativeFlowers} pointerEvents="none">
@@ -125,7 +173,10 @@ export default function AboutScreen() {
         ))}
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.container}>
           {/* App info card */}
           <View style={styles.card}>
@@ -133,18 +184,25 @@ export default function AboutScreen() {
               <View style={styles.cardInner}>
                 <Text style={styles.title}>FlowerSandbox</Text>
                 <Text style={styles.description}>
-                  A peaceful little garden where you can plant and grow beautiful flowers. Subscribe for
-                  premium colors, rare varieties, and a larger garden.
+                  A peaceful little garden where you can plant and grow
+                  beautiful flowers. Subscribe for premium colors, rare
+                  varieties, and a larger garden.
                 </Text>
                 <Text style={styles.version}>Version {appVersion}</Text>
 
                 <View style={styles.legalLinks}>
-                  <TouchableOpacity onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+                  >
                     <Text style={styles.legalLinkText}>Privacy Policy</Text>
                   </TouchableOpacity>
                   <Text style={styles.legalSeparator}>·</Text>
-                  <TouchableOpacity onPress={() => Linking.openURL(TERMS_OF_USE_URL)}>
-                    <Text style={styles.legalLinkText}>Terms of Use (EULA)</Text>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(TERMS_OF_USE_URL)}
+                  >
+                    <Text style={styles.legalLinkText}>
+                      Terms of Use (EULA)
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -160,10 +218,15 @@ export default function AboutScreen() {
 
                   <View style={styles.emailRow}>
                     <Text style={styles.emailLabel}>Signed in as</Text>
-                    <Text style={styles.emailValue} numberOfLines={1}>{user.email}</Text>
+                    <Text style={styles.emailValue} numberOfLines={1}>
+                      {user.email}
+                    </Text>
                   </View>
 
-                  <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+                  <TouchableOpacity
+                    style={styles.signOutButton}
+                    onPress={handleSignOut}
+                  >
                     <Text style={styles.signOutText}>Sign Out</Text>
                   </TouchableOpacity>
 
@@ -171,9 +234,13 @@ export default function AboutScreen() {
 
                   <Text style={styles.dangerLabel}>Danger Zone</Text>
                   <TouchableOpacity
-                    style={[styles.deleteButton, deletingAccount && styles.buttonDisabled]}
+                    style={[
+                      styles.deleteButton,
+                      deletingAccount && styles.buttonDisabled,
+                    ]}
                     onPress={handleDeleteAccount}
-                    disabled={deletingAccount}>
+                    disabled={deletingAccount}
+                  >
                     {deletingAccount ? (
                       <ActivityIndicator color="#FFFFFF" size="small" />
                     ) : (
@@ -181,7 +248,8 @@ export default function AboutScreen() {
                     )}
                   </TouchableOpacity>
                   <Text style={styles.deleteHint}>
-                    Permanently removes your account and all data. Cannot be undone.
+                    Permanently removes your account and all data. Cannot be
+                    undone.
                   </Text>
                 </View>
               </BlurView>
@@ -193,8 +261,13 @@ export default function AboutScreen() {
               <BlurView intensity={80} tint="light" style={styles.cardBlur}>
                 <View style={styles.cardInner}>
                   <Text style={styles.sectionTitle}>Account</Text>
-                  <Text style={styles.description}>Sign in to manage your subscription and account.</Text>
-                  <TouchableOpacity style={styles.signInButton} onPress={() => router.push('/login')}>
+                  <Text style={styles.description}>
+                    Sign in to manage your subscription and account.
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.signInButton}
+                    onPress={() => router.push('/login')}
+                  >
                     <Text style={styles.signInText}>Sign In</Text>
                   </TouchableOpacity>
                 </View>
@@ -258,7 +331,10 @@ const styles = StyleSheet.create({
   },
   cardBlur: {
     width: '100%',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.92)'
+        : 'rgba(255, 255, 255, 0.55)',
   },
   cardInner: {
     padding: 24,

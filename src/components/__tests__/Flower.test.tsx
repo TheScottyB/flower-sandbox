@@ -1,9 +1,8 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import * as Haptics from 'expo-haptics';
 import { TouchableOpacity } from 'react-native';
 import { Path } from 'react-native-svg';
+import TestRenderer from 'react-test-renderer';
 import { Flower } from '../Flower';
-import * as Haptics from 'expo-haptics';
 
 describe('Flower', () => {
   beforeEach(() => {
@@ -20,14 +19,20 @@ describe('Flower', () => {
   it('renders with custom props', () => {
     const customPosition = { x: 100, y: 150 };
     const tree = TestRenderer.create(
-      <Flower type="rose" size={80} color="#FFD700" position={customPosition} isPremium={true} />
+      <Flower
+        type="rose"
+        size={80}
+        color="#FFD700"
+        position={customPosition}
+        isPremium={true}
+      />,
     );
 
     const touchable = tree.root.findByType(TouchableOpacity);
     expect(touchable.props.style).toContainEqual({
       position: 'absolute',
-      left: 100 - (80 / 2),
-      top: 150 - (80 / 2),
+      left: 100 - 80 / 2,
+      top: 150 - 80 / 2,
     });
 
     const paths = tree.root.findAllByType(Path);

@@ -4,19 +4,9 @@
     "strict": true,
     "types": ["jest", "react-test-renderer"],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "supabase/functions",
-    "scripts",
-    "scripts/**/*"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "supabase/functions", "scripts", "scripts/**/*"]
 }

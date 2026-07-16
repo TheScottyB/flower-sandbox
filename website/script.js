@@ -9,28 +9,28 @@ document.addEventListener('DOMContentLoaded', () => {
   if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      
+
       const name = document.getElementById('contact-name').value.trim();
       const email = document.getElementById('contact-email').value.trim();
       const message = document.getElementById('contact-message').value.trim();
-      
+
       if (!name || !email || !message) {
         alert('Please fill in all fields.');
         return;
       }
-      
+
       // Simulate form submission
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Sending...';
-      
+
       setTimeout(() => {
         // Hide form fields
         contactForm.reset();
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
-        
+
         // Show success alert
         const successAlert = document.getElementById('success-alert');
         if (successAlert) {
@@ -45,7 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     // Only spawn if clicking on interactive elements is not disrupted
     const target = e.target;
-    if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+    if (
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'A' ||
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA'
+    ) {
       return;
     }
     spawnPetalAt(e.clientX, e.clientY);
@@ -65,7 +70,7 @@ function createBackgroundPetals() {
     const duration = 8 + Math.random() * 10;
     const left = Math.random() * 100;
     const size = 10 + Math.random() * 15;
-    
+
     const petal = document.createElement('div');
     petal.classList.add('petal');
     petal.style.left = `${left}%`;
@@ -73,7 +78,7 @@ function createBackgroundPetals() {
     petal.style.height = `${size * 1.3}px`;
     petal.style.animationDelay = `${delay}s`;
     petal.style.animationDuration = `${duration}s`;
-    
+
     // Random rotation
     petal.style.transform = `rotate(${Math.random() * 360}deg)`;
 
@@ -90,16 +95,17 @@ function spawnPetalAt(x, y) {
 
   const petal = document.createElement('div');
   petal.classList.add('petal');
-  
+
   const size = 15 + Math.random() * 10;
   petal.style.left = `${x - size / 2}px`;
   petal.style.top = `${y - size / 2}px`;
   petal.style.position = 'absolute';
   petal.style.width = `${size}px`;
   petal.style.height = `${size * 1.3}px`;
-  
+
   // Custom animation properties for manual spawn
-  petal.style.animation = 'float-click-petal 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
+  petal.style.animation =
+    'float-click-petal 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards';
   petal.style.opacity = '0.8';
   petal.style.transform = `rotate(${Math.random() * 360}deg)`;
 

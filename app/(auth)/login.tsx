@@ -1,12 +1,25 @@
-import { useState, useRef } from 'react';
-import { Link, router } from 'expo-router';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
-import { supabase } from '@/lib/supabase';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
-import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, router } from 'expo-router';
 import { X } from 'lucide-react-native';
+import { useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { supabase } from '@/lib/supabase';
+import { Flower } from '@/src/components/Flower';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -33,34 +46,34 @@ export default function LoginScreen() {
       setError('Email is required');
       return false;
     }
-    
+
     if (!password) {
       setError('Password is required');
       return false;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return false;
     }
-    
+
     return true;
   };
 
   const handleLogin = async () => {
     Keyboard.dismiss();
     setError(null);
-    
+
     if (!validateForm()) {
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
       return;
     }
-    
+
     setLoading(true);
-    
+
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
@@ -83,7 +96,7 @@ export default function LoginScreen() {
         }
         router.replace('/');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('An unexpected error occurred. Please try again later.');
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -95,15 +108,39 @@ export default function LoginScreen() {
 
   const flowerPositions = isWide
     ? [
-        { type: 'sunflower' as const, size: 85, position: { x: width * 0.08, y: 120 } },
-        { type: 'rose' as const, size: 75, position: { x: width * 0.88, y: 180 } },
-        { type: 'daisy' as const, size: 65, position: { x: width * 0.84, y: 420 } },
-        { type: 'tulip' as const, size: 70, position: { x: width * 0.12, y: 350 } },
+        {
+          type: 'sunflower' as const,
+          size: 85,
+          position: { x: width * 0.08, y: 120 },
+        },
+        {
+          type: 'rose' as const,
+          size: 75,
+          position: { x: width * 0.88, y: 180 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 65,
+          position: { x: width * 0.84, y: 420 },
+        },
+        {
+          type: 'tulip' as const,
+          size: 70,
+          position: { x: width * 0.12, y: 350 },
+        },
       ]
     : [
         { type: 'sunflower' as const, size: 60, position: { x: 30, y: 60 } },
-        { type: 'rose' as const, size: 55, position: { x: width - 60, y: 100 } },
-        { type: 'daisy' as const, size: 45, position: { x: width - 40, y: 220 } },
+        {
+          type: 'rose' as const,
+          size: 55,
+          position: { x: width - 60, y: 100 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 45,
+          position: { x: width - 40, y: 220 },
+        },
         { type: 'tulip' as const, size: 50, position: { x: 35, y: 180 } },
       ];
 
@@ -113,7 +150,7 @@ export default function LoginScreen() {
         colors={['#FFEBCD', '#FFF8E1']}
         style={styles.background}
       />
-      
+
       {/* Decorative flowers */}
       <View style={styles.decorativeFlowers} pointerEvents="none">
         {flowerPositions.map((flower, idx) => (
@@ -125,19 +162,21 @@ export default function LoginScreen() {
           />
         ))}
       </View>
-      
-      <KeyboardAvoidingView 
+
+      <KeyboardAvoidingView
         style={styles.keyboardAvoid}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
           contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled">
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.container}>
             <View style={styles.card}>
               <BlurView intensity={80} tint="light" style={styles.cardBlur}>
                 <View style={styles.cardInner}>
-                  <TouchableOpacity 
-                    onPress={handleClose} 
+                  <TouchableOpacity
+                    onPress={handleClose}
                     style={styles.closeButton}
                     accessibilityLabel="Close"
                     activeOpacity={0.7}
@@ -187,7 +226,8 @@ export default function LoginScreen() {
                   <TouchableOpacity
                     style={[styles.button, loading && styles.buttonDisabled]}
                     onPress={handleLogin}
-                    disabled={loading}>
+                    disabled={loading}
+                  >
                     {loading ? (
                       <ActivityIndicator color="#FFFFFF" size="small" />
                     ) : (
@@ -196,7 +236,9 @@ export default function LoginScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.forgotPassword}>
-                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                    <Text style={styles.forgotPasswordText}>
+                      Forgot Password?
+                    </Text>
                   </TouchableOpacity>
 
                   <View style={styles.divider}>
@@ -206,16 +248,16 @@ export default function LoginScreen() {
                   </View>
 
                   <View style={styles.footer}>
-                    <Text style={styles.footerText}>Don't have an account? </Text>
+                    <Text style={styles.footerText}>
+                      Don't have an account?{' '}
+                    </Text>
                     <Link href="/signup" style={styles.link}>
                       <Text style={styles.linkText}>Sign up</Text>
                     </Link>
                   </View>
-                  
+
                   <View style={styles.appInfo}>
-                    <Text style={styles.appInfoText}>
-                      FlowerSandbox
-                    </Text>
+                    <Text style={styles.appInfoText}>FlowerSandbox</Text>
                   </View>
                 </View>
               </BlurView>
@@ -277,7 +319,10 @@ const styles = StyleSheet.create({
   },
   cardBlur: {
     width: '100%',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.92)'
+        : 'rgba(255, 255, 255, 0.55)',
   },
   cardInner: {
     padding: 24,

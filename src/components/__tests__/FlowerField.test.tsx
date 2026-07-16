@@ -1,8 +1,7 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { TouchableWithoutFeedback } from 'react-native';
-import { FlowerField } from '../FlowerField';
 import * as Haptics from 'expo-haptics';
+import { TouchableWithoutFeedback } from 'react-native';
+import TestRenderer from 'react-test-renderer';
+import { FlowerField } from '../FlowerField';
 
 // Mock PetalBurst to avoid running animation callbacks that delete bursts synchronously
 jest.mock('../PetalBurst', () => {
@@ -14,7 +13,7 @@ jest.mock('../PetalBurst', () => {
 
 const findFlowers = (root: any) => {
   return root.findAll((node: any) => {
-    return node.props && node.props.type && node.props.size && node.props.position;
+    return node.props?.type && node.props.size && node.props.position;
   });
 };
 
@@ -37,7 +36,7 @@ describe('FlowerField', () => {
     let tree: any;
     TestRenderer.act(() => {
       tree = TestRenderer.create(
-        <FlowerField count={2} onAddFlower={onAddFlowerMock} />
+        <FlowerField count={2} onAddFlower={onAddFlowerMock} />,
       );
     });
 
@@ -71,7 +70,7 @@ describe('FlowerField', () => {
     // Set maxFlowers to 3, and count to 3
     TestRenderer.act(() => {
       tree = TestRenderer.create(
-        <FlowerField count={3} maxFlowers={3} onAddFlower={onAddFlowerMock} />
+        <FlowerField count={3} maxFlowers={3} onAddFlower={onAddFlowerMock} />,
       );
     });
 

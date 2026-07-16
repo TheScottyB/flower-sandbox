@@ -1,9 +1,8 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { TextInput, TouchableOpacity, Text } from 'react-native';
-import LoginScreen from '../login';
-import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
+import { Text, TextInput, TouchableOpacity } from 'react-native';
+import TestRenderer from 'react-test-renderer';
+import { supabase } from '@/lib/supabase';
+import LoginScreen from '../login';
 
 describe('LoginScreen', () => {
   beforeEach(() => {
@@ -42,7 +41,9 @@ describe('LoginScreen', () => {
       signInButton.props.onPress();
     });
 
-    const errorTexts = tree.root.findAll((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorTexts = tree.root.findAll(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorTexts.length).toBeGreaterThan(0);
     expect(errorTexts[0].props.children).toBe('Email is required');
   });
@@ -67,7 +68,9 @@ describe('LoginScreen', () => {
       signInButton.props.onPress();
     });
 
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe('Password is required');
   });
 
@@ -92,7 +95,9 @@ describe('LoginScreen', () => {
       signInButton.props.onPress();
     });
 
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe('Please enter a valid email address');
   });
 
@@ -155,7 +160,9 @@ describe('LoginScreen', () => {
     });
 
     expect(signInMock).toHaveBeenCalled();
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe('Invalid login credentials');
   });
 });

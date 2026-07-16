@@ -1,8 +1,16 @@
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, useWindowDimensions, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import {
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { Flower } from '@/src/components/Flower';
 
 export default function DonationSuccessScreen() {
   const router = useRouter();
@@ -11,20 +19,56 @@ export default function DonationSuccessScreen() {
 
   const flowerPositions = isWide
     ? [
-        { type: 'sunflower' as const, size: 85, position: { x: width * 0.08, y: 120 } },
-        { type: 'rose' as const, size: 75, position: { x: width * 0.88, y: 180 } },
-        { type: 'daisy' as const, size: 65, position: { x: width * 0.84, y: 420 } },
-        { type: 'tulip' as const, size: 70, position: { x: width * 0.12, y: 350 } },
-        { type: 'rose' as const, size: 75, position: { x: width * 0.2, y: 180 } },
-        { type: 'daisy' as const, size: 65, position: { x: width * 0.78, y: 300 } },
+        {
+          type: 'sunflower' as const,
+          size: 85,
+          position: { x: width * 0.08, y: 120 },
+        },
+        {
+          type: 'rose' as const,
+          size: 75,
+          position: { x: width * 0.88, y: 180 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 65,
+          position: { x: width * 0.84, y: 420 },
+        },
+        {
+          type: 'tulip' as const,
+          size: 70,
+          position: { x: width * 0.12, y: 350 },
+        },
+        {
+          type: 'rose' as const,
+          size: 75,
+          position: { x: width * 0.2, y: 180 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 65,
+          position: { x: width * 0.78, y: 300 },
+        },
       ]
     : [
         { type: 'sunflower' as const, size: 65, position: { x: 30, y: 60 } },
-        { type: 'rose' as const, size: 55, position: { x: width - 60, y: 100 } },
-        { type: 'daisy' as const, size: 45, position: { x: width - 40, y: 220 } },
+        {
+          type: 'rose' as const,
+          size: 55,
+          position: { x: width - 60, y: 100 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 45,
+          position: { x: width - 40, y: 220 },
+        },
         { type: 'tulip' as const, size: 50, position: { x: 35, y: 180 } },
         { type: 'rose' as const, size: 55, position: { x: 45, y: 290 } },
-        { type: 'daisy' as const, size: 45, position: { x: width - 80, y: 340 } },
+        {
+          type: 'daisy' as const,
+          size: 45,
+          position: { x: width - 80, y: 340 },
+        },
       ];
 
   return (
@@ -33,7 +77,7 @@ export default function DonationSuccessScreen() {
         colors={['#FFEBCD', '#FFF8E1']}
         style={styles.background}
       />
-      
+
       {/* Celebration flowers */}
       <View style={styles.celebrationFlowers} pointerEvents="none">
         {flowerPositions.map((flower, idx) => (
@@ -45,7 +89,7 @@ export default function DonationSuccessScreen() {
           />
         ))}
       </View>
-      
+
       <View style={styles.container}>
         <View style={styles.card}>
           <BlurView intensity={80} tint="light" style={styles.cardBlur}>
@@ -53,18 +97,21 @@ export default function DonationSuccessScreen() {
               <View style={styles.iconContainer}>
                 <Flower type="sunflower" size={80} />
               </View>
-              
+
               <Text style={styles.title}>Thank You! 🎉</Text>
               <Text style={styles.message}>
-                Your donation has been successfully processed. We truly appreciate your support!
+                Your donation has been successfully processed. We truly
+                appreciate your support!
               </Text>
               <Text style={styles.subMessage}>
-                More beautiful flowers will bloom in the sandbox thanks to your generosity.
+                More beautiful flowers will bloom in the sandbox thanks to your
+                generosity.
               </Text>
-              
+
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.push('/')}>
+                onPress={() => router.push('/')}
+              >
                 <Text style={styles.buttonText}>Return to Sandbox</Text>
               </TouchableOpacity>
             </View>
@@ -117,7 +164,10 @@ const styles = StyleSheet.create({
   },
   cardBlur: {
     width: '100%',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.92)'
+        : 'rgba(255, 255, 255, 0.55)',
   },
   cardInner: {
     padding: 28,

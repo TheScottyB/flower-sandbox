@@ -48,45 +48,174 @@
     "violenceRealistic": "NONE"
   },
   "screenshots": [
-    { "displayType": "APP_IPHONE_67", "filePath": "app_store_assets/screenshots/iphone67.png" },
-    { "displayType": "APP_IPHONE_67", "filePath": "app_store_assets/screenshots/iphone67_about.png" },
-    { "displayType": "APP_IPHONE_67", "filePath": "app_store_assets/screenshots/iphone67_subscription.png" },
-    { "displayType": "APP_IPHONE_65", "filePath": "app_store_assets/screenshots/iphone65.png" },
-    { "displayType": "APP_IPHONE_65", "filePath": "app_store_assets/screenshots/iphone65_about.png" },
-    { "displayType": "APP_IPHONE_65", "filePath": "app_store_assets/screenshots/iphone65_subscription.png" },
-    { "displayType": "APP_IPHONE_61", "filePath": "app_store_assets/screenshots/iphone61.png" },
-    { "displayType": "APP_IPHONE_61", "filePath": "app_store_assets/screenshots/iphone61_about.png" },
-    { "displayType": "APP_IPHONE_61", "filePath": "app_store_assets/screenshots/iphone61_subscription.png" },
-    { "displayType": "APP_IPHONE_55", "filePath": "app_store_assets/screenshots/iphone55.png" },
-    { "displayType": "APP_IPHONE_55", "filePath": "app_store_assets/screenshots/iphone55_about.png" },
-    { "displayType": "APP_IPHONE_55", "filePath": "app_store_assets/screenshots/iphone55_subscription.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_129", "filePath": "app_store_assets/screenshots/ipad129.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_129", "filePath": "app_store_assets/screenshots/ipad129_about.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_129", "filePath": "app_store_assets/screenshots/ipad129_subscription.png" },
-    { "displayType": "APP_IPAD_PRO_129", "filePath": "app_store_assets/screenshots/ipad129.png" },
-    { "displayType": "APP_IPAD_PRO_129", "filePath": "app_store_assets/screenshots/ipad129_about.png" },
-    { "displayType": "APP_IPAD_PRO_129", "filePath": "app_store_assets/screenshots/ipad129_subscription.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_11", "filePath": "app_store_assets/screenshots/ipad11.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_11", "filePath": "app_store_assets/screenshots/ipad11_about.png" },
-    { "displayType": "APP_IPAD_PRO_3GEN_11", "filePath": "app_store_assets/screenshots/ipad11_subscription.png" },
-    { "displayType": "APP_IPAD_105", "filePath": "app_store_assets/screenshots/ipad105.png" },
-    { "displayType": "APP_IPAD_105", "filePath": "app_store_assets/screenshots/ipad105_about.png" },
-    { "displayType": "APP_IPAD_105", "filePath": "app_store_assets/screenshots/ipad105_subscription.png" },
-    { "displayType": "APP_IPAD_97", "filePath": "app_store_assets/screenshots/ipad97.png" },
-    { "displayType": "APP_IPAD_97", "filePath": "app_store_assets/screenshots/ipad97_about.png" },
-    { "displayType": "APP_IPAD_97", "filePath": "app_store_assets/screenshots/ipad97_subscription.png" }
+    {
+      "displayType": "APP_IPHONE_67",
+      "filePath": "app_store_assets/screenshots/iphone67.png"
+    },
+    {
+      "displayType": "APP_IPHONE_67",
+      "filePath": "app_store_assets/screenshots/iphone67_about.png"
+    },
+    {
+      "displayType": "APP_IPHONE_67",
+      "filePath": "app_store_assets/screenshots/iphone67_subscription.png"
+    },
+    {
+      "displayType": "APP_IPHONE_65",
+      "filePath": "app_store_assets/screenshots/iphone65.png"
+    },
+    {
+      "displayType": "APP_IPHONE_65",
+      "filePath": "app_store_assets/screenshots/iphone65_about.png"
+    },
+    {
+      "displayType": "APP_IPHONE_65",
+      "filePath": "app_store_assets/screenshots/iphone65_subscription.png"
+    },
+    {
+      "displayType": "APP_IPHONE_61",
+      "filePath": "app_store_assets/screenshots/iphone61.png"
+    },
+    {
+      "displayType": "APP_IPHONE_61",
+      "filePath": "app_store_assets/screenshots/iphone61_about.png"
+    },
+    {
+      "displayType": "APP_IPHONE_61",
+      "filePath": "app_store_assets/screenshots/iphone61_subscription.png"
+    },
+    {
+      "displayType": "APP_IPHONE_55",
+      "filePath": "app_store_assets/screenshots/iphone55.png"
+    },
+    {
+      "displayType": "APP_IPHONE_55",
+      "filePath": "app_store_assets/screenshots/iphone55_about.png"
+    },
+    {
+      "displayType": "APP_IPHONE_55",
+      "filePath": "app_store_assets/screenshots/iphone55_subscription.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "filePath": "app_store_assets/screenshots/ipad129.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "filePath": "app_store_assets/screenshots/ipad129_about.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_129",
+      "filePath": "app_store_assets/screenshots/ipad129_subscription.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_129",
+      "filePath": "app_store_assets/screenshots/ipad129.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_129",
+      "filePath": "app_store_assets/screenshots/ipad129_about.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_129",
+      "filePath": "app_store_assets/screenshots/ipad129_subscription.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_11",
+      "filePath": "app_store_assets/screenshots/ipad11.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_11",
+      "filePath": "app_store_assets/screenshots/ipad11_about.png"
+    },
+    {
+      "displayType": "APP_IPAD_PRO_3GEN_11",
+      "filePath": "app_store_assets/screenshots/ipad11_subscription.png"
+    },
+    {
+      "displayType": "APP_IPAD_105",
+      "filePath": "app_store_assets/screenshots/ipad105.png"
+    },
+    {
+      "displayType": "APP_IPAD_105",
+      "filePath": "app_store_assets/screenshots/ipad105_about.png"
+    },
+    {
+      "displayType": "APP_IPAD_105",
+      "filePath": "app_store_assets/screenshots/ipad105_subscription.png"
+    },
+    {
+      "displayType": "APP_IPAD_97",
+      "filePath": "app_store_assets/screenshots/ipad97.png"
+    },
+    {
+      "displayType": "APP_IPAD_97",
+      "filePath": "app_store_assets/screenshots/ipad97_about.png"
+    },
+    {
+      "displayType": "APP_IPAD_97",
+      "filePath": "app_store_assets/screenshots/ipad97_subscription.png"
+    }
   ],
   "screenshotsCapture": {
     "expoUrl": "exp://127.0.0.1:8081?disableOnboarding=1",
     "devices": [
-      { "name": "iPhone 16 Pro Max", "type": "iphone", "width": 1290, "height": 2796, "filePrefix": "iphone67" },
-      { "name": "iPhone 16 Pro Max", "type": "iphone", "width": 1242, "height": 2688, "filePrefix": "iphone65" },
-      { "name": "iPhone 16", "type": "iphone", "width": 1179, "height": 2556, "filePrefix": "iphone61" },
-      { "name": "iPhone SE (3rd generation)", "type": "iphone", "width": 1242, "height": 2208, "filePrefix": "iphone55" },
-      { "name": "iPad Pro 13-inch (M4)", "type": "ipad", "width": 2048, "height": 2732, "filePrefix": "ipad129" },
-      { "name": "iPad Pro 11-inch (M4)", "type": "ipad", "width": 1668, "height": 2388, "filePrefix": "ipad11" },
-      { "name": "iPad Pro 13-inch (M4)", "type": "ipad", "width": 1668, "height": 2224, "filePrefix": "ipad105" },
-      { "name": "iPad Pro 13-inch (M4)", "type": "ipad", "width": 1536, "height": 2048, "filePrefix": "ipad97" }
+      {
+        "name": "iPhone 16 Pro Max",
+        "type": "iphone",
+        "width": 1290,
+        "height": 2796,
+        "filePrefix": "iphone67"
+      },
+      {
+        "name": "iPhone 16 Pro Max",
+        "type": "iphone",
+        "width": 1242,
+        "height": 2688,
+        "filePrefix": "iphone65"
+      },
+      {
+        "name": "iPhone 16",
+        "type": "iphone",
+        "width": 1179,
+        "height": 2556,
+        "filePrefix": "iphone61"
+      },
+      {
+        "name": "iPhone SE (3rd generation)",
+        "type": "iphone",
+        "width": 1242,
+        "height": 2208,
+        "filePrefix": "iphone55"
+      },
+      {
+        "name": "iPad Pro 13-inch (M4)",
+        "type": "ipad",
+        "width": 2048,
+        "height": 2732,
+        "filePrefix": "ipad129"
+      },
+      {
+        "name": "iPad Pro 11-inch (M4)",
+        "type": "ipad",
+        "width": 1668,
+        "height": 2388,
+        "filePrefix": "ipad11"
+      },
+      {
+        "name": "iPad Pro 13-inch (M4)",
+        "type": "ipad",
+        "width": 1668,
+        "height": 2224,
+        "filePrefix": "ipad105"
+      },
+      {
+        "name": "iPad Pro 13-inch (M4)",
+        "type": "ipad",
+        "width": 1536,
+        "height": 2048,
+        "filePrefix": "ipad97"
+      }
     ]
   }
 }

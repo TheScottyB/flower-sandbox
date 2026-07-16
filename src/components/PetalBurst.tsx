@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
-import { flowerTypes, FlowerType } from './flowerData';
+import { type FlowerType, flowerTypes } from './flowerData';
 
 const PARTICLE_COUNT = 8;
 const PARTICLE_SIZE = 18;
@@ -36,11 +36,14 @@ type ParticleParams = {
   petalIndex: number;
 };
 
-const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min;
+const randomBetween = (min: number, max: number) =>
+  Math.random() * (max - min) + min;
 
 const buildParticleParams = (petalCount: number): ParticleParams[] => {
   return Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
-    angle: (i / PARTICLE_COUNT) * Math.PI * 2 + randomBetween(-ANGLE_JITTER_RAD, ANGLE_JITTER_RAD),
+    angle:
+      (i / PARTICLE_COUNT) * Math.PI * 2 +
+      randomBetween(-ANGLE_JITTER_RAD, ANGLE_JITTER_RAD),
     distance: randomBetween(MIN_DISTANCE_PX, MAX_DISTANCE_PX),
     rotation: randomBetween(-Math.PI * 2, Math.PI * 2),
     duration: BASE_DURATION_MS + Math.random() * DURATION_JITTER_MS,
@@ -69,12 +72,12 @@ const Particle = ({
       { duration: params.duration, easing: Easing.out(Easing.cubic) },
       (finished) => {
         if (finished && onDoneRef.current) runOnJS(onDoneRef.current)();
-      }
+      },
     );
     return () => {
       cancelAnimation(progress);
     };
-  }, []);
+  }, [progress, params.duration]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const p = progress.value;
@@ -105,7 +108,13 @@ const Particle = ({
   );
 };
 
-export const PetalBurst = ({ x, y, color, type, onComplete }: PetalBurstProps) => {
+export const PetalBurst = ({
+  x,
+  y,
+  color,
+  type,
+  onComplete,
+}: PetalBurstProps) => {
   const flower = flowerTypes[type];
   const petals = flower?.petals ?? [];
   const paramsRef = useRef<ParticleParams[] | null>(null);
@@ -115,13 +124,16 @@ export const PetalBurst = ({ x, y, color, type, onComplete }: PetalBurstProps) =
 
   const longestIndex = paramsRef.current.reduce(
     (best, p, i, arr) => (p.duration > arr[best].duration ? i : best),
-    0
+    0,
   );
 
   return (
     <View
       pointerEvents="none"
-      style={[styles.container, { left: x - PARTICLE_SIZE / 2, top: y - PARTICLE_SIZE / 2 }]}
+      style={[
+        styles.container,
+        { left: x - PARTICLE_SIZE / 2, top: y - PARTICLE_SIZE / 2 },
+      ]}
     >
       {paramsRef.current.map((params, i) => (
         <Particle

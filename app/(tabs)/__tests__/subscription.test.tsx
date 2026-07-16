@@ -1,9 +1,14 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { Platform, Linking, ActivityIndicator, TouchableOpacity, Text } from 'react-native';
-import { useIAP } from '@/src/hooks/useIAP';
 import { useLocalSearchParams } from 'expo-router';
+import {
+  ActivityIndicator,
+  Linking,
+  Platform,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import TestRenderer from 'react-test-renderer';
 import { supabase } from '@/lib/supabase';
+import { useIAP } from '@/src/hooks/useIAP';
 import SubscriptionScreen from '../subscription';
 
 declare const global: any;
@@ -54,10 +59,10 @@ describe('SubscriptionScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Set default platform and mock implementations
     Platform.OS = 'ios';
-    
+
     mockUseIAP.mockReturnValue({
       isSubscribed: false,
       loading: false,
@@ -77,8 +82,12 @@ describe('SubscriptionScreen', () => {
     });
 
     // Mock supabase database query
-    const mockMaybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
-    const mockSelect = jest.fn().mockReturnValue({ maybeSingle: mockMaybeSingle });
+    const mockMaybeSingle = jest
+      .fn()
+      .mockResolvedValue({ data: null, error: null });
+    const mockSelect = jest
+      .fn()
+      .mockReturnValue({ maybeSingle: mockMaybeSingle });
     (supabase.from as jest.Mock).mockReturnValue({ select: mockSelect });
 
     // Mock Linking
@@ -87,7 +96,11 @@ describe('SubscriptionScreen', () => {
 
     // Default global fetch mock
     (globalThis as any).fetch = jest.fn().mockResolvedValue({
-      json: () => Promise.resolve({ url: 'https://checkout.stripe.com/pay/mock', error: null }),
+      json: () =>
+        Promise.resolve({
+          url: 'https://checkout.stripe.com/pay/mock',
+          error: null,
+        }),
     });
   });
 
@@ -114,7 +127,10 @@ describe('SubscriptionScreen', () => {
     const indicator = tree.root.findByType(ActivityIndicator);
     expect(indicator).toBeDefined();
 
-    const loadingTextNode = findTextWithContent(tree.root, 'Loading subscription information...');
+    const loadingTextNode = findTextWithContent(
+      tree.root,
+      'Loading subscription information...',
+    );
     expect(loadingTextNode).toBeDefined();
   });
 
@@ -130,19 +146,26 @@ describe('SubscriptionScreen', () => {
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
-    
+
     // Check status is Active
     const statusTextNode = findTextWithContent(tree.root, 'Active');
     expect(statusTextNode).toBeDefined();
 
     // Should render Thank You container
-    const thankYouTextNode = findTextWithContent(tree.root, 'Thank you for your support!');
+    const thankYouTextNode = findTextWithContent(
+      tree.root,
+      'Thank you for your support!',
+    );
     expect(thankYouTextNode).toBeDefined();
 
     // Should not render Subscribe Now button
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     });
     expect(subscribeBtn).toBeUndefined();
   });
@@ -165,16 +188,24 @@ describe('SubscriptionScreen', () => {
     expect(statusTextNode).toBeDefined();
 
     const buttons = tree.root.findAllByType(TouchableOpacity);
-    
+
     // Check Subscribe button
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     });
     expect(subscribeBtn).toBeDefined();
 
     // Check Restore button
     const restoreBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Restore Purchases'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Restore Purchases';
+      } catch {
+        return false;
+      }
     });
     expect(restoreBtn).toBeDefined();
   });
@@ -194,7 +225,11 @@ describe('SubscriptionScreen', () => {
     const tree = TestRenderer.create(<SubscriptionScreen />);
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     })!;
 
     await TestRenderer.act(async () => {
@@ -219,7 +254,11 @@ describe('SubscriptionScreen', () => {
     const tree = TestRenderer.create(<SubscriptionScreen />);
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const restoreBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Restore Purchases'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Restore Purchases';
+      } catch {
+        return false;
+      }
     })!;
 
     await TestRenderer.act(async () => {
@@ -276,7 +315,10 @@ describe('SubscriptionScreen', () => {
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
-    const errorTextNode = findTextWithContent(tree.root, 'Failed to connect to App Store.');
+    const errorTextNode = findTextWithContent(
+      tree.root,
+      'Failed to connect to App Store.',
+    );
     expect(errorTextNode).toBeDefined();
   });
 
@@ -299,7 +341,9 @@ describe('SubscriptionScreen', () => {
       },
       error: null,
     });
-    const mockSelect = jest.fn().mockReturnValue({ maybeSingle: mockMaybeSingle });
+    const mockSelect = jest
+      .fn()
+      .mockReturnValue({ maybeSingle: mockMaybeSingle });
     (supabase.from as jest.Mock).mockReturnValue({ select: mockSelect });
 
     let tree: any;
@@ -308,7 +352,7 @@ describe('SubscriptionScreen', () => {
     });
 
     expect(supabase.from).toHaveBeenCalledWith('stripe_user_subscriptions');
-    
+
     // Should show active status
     const statusTextNode = findTextWithContent(tree.root, 'Active');
     expect(statusTextNode).toBeDefined();
@@ -320,7 +364,7 @@ describe('SubscriptionScreen', () => {
 
   it('triggers login redirection when subscribing on Android while not logged in', async () => {
     Platform.OS = 'android';
-    
+
     // Simulate user not logged in
     (supabase.auth.getSession as jest.Mock).mockResolvedValue({
       data: { session: null },
@@ -334,7 +378,11 @@ describe('SubscriptionScreen', () => {
 
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     })!;
 
     await TestRenderer.act(async () => {
@@ -360,7 +408,11 @@ describe('SubscriptionScreen', () => {
 
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     })!;
 
     await TestRenderer.act(async () => {
@@ -375,10 +427,12 @@ describe('SubscriptionScreen', () => {
           'Content-Type': 'application/json',
           Authorization: 'Bearer fake-access-token',
         },
-      })
+      }),
     );
 
-    expect(mockOpenURL).toHaveBeenCalledWith('https://checkout.stripe.com/pay/mock');
+    expect(mockOpenURL).toHaveBeenCalledWith(
+      'https://checkout.stripe.com/pay/mock',
+    );
   });
 
   it('starts Stripe Checkout and updates location on Web when logged in', async () => {
@@ -405,14 +459,20 @@ describe('SubscriptionScreen', () => {
 
     const buttons = tree.root.findAllByType(TouchableOpacity);
     const subscribeBtn = buttons.find((b: any) => {
-      try { return b.findByType(Text).props.children === 'Subscribe Now'; } catch { return false; }
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
     })!;
 
     await TestRenderer.act(async () => {
       subscribeBtn.props.onPress();
     });
 
-    expect((globalThis as any).window.location.href).toBe('https://checkout.stripe.com/pay/mock');
+    expect((globalThis as any).window.location.href).toBe(
+      'https://checkout.stripe.com/pay/mock',
+    );
   });
 
   // ── Success and Cancel Query Parameter Handling ────────────────────────────
@@ -426,7 +486,10 @@ describe('SubscriptionScreen', () => {
       tree = TestRenderer.create(<SubscriptionScreen />);
     });
 
-    const successTextNode = findTextWithContent(tree.root, 'Your subscription was successfully activated!');
+    const successTextNode = findTextWithContent(
+      tree.root,
+      'Your subscription was successfully activated!',
+    );
     expect(successTextNode).toBeDefined();
   });
 
@@ -439,7 +502,10 @@ describe('SubscriptionScreen', () => {
       tree = TestRenderer.create(<SubscriptionScreen />);
     });
 
-    const errorTextNode = findTextWithContent(tree.root, 'The subscription process was cancelled.');
+    const errorTextNode = findTextWithContent(
+      tree.root,
+      'The subscription process was cancelled.',
+    );
     expect(errorTextNode).toBeDefined();
   });
 });

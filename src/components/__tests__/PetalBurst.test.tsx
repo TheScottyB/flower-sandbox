@@ -1,13 +1,18 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import { Path } from 'react-native-svg';
+import TestRenderer from 'react-test-renderer';
 import { PetalBurst } from '../PetalBurst';
 
 describe('PetalBurst', () => {
   it('renders 8 SVG Path particles, each tinted with the given color', () => {
     const onComplete = jest.fn();
     const tree = TestRenderer.create(
-      <PetalBurst x={50} y={50} color="#FF0000" type="rose" onComplete={onComplete} />
+      <PetalBurst
+        x={50}
+        y={50}
+        color="#FF0000"
+        type="rose"
+        onComplete={onComplete}
+      />,
     );
     const paths = tree.root.findAllByType(Path);
     expect(paths).toHaveLength(8);

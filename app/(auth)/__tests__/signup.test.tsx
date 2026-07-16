@@ -1,9 +1,8 @@
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { TextInput, TouchableOpacity, Text } from 'react-native';
-import SignUpScreen from '../signup';
-import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
+import { Text, TextInput, TouchableOpacity } from 'react-native';
+import TestRenderer from 'react-test-renderer';
+import { supabase } from '@/lib/supabase';
+import SignUpScreen from '../signup';
 
 describe('SignUpScreen', () => {
   beforeEach(() => {
@@ -29,7 +28,10 @@ describe('SignUpScreen', () => {
 
   it('shows email-confirmation notice when sign up succeeds without a session', async () => {
     const signUpMock = supabase.auth.signUp as jest.Mock;
-    signUpMock.mockResolvedValueOnce({ data: { user: {}, session: null }, error: null });
+    signUpMock.mockResolvedValueOnce({
+      data: { user: {}, session: null },
+      error: null,
+    });
 
     const tree = TestRenderer.create(<SignUpScreen />);
     const [emailInput, passwordInput] = tree.root.findAllByType(TextInput);
@@ -55,16 +57,21 @@ describe('SignUpScreen', () => {
       email: 'test@example.com',
       password: 'password123',
     });
-    const infoText = tree.root.find((node) => node.props.style && node.props.style.color === '#166534');
+    const infoText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#166534',
+    );
     expect(infoText.props.children).toBe(
-      'Account created! Check your email to confirm your address, then log in.'
+      'Account created! Check your email to confirm your address, then log in.',
     );
     expect(router.replace).not.toHaveBeenCalled();
   });
 
   it('navigates home when sign up returns an active session', async () => {
     const signUpMock = supabase.auth.signUp as jest.Mock;
-    signUpMock.mockResolvedValueOnce({ data: { user: {}, session: {} }, error: null });
+    signUpMock.mockResolvedValueOnce({
+      data: { user: {}, session: {} },
+      error: null,
+    });
 
     const tree = TestRenderer.create(<SignUpScreen />);
     const [emailInput, passwordInput] = tree.root.findAllByType(TextInput);
@@ -107,7 +114,9 @@ describe('SignUpScreen', () => {
     });
 
     expect(signUpMock).not.toHaveBeenCalled();
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe('Email is required');
   });
 
@@ -139,9 +148,11 @@ describe('SignUpScreen', () => {
     });
 
     expect(signUpMock).toHaveBeenCalled();
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe(
-      'An account with this email already exists. Please try logging in instead.'
+      'An account with this email already exists. Please try logging in instead.',
     );
   });
 
@@ -173,8 +184,12 @@ describe('SignUpScreen', () => {
     });
 
     expect(signUpMock).toHaveBeenCalled();
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
-    expect(errorText.props.children).toBe('Password should be at least 6 characters');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
+    expect(errorText.props.children).toBe(
+      'Password should be at least 6 characters',
+    );
   });
 
   it('displays generic error message on unexpected thrown errors', async () => {
@@ -202,10 +217,11 @@ describe('SignUpScreen', () => {
     });
 
     expect(signUpMock).toHaveBeenCalled();
-    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    const errorText = tree.root.find(
+      (node) => node.props.style && node.props.style.color === '#DC2626',
+    );
     expect(errorText.props.children).toBe(
-      'Could not reach the server. Please check your connection and try again.'
+      'Could not reach the server. Please check your connection and try again.',
     );
   });
 });
-

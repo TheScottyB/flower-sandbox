@@ -76,3 +76,4 @@ scripts/validate-mobile-layout.mjs
 .env
 .env.local
 supabase/.branches/
+credentials/

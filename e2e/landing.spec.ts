@@ -1,7 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Marketing Landing Page', () => {
-  test('should load successfully and show correct title and launch CTA', async ({ page }) => {
+  test('should load successfully and show correct title and launch CTA', async ({
+    page,
+  }) => {
     // Navigate to marketing site root
     await page.goto('/');
 

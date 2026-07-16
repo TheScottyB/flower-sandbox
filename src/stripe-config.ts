@@ -7,7 +7,9 @@ export const products = {
     name: 'A nice sandbox to play in',
     description: 'Get access to our sandbox environment',
     price: '$1.00/month',
-    priceId: useTestCatalog ? 'price_1Ta0GlDesriQyUxdBSihLO58' : 'price_1RCQr6DesriQyUxd0aR0MNGG', // Sandbox subscription price ID
+    priceId: useTestCatalog
+      ? 'price_1Ta0GlDesriQyUxdBSihLO58'
+      : 'price_1RCQr6DesriQyUxd0aR0MNGG', // Sandbox subscription price ID
     mode: 'subscription' as const,
   },
   donation: {

@@ -1,12 +1,23 @@
-import { useState } from 'react';
-import { Link, router } from 'expo-router';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, SafeAreaView, ActivityIndicator, Platform, useWindowDimensions } from 'react-native';
-import { supabase } from '@/lib/supabase';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
-import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, router } from 'expo-router';
 import { X } from 'lucide-react-native';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { supabase } from '@/lib/supabase';
+import { Flower } from '@/src/components/Flower';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -57,7 +68,9 @@ export default function SignUpScreen() {
       if (error) {
         // Check for specific error codes and provide user-friendly messages
         if (error.message === 'User already registered') {
-          setError('An account with this email already exists. Please try logging in instead.');
+          setError(
+            'An account with this email already exists. Please try logging in instead.',
+          );
         } else {
           setError(error.message);
         }
@@ -74,12 +87,16 @@ export default function SignUpScreen() {
           router.replace('/');
         } else {
           // Email confirmation is enabled — no session until the user confirms
-          setInfo('Account created! Check your email to confirm your address, then log in.');
+          setInfo(
+            'Account created! Check your email to confirm your address, then log in.',
+          );
         }
       }
     } catch (err) {
       console.error('Sign up error:', err);
-      setError('Could not reach the server. Please check your connection and try again.');
+      setError(
+        'Could not reach the server. Please check your connection and try again.',
+      );
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
@@ -90,15 +107,39 @@ export default function SignUpScreen() {
 
   const flowerPositions = isWide
     ? [
-        { type: 'tulip' as const, size: 80, position: { x: width * 0.08, y: 140 } },
-        { type: 'daisy' as const, size: 70, position: { x: width * 0.88, y: 200 } },
-        { type: 'rose' as const, size: 75, position: { x: width * 0.12, y: 440 } },
-        { type: 'sunflower' as const, size: 85, position: { x: width * 0.84, y: 460 } },
+        {
+          type: 'tulip' as const,
+          size: 80,
+          position: { x: width * 0.08, y: 140 },
+        },
+        {
+          type: 'daisy' as const,
+          size: 70,
+          position: { x: width * 0.88, y: 200 },
+        },
+        {
+          type: 'rose' as const,
+          size: 75,
+          position: { x: width * 0.12, y: 440 },
+        },
+        {
+          type: 'sunflower' as const,
+          size: 85,
+          position: { x: width * 0.84, y: 460 },
+        },
       ]
     : [
         { type: 'tulip' as const, size: 60, position: { x: 25, y: 70 } },
-        { type: 'daisy' as const, size: 50, position: { x: width - 65, y: 120 } },
-        { type: 'rose' as const, size: 55, position: { x: width - 50, y: 310 } },
+        {
+          type: 'daisy' as const,
+          size: 50,
+          position: { x: width - 65, y: 120 },
+        },
+        {
+          type: 'rose' as const,
+          size: 55,
+          position: { x: width - 50, y: 310 },
+        },
         { type: 'sunflower' as const, size: 60, position: { x: 30, y: 230 } },
       ];
 
@@ -108,7 +149,7 @@ export default function SignUpScreen() {
         colors={['#FFEBCD', '#FFF8E1']}
         style={styles.background}
       />
-      
+
       {/* Decorative flowers */}
       <View style={styles.decorativeFlowers} pointerEvents="none">
         {flowerPositions.map((flower, idx) => (
@@ -120,16 +161,17 @@ export default function SignUpScreen() {
           />
         ))}
       </View>
-      
-      <ScrollView 
+
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.container}>
           <View style={styles.card}>
             <BlurView intensity={80} tint="light" style={styles.cardBlur}>
               <View style={styles.cardInner}>
-                <TouchableOpacity 
-                  onPress={handleClose} 
+                <TouchableOpacity
+                  onPress={handleClose}
                   style={styles.closeButton}
                   accessibilityLabel="Close"
                   activeOpacity={0.7}
@@ -137,7 +179,9 @@ export default function SignUpScreen() {
                   <X size={18} color="#555" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Join our flower sandbox community</Text>
+                <Text style={styles.subtitle}>
+                  Join our flower sandbox community
+                </Text>
 
                 {error && (
                   <View style={styles.errorContainer}>
@@ -179,7 +223,8 @@ export default function SignUpScreen() {
                 <TouchableOpacity
                   style={[styles.button, loading && styles.buttonDisabled]}
                   onPress={handleSignUp}
-                  disabled={loading}>
+                  disabled={loading}
+                >
                   {loading ? (
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
@@ -188,16 +233,16 @@ export default function SignUpScreen() {
                 </TouchableOpacity>
 
                 <View style={styles.footer}>
-                  <Text style={styles.footerText}>Already have an account? </Text>
+                  <Text style={styles.footerText}>
+                    Already have an account?{' '}
+                  </Text>
                   <Link href="/login" style={styles.link}>
                     <Text style={styles.linkText}>Login</Text>
                   </Link>
                 </View>
-                
+
                 <View style={styles.appInfo}>
-                  <Text style={styles.appInfoText}>
-                    FlowerSandbox
-                  </Text>
+                  <Text style={styles.appInfoText}>FlowerSandbox</Text>
                 </View>
               </View>
             </BlurView>
@@ -255,7 +300,10 @@ const styles = StyleSheet.create({
   },
   cardBlur: {
     width: '100%',
-    backgroundColor: Platform.OS === 'android' ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.55)',
+    backgroundColor:
+      Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.92)'
+        : 'rgba(255, 255, 255, 0.55)',
   },
   cardInner: {
     padding: 24,
