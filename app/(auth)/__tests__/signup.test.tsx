@@ -3,6 +3,7 @@ import TestRenderer from 'react-test-renderer';
 import { TextInput, TouchableOpacity, Text } from 'react-native';
 import SignUpScreen from '../signup';
 import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 describe('SignUpScreen', () => {
   beforeEach(() => {
@@ -26,9 +27,9 @@ describe('SignUpScreen', () => {
     expect(signUpButton).toBeDefined();
   });
 
-  it('signs up successfully', async () => {
+  it('shows email-confirmation notice when sign up succeeds without a session', async () => {
     const signUpMock = supabase.auth.signUp as jest.Mock;
-    signUpMock.mockResolvedValueOnce({ data: { user: {} }, error: null });
+    signUpMock.mockResolvedValueOnce({ data: { user: {}, session: null }, error: null });
 
     const tree = TestRenderer.create(<SignUpScreen />);
     const [emailInput, passwordInput] = tree.root.findAllByType(TextInput);
@@ -54,6 +55,60 @@ describe('SignUpScreen', () => {
       email: 'test@example.com',
       password: 'password123',
     });
+    const infoText = tree.root.find((node) => node.props.style && node.props.style.color === '#166534');
+    expect(infoText.props.children).toBe(
+      'Account created! Check your email to confirm your address, then log in.'
+    );
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
+  it('navigates home when sign up returns an active session', async () => {
+    const signUpMock = supabase.auth.signUp as jest.Mock;
+    signUpMock.mockResolvedValueOnce({ data: { user: {}, session: {} }, error: null });
+
+    const tree = TestRenderer.create(<SignUpScreen />);
+    const [emailInput, passwordInput] = tree.root.findAllByType(TextInput);
+    const buttons = tree.root.findAllByType(TouchableOpacity);
+    const signUpButton = buttons.find((b) => {
+      try {
+        return b.findByType(Text).props.children === 'Sign Up';
+      } catch {
+        return false;
+      }
+    })!;
+
+    TestRenderer.act(() => {
+      emailInput.props.onChangeText('test@example.com');
+      passwordInput.props.onChangeText('password123');
+    });
+
+    await TestRenderer.act(async () => {
+      signUpButton.props.onPress();
+    });
+
+    expect(router.replace).toHaveBeenCalledWith('/');
+  });
+
+  it('validates empty fields without calling the server', async () => {
+    const signUpMock = supabase.auth.signUp as jest.Mock;
+
+    const tree = TestRenderer.create(<SignUpScreen />);
+    const buttons = tree.root.findAllByType(TouchableOpacity);
+    const signUpButton = buttons.find((b) => {
+      try {
+        return b.findByType(Text).props.children === 'Sign Up';
+      } catch {
+        return false;
+      }
+    })!;
+
+    await TestRenderer.act(async () => {
+      signUpButton.props.onPress();
+    });
+
+    expect(signUpMock).not.toHaveBeenCalled();
+    const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
+    expect(errorText.props.children).toBe('Email is required');
   });
 
   it('displays user-friendly error if email is already registered', async () => {
@@ -148,7 +203,9 @@ describe('SignUpScreen', () => {
 
     expect(signUpMock).toHaveBeenCalled();
     const errorText = tree.root.find((node) => node.props.style && node.props.style.color === '#DC2626');
-    expect(errorText.props.children).toBe('An unexpected error occurred');
+    expect(errorText.props.children).toBe(
+      'Could not reach the server. Please check your connection and try again.'
+    );
   });
 });
 

@@ -13,6 +13,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
 
@@ -28,17 +29,28 @@ export default function SignUpScreen() {
   };
 
   const handleSignUp = async () => {
-    setLoading(true);
     setError(null);
-    
+    setInfo(null);
+
+    if (!email.trim()) {
+      setError('Email is required');
+      return;
+    }
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
+    setLoading(true);
+
     // Add haptic feedback
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
       });
 
@@ -49,7 +61,7 @@ export default function SignUpScreen() {
         } else {
           setError(error.message);
         }
-        
+
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
@@ -58,9 +70,16 @@ export default function SignUpScreen() {
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
+        if (data.session) {
+          router.replace('/');
+        } else {
+          // Email confirmation is enabled — no session until the user confirms
+          setInfo('Account created! Check your email to confirm your address, then log in.');
+        }
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      console.error('Sign up error:', err);
+      setError('Could not reach the server. Please check your connection and try again.');
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
@@ -123,6 +142,12 @@ export default function SignUpScreen() {
                 {error && (
                   <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                )}
+
+                {info && (
+                  <View style={styles.infoContainer}>
+                    <Text style={styles.infoText}>{info}</Text>
                   </View>
                 )}
 
@@ -317,6 +342,20 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#DC2626',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  infoContainer: {
+    backgroundColor: '#DCFCE7',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#6EE7B7',
+  },
+  infoText: {
+    color: '#166534',
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '500',

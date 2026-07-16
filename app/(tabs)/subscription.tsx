@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { products } from '@/src/stripe-config';
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flower } from '@/src/components/Flower';
@@ -255,6 +256,13 @@ export default function SubscriptionScreen() {
                         <Text style={styles.benefitText}>Special Flower Varieties</Text>
                       </View>
                     </View>
+
+                    <Text style={styles.renewalTerms}>
+                      Auto-renewable subscription · 1 month · {sandbox.price}. Renews
+                      automatically unless cancelled at least 24 hours before the end of
+                      the current period. Manage or cancel anytime in your App Store
+                      account settings.
+                    </Text>
                   </View>
 
                   {isSubscribed && (
@@ -305,6 +313,17 @@ export default function SubscriptionScreen() {
                       <Text style={styles.restoreText}>Restore Purchases</Text>
                     </TouchableOpacity>
                   )}
+
+                  {/* Legal links — required by Apple Guideline 3.1.2 in the purchase flow */}
+                  <View style={styles.legalLinks}>
+                    <TouchableOpacity onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
+                      <Text style={styles.legalLinkText}>Privacy Policy</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.legalSeparator}>·</Text>
+                    <TouchableOpacity onPress={() => Linking.openURL(TERMS_OF_USE_URL)}>
+                      <Text style={styles.legalLinkText}>Terms of Use (EULA)</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               )}
             </BlurView>
@@ -601,5 +620,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     textDecorationLine: 'underline',
+  },
+  renewalTerms: {
+    marginTop: 16,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#64748B',
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 20,
+    gap: 8,
+  },
+  legalLinkText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
+  legalSeparator: {
+    color: '#94A3B8',
+    fontSize: 14,
   },
 });

@@ -17,6 +17,12 @@ jobs:
         run: pnpm run typecheck
       - name: Test
         run: pnpm run test -- --runInBand
+      - name: Require first IAP attachment
+        run: |
+          if [ "${APP_STORE_FIRST_IAP_ATTACHED:-}" != "1" ]; then
+            echo "APP_STORE_FIRST_IAP_ATTACHED must be set to 1 after the first subscription is attached to the App Store version."
+            exit 1
+          fi
 
   build_ios:
     name: Build iOS

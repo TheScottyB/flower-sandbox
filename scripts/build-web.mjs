@@ -14,12 +14,11 @@ console.log('Starting custom web build for FlowerSandbox...');
 
 try {
   // 1. Run Expo Web Export
-  console.log('Running "npx expo export --platform web"...');
-  const args = ['expo', 'export', '--platform', 'web', ...process.argv.slice(2)];
-  const result = spawnSync('npx', args, {
+  console.log('Running "pnpm exec expo export --platform web"...');
+  const args = ['exec', 'expo', 'export', '--platform', 'web', ...process.argv.slice(2)];
+  const result = spawnSync('pnpm', args, {
     cwd: rootDir,
     stdio: 'inherit',
-    shell: true,
   });
 
   if (result.status !== 0) {

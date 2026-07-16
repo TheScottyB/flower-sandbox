@@ -1,12 +1,13 @@
-name: Publish update
+name: Publish preview update
 
 on:
   push:
-    branches: ['*']
+    branches: ['preview']
 
 jobs:
   update:
-    name: Update
+    name: Update Preview
     type: update
     params:
-      branch: ${{ github.ref_name || 'test'}}
+      branch: preview
+      message: "Preview update"

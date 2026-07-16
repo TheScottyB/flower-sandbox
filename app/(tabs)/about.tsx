@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, useWindowDimensions } from 'react-native';
+import { Alert, ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, SafeAreaView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '@/lib/supabase';
@@ -7,6 +7,8 @@ import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { Flower } from '@/src/components/Flower';
 import { BlurView } from 'expo-blur';
+import Constants from 'expo-constants';
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 
 export default function AboutScreen() {
   const router = useRouter();
@@ -15,6 +17,7 @@ export default function AboutScreen() {
   const [deletingAccount, setDeletingAccount] = useState(false);
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+  const appVersion = Constants.expoConfig?.version ?? '1.0.1';
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -133,7 +136,17 @@ export default function AboutScreen() {
                   A peaceful little garden where you can plant and grow beautiful flowers. Subscribe for
                   premium colors, rare varieties, and a larger garden.
                 </Text>
-                <Text style={styles.version}>Version 1.0.0</Text>
+                <Text style={styles.version}>Version {appVersion}</Text>
+
+                <View style={styles.legalLinks}>
+                  <TouchableOpacity onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}>
+                    <Text style={styles.legalLinkText}>Privacy Policy</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.legalSeparator}>·</Text>
+                  <TouchableOpacity onPress={() => Linking.openURL(TERMS_OF_USE_URL)}>
+                    <Text style={styles.legalLinkText}>Terms of Use (EULA)</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </BlurView>
           </View>
@@ -275,6 +288,23 @@ const styles = StyleSheet.create({
     color: '#888888',
     marginTop: 8,
     textAlign: 'center',
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    gap: 8,
+  },
+  legalLinkText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
+  legalSeparator: {
+    color: '#94A3B8',
+    fontSize: 14,
   },
   emailRow: {
     marginBottom: 20,

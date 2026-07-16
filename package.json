@@ -1,7 +1,7 @@
 {
   "name": "flower-sandbox",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "packageManager": "pnpm@11.2.2",
   "scripts": {
     "start": "npx expo start",
@@ -15,23 +15,31 @@
     "dev:clear": "npx expo start -c",
     "build:web": "node scripts/build-web.mjs",
     "preview:web": "pnpm build:web && node scripts/serve.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test e2e/landing.spec.ts",
+    "test:e2e:integration": "E2E_RUN_STRIPE_FLOW=1 playwright test e2e/auth-subscription.spec.ts",
     "build:dev": "eas build --profile development-simulator --platform ios",
     "build:ios": "eas build --platform ios",
     "build:preview": "eas build --profile preview --platform ios",
     "build:production": "eas build --profile production --platform ios",
     "build:ios:workflow": "eas workflow:run build-ios-production.yml",
     "submit:ios": "eas submit --platform ios --profile production",
-    "app-store:release": "pnpm dlx git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1 submit",
-    "app-store:submit-review": "pnpm dlx git+ssh://git@github.com:TheScottyB/eas-app-store-kit.git#v0.1.1 submit --resume",
+    "app-store:doctor": "pnpm dlx git+https://github.com/TheScottyB/eas-app-store-kit.git#v0.1.1 doctor",
+    "app-store:release": "pnpm dlx git+https://github.com/TheScottyB/eas-app-store-kit.git#v0.1.1 submit",
+    "app-store:submit-review": "pnpm dlx git+https://github.com/TheScottyB/eas-app-store-kit.git#v0.1.1 submit --resume",
     "update:preview": "eas update --branch preview",
-    "update:production": "eas update --branch production"
+    "update:production": "eas update --branch production",
+    "screenshots:capture": "node scripts/capture_screenshots.mjs",
+    "screenshots:verify": "node scripts/verify_screenshots.mjs",
+    "qc-screenshots": "pnpm run screenshots:verify"
   },
   "jest": {
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/.worktrees/",
-      "<rootDir>/supabase/"
+      "<rootDir>/supabase/",
+      "<rootDir>/e2e/"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.worktrees/"

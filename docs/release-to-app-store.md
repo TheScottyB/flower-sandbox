@@ -32,14 +32,17 @@ Most are already done for FlowerSandbox; checklist below for reference.
 3. Save. The numeric App ID appears in the URL — copy it.
 4. Add it to `eas.json` under `submit.production.ios.ascAppId`.
 
-### 2.2 Create the IAP subscription product
+### 2.2 Create or finish the IAP subscription product
 
 - Product ID: `com.djscottyb.flowersandbox.premium.monthly`
 - Subscription Group ID: `22106738`
-- Still required before submission:
-  - Add a price tier (ASC → subscription → Subscription Prices)
+- Required before submission:
+  - Create the subscription group if it is not present yet
+  - Create the monthly auto-renewable subscription if it is not present yet
+  - Add a price tier (ASC -> subscription -> Subscription Prices)
   - Add English localization: Display Name + Description
-    (ASC → subscription → Subscription Localizations → Create)
+    (ASC -> subscription -> Subscription Localizations -> Create)
+  - Add the subscription App Review screenshot
 
 ### 2.3 First IAP/subscription attachment (one-time browser step)
 
@@ -69,8 +72,9 @@ These are one-time UI steps in App Store Connect's app page:
 Before triggering a release, make sure these exist:
 
 ### Screenshots
-- [ ] iPhone 6.7" (1290×2796): home, subscription view, sandbox, donation
-- [ ] iPad Pro 13" (2064×2752) — if supporting iPad
+- [ ] iPhone 6.9" (1320x2868): home, subscription view, sandbox, account
+- [ ] iPhone 6.7" (1290x2796): accepted fallback size
+- [ ] iPad Pro 13" (2064x2752): required because iPad support is enabled
 
 ### App Store Connect metadata
 - [ ] App Name: `FlowerSandbox`
@@ -102,12 +106,12 @@ Before triggering a release, make sure these exist:
 
 | Asset | Dimensions | Format |
 |---|---|---|
-| App icon | 1024×1024 | PNG, no alpha, no rounded corners, RGB |
-| iPhone 6.9" screenshot (iPhone 16 Pro Max) | 1320×2868 | PNG/JPEG, RGB, no alpha |
-| iPhone 6.7" screenshot (iPhone 14 Pro Max) | 1290×2796 | PNG/JPEG, RGB, no alpha |
-| iPad Pro 13" screenshot | 2064×2752 | PNG/JPEG, RGB, no alpha |
-| iPad Pro 12.9" (6th gen) screenshot | 2048×2732 | PNG/JPEG, RGB, no alpha |
-| App Preview Video (optional) | per device | 15–30s, no people interacting with the device |
+| App icon | 1024x1024 | PNG, no alpha, no rounded corners, RGB |
+| iPhone 6.9" screenshot (iPhone 16 Pro Max) | 1320x2868 | PNG/JPEG, RGB, no alpha |
+| iPhone 6.7" screenshot (iPhone 14 Pro Max) | 1290x2796 | PNG/JPEG, RGB, no alpha |
+| iPad Pro 13" screenshot | 2064x2752 | PNG/JPEG, RGB, no alpha |
+| iPad Pro 12.9" (6th gen) screenshot | 2048x2732 | PNG/JPEG, RGB, no alpha |
+| App Preview Video (optional) | per device | 15-30s, no people interacting with the device |
 
 Min 1, max 10 screenshots per device size. Orientation must match the
 app's supported orientations.
@@ -115,13 +119,15 @@ app's supported orientations.
 Initial download size < 200 MB; performance targets: <5s launch,
 60fps scrolling, reasonable battery use.
 
-Authoritative spec: <https://developer.apple.com/app-store/review/guidelines/>
+Authoritative screenshot spec: <https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications>
 
 ## 5. Scripted release path (recommended)
 
-The script at `scripts/app-store-submit-review.mjs` drives end-to-end:
-local checks → EAS build + upload → App Store Connect version
-create/find → build attach → review-detail upsert → submit for review.
+The `eas-app-store-kit` CLI drives end-to-end: local checks → EAS
+build + upload → App Store Connect version create/find → metadata and
+screenshot upload → build attach → review-detail upsert → submit for
+review. The package scripts fetch the pinned `v0.1.1` tag over HTTPS so
+EAS workers do not need GitHub SSH keys.
 
 ### One command:
 
@@ -152,6 +158,15 @@ pnpm run app-store:submit-review
 
 This skips local checks and EAS upload; runs only the App Store
 Connect review-submission flow against the existing build.
+
+### Doctor check
+
+Before the first real submission, verify config loading and App Store
+Connect credentials:
+
+```bash
+pnpm run app-store:doctor
+```
 
 ### Useful flags
 
@@ -228,12 +243,11 @@ pnpm run submit:ios
 The scripted path automates the last three sub-steps via the App Store
 Connect Review Submission API.
 
-## 7. EAS Workflow runners for submission
+## 7. EAS Workflow runners for release
 
-All four submission workflows are manual-trigger only
-(`on: workflow_dispatch`) until the release pipeline is stable. To
-re-enable push triggers, uncomment the `on.push` block in the
-workflow YAML.
+Release workflows are manual-trigger only (`on: workflow_dispatch`)
+until the release pipeline is stable. To re-enable push triggers,
+uncomment the `on.push` block in the workflow YAML.
 
 ### `build-ios-production.yml`
 
@@ -264,6 +278,8 @@ eas workflow:run submit-ios.yml
 
 Full pipeline: checks → build → upload → review submit. Runs the
 scripted review-submission step against the just-uploaded build.
+This workflow fails before building unless `APP_STORE_FIRST_IAP_ATTACHED=1`
+is present in the EAS environment.
 
 ```bash
 eas workflow:run build-and-submit-ios.yml

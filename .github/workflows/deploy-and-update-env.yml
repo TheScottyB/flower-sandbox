@@ -55,6 +55,18 @@ jobs:
 
       - name: Run Backend Unit Tests
         run: deno test --allow-env --allow-net --node-modules-dir=auto supabase/functions/
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E Tests
+        env:
+          EXPO_PUBLIC_APP_ENV: production
+          EXPO_PUBLIC_DEBUG_MODE: "false"
+          EXPO_PUBLIC_SUPABASE_URL: "https://${{ env.SUPABASE_PROJECT_ID }}.supabase.co"
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        run: pnpm run test:e2e:smoke
         
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1

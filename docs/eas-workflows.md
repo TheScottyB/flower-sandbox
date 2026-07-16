@@ -19,8 +19,8 @@ eas workflow:run test-and-build.yml
 
 ## publish-update.yml
 
-Publishes an over-the-air update when triggered. Publishes to a channel that
-matches the current branch name.
+Publishes an over-the-air update when code is pushed to the `preview` branch.
+This avoids publishing OTA updates from arbitrary feature branches.
 
 ```bash
 eas workflow:run publish-update.yml
