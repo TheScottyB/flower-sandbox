@@ -62,6 +62,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: false,
       loading: false,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: jest.fn(),
     });
@@ -102,6 +104,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: false,
       loading: true,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: jest.fn(),
     });
@@ -119,6 +123,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: true,
       loading: false,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: jest.fn(),
     });
@@ -146,6 +152,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: false,
       loading: false,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: jest.fn(),
     });
@@ -177,6 +185,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: false,
       loading: false,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: purchaseMock,
       restorePurchases: jest.fn(),
     });
@@ -200,6 +210,8 @@ describe('SubscriptionScreen', () => {
       isSubscribed: false,
       loading: false,
       error: null,
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: restoreMock,
     });
@@ -217,11 +229,48 @@ describe('SubscriptionScreen', () => {
     expect(restoreMock).toHaveBeenCalled();
   });
 
+  it('uses StoreKit product title and price on iOS when available', () => {
+    mockUseIAP.mockReturnValue({
+      isSubscribed: false,
+      loading: false,
+      error: null,
+      productTitle: 'FlowerSandbox Premium',
+      productPrice: '$0.99',
+      purchaseSubscription: jest.fn(),
+      restorePurchases: jest.fn(),
+    });
+
+    const tree = TestRenderer.create(<SubscriptionScreen />);
+
+    const titleNode = findTextWithContent(tree.root, 'FlowerSandbox Premium');
+    expect(titleNode).toBeDefined();
+
+    // Price appears in both the badge and the renewal-terms sentence — use findAll
+    const priceNodes = tree.root.findAll((node: any) => {
+      if (node.type !== Text) return false;
+      const ch = node.props.children;
+      if (typeof ch === 'string') return ch.includes('$0.99');
+      if (Array.isArray(ch)) return ch.join('').includes('$0.99');
+      return false;
+    });
+    expect(priceNodes.length).toBeGreaterThan(0);
+
+    // The Stripe catalog title must not appear
+    const stripeTitle = tree.root.findAll((node: any) => {
+      if (node.type !== Text) return false;
+      const ch = node.props.children;
+      return typeof ch === 'string' && ch.includes('A nice sandbox to play in');
+    });
+    expect(stripeTitle).toHaveLength(0);
+  });
+
   it('surfaces error from iap hook', () => {
     mockUseIAP.mockReturnValue({
       isSubscribed: false,
       loading: false,
       error: 'Failed to connect to App Store.',
+      productTitle: null,
+      productPrice: null,
       purchaseSubscription: jest.fn(),
       restorePurchases: jest.fn(),
     });

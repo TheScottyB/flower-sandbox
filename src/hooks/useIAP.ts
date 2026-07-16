@@ -24,6 +24,7 @@ import Constants from 'expo-constants';
 import {
   initConnection,
   endConnection,
+  fetchProducts,
   getAvailablePurchases,
   requestPurchase,
   finishTransaction,
@@ -44,6 +45,16 @@ export type IAPState = {
   loading: boolean;
   /** Human-readable error message, if any. */
   error: string | null;
+  /**
+   * StoreKit display name for the subscription product (e.g. "FlowerSandbox Premium").
+   * null on non-iOS or before the product metadata has loaded.
+   */
+  productTitle: string | null;
+  /**
+   * StoreKit localised price string for the subscription product (e.g. "$0.99").
+   * null on non-iOS or before the product metadata has loaded.
+   */
+  productPrice: string | null;
   /** Trigger a new StoreKit purchase sheet. */
   purchaseSubscription: () => Promise<void>;
   /** Restore previously completed transactions. */
@@ -59,6 +70,8 @@ export function useIAP(): IAPState {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(USE_IAP);
   const [error, setError] = useState<string | null>(null);
+  const [productTitle, setProductTitle] = useState<string | null>(null);
+  const [productPrice, setProductPrice] = useState<string | null>(null);
   // Stable ref so the purchase listener closure always calls the latest setter
   const setSubscribedRef = useRef(setIsSubscribed);
   setSubscribedRef.current = setIsSubscribed;
@@ -79,6 +92,22 @@ export function useIAP(): IAPState {
         if (!cancelled && cached !== null) setSubscribedRef.current(cached === '1');
 
         await initConnection();
+
+        // Fetch product metadata so the UI shows the StoreKit title and price
+        // instead of the hardcoded Stripe catalog values (fixes 3.1.2 mismatch).
+        try {
+          const skProducts = await fetchProducts({ skus: [IAP_PRODUCT_ID], type: 'subs' });
+          const product = skProducts?.[0] as any;
+          if (!cancelled && product) {
+            const title: string | null = product.displayNameIOS ?? product.displayName ?? null;
+            const price: string | null = product.displayPrice ?? product.localizedPrice ?? null;
+            if (title) setProductTitle(title);
+            if (price) setProductPrice(price);
+          }
+        } catch (productErr) {
+          // Non-fatal — fall back to static Stripe catalog values in the UI.
+          console.warn('[useIAP] fetchProducts error (non-fatal):', productErr);
+        }
 
         // getAvailablePurchases returns only currently-valid (non-expired) subs
         const purchases = await getAvailablePurchases();
@@ -156,5 +185,5 @@ export function useIAP(): IAPState {
     }
   }, []);
 
-  return { isSubscribed, loading, error, purchaseSubscription, restorePurchases };
+  return { isSubscribed, loading, error, productTitle, productPrice, purchaseSubscription, restorePurchases };
 }

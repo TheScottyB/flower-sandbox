@@ -35,13 +35,21 @@ export default function SubscriptionScreen() {
 
   const { sandbox } = products;
 
-  // ── Unified subscription status ───────────────────────────────────────────
+  // ── Unified subscription status ───────────────────────────────────────────────
   const isSubscribed =
     Platform.OS === 'ios'
       ? iap.isSubscribed
       : subscription?.subscription_status === 'active';
 
-  const currentPlan = isSubscribed ? sandbox.name : 'No active subscription';
+  // On iOS, prefer the StoreKit-supplied display name and localised price so that
+  // the purchase screen matches what appears in the StoreKit payment sheet
+  // (Apple Guideline 3.1.2 requires parity between displayed and charged amounts).
+  const planName =
+    Platform.OS === 'ios' ? (iap.productTitle ?? sandbox.name) : sandbox.name;
+  const planPrice =
+    Platform.OS === 'ios' ? (iap.productPrice ?? sandbox.price) : sandbox.price;
+
+  const currentPlan = isSubscribed ? planName : 'No active subscription';
 
   const flowerPositions = isWide
     ? [
@@ -234,9 +242,9 @@ export default function SubscriptionScreen() {
                     </View>
                     
                     <View style={styles.planHeaderContainer}>
-                      <Text style={styles.planName}>{sandbox.name}</Text>
+                      <Text style={styles.planName}>{planName}</Text>
                       <View style={styles.priceBadge}>
-                        <Text style={styles.priceBadgeText}>{sandbox.price}</Text>
+                        <Text style={styles.priceBadgeText}>{planPrice}</Text>
                       </View>
                     </View>
                     
@@ -258,7 +266,7 @@ export default function SubscriptionScreen() {
                     </View>
 
                     <Text style={styles.renewalTerms}>
-                      Auto-renewable subscription · 1 month · {sandbox.price}. Renews
+                      Auto-renewable subscription · 1 month · {planPrice}. Renews
                       automatically unless cancelled at least 24 hours before the end of
                       the current period. Manage or cancel anytime in your App Store
                       account settings.
