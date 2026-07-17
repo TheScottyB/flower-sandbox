@@ -159,9 +159,9 @@ export const FlowerField = ({
         if (onAddFlower) {
           onAddFlower();
         }
-        if (Platform.OS !== 'web') {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
+      }
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
     },
     [
@@ -176,8 +176,15 @@ export const FlowerField = ({
 
   // Handle taps on the background
   const handleBackgroundPress = (event: any) => {
-    const { locationX, locationY } = event.nativeEvent;
-    addFlower(locationX, locationY);
+    if (Platform.OS === 'web') {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = event.nativeEvent.clientX - rect.left;
+      const y = event.nativeEvent.clientY - rect.top;
+      addFlower(x, y);
+    } else {
+      const { locationX, locationY } = event.nativeEvent;
+      addFlower(locationX, locationY);
+    }
   };
 
   return (

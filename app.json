@@ -27,7 +27,9 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["flowersandbox"]
+            "CFBundleURLSchemes": [
+              "flowersandbox"
+            ]
           }
         ],
         "UIRequiresFullScreen": true
@@ -44,8 +46,14 @@
       }
     },
     "owner": "djscottyb",
-    "platforms": ["ios", "android", "web"],
-    "assetBundlePatterns": ["**/*"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "updates": {
       "enabled": true,
       "url": "https://u.expo.dev/1539cc0b-c507-4fac-8383-979f12f5bdd8"
@@ -58,6 +66,9 @@
     },
     "experiments": {
       "baseUrl": "/app"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

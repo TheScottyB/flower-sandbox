@@ -9,7 +9,6 @@ import {
   Alert,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,6 +16,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
@@ -262,7 +262,8 @@ export default function AboutScreen() {
                 <View style={styles.cardInner}>
                   <Text style={styles.sectionTitle}>Account</Text>
                   <Text style={styles.description}>
-                    Sign in to sync your subscription and garden layout across multiple devices.
+                    Sign in to sync your subscription and garden layout across
+                    multiple devices.
                   </Text>
                   <TouchableOpacity
                     style={styles.signInButton}

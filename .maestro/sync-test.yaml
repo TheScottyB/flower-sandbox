@@ -1,0 +1,35 @@
+appId: com.djscottyb.flowersandbox
+---
+- clearState
+- launchApp
+
+# 1. Verify the main screen mounts and is interactive
+- assertVisible: "🌸 Tap sandbox to plant flowers"
+
+# 2. Open the collapsible bottom drawer (if on mobile layout)
+- tapOn: "Sync"
+
+# 3. Assert Sync Account drawer elements are visible
+- assertVisible: "Sync Account"
+- assertVisible: "Beautiful Flowers"
+- assertVisible: "Premium Colors"
+
+# 4. Tap the Sync Account button to open the slide-up modal
+- tapOn: "Sync Account"
+
+# 5. Verify the Login Screen has loaded
+- assertVisible: "Welcome Back"
+- assertVisible: "Sign in to continue"
+- assertVisible: "Email"
+- assertVisible: "Password"
+
+# 6. Test the new Close (X) button functionality
+- tapOn: "Close"
+
+# 7. Verify we are returned back to the garden sandbox
+- assertVisible: "🌸 Tap sandbox to plant flowers"
+- assertNotVisible: "Welcome Back"
+
+# 8. Place a flower by clicking on the sandbox coordinates
+- tapOn:
+    point: 50%,30%

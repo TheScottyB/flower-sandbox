@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,6 +15,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
 import { useIAP } from '@/src/hooks/useIAP';
