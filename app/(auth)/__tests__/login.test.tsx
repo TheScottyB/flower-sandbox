@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { Text, TextInput, TouchableOpacity } from 'react-native';
 import TestRenderer from 'react-test-renderer';
+import { type Mock, vi } from 'vitest';
 import { supabase } from '@/lib/supabase';
 import LoginScreen from '../login';
 
 describe('LoginScreen', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders inputs and sign in button', () => {
@@ -102,7 +103,7 @@ describe('LoginScreen', () => {
   });
 
   it('signs in successfully and redirects to root', async () => {
-    const signInMock = supabase.auth.signInWithPassword as jest.Mock;
+    const signInMock = supabase.auth.signInWithPassword as Mock;
     signInMock.mockResolvedValueOnce({ data: { user: {} }, error: null });
 
     const tree = TestRenderer.create(<LoginScreen />);
@@ -133,7 +134,7 @@ describe('LoginScreen', () => {
   });
 
   it('renders error on failed sign in', async () => {
-    const signInMock = supabase.auth.signInWithPassword as jest.Mock;
+    const signInMock = supabase.auth.signInWithPassword as Mock;
     signInMock.mockResolvedValueOnce({
       data: { user: null },
       error: { message: 'Invalid login credentials' },

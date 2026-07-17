@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -19,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
 import { useIAP } from '@/src/hooks/useIAP';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 import { products } from '@/src/stripe-config';
 
@@ -33,6 +35,8 @@ export default function SubscriptionScreen() {
   const { success } = useLocalSearchParams<{ success?: string }>();
   const { width, height } = useWindowDimensions();
   const isWide = width >= 768;
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   // ── iOS: StoreKit ──────────────────────────────────────────────────────────
   const iap = useIAP();
@@ -238,7 +242,7 @@ export default function SubscriptionScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
 
@@ -260,9 +264,21 @@ export default function SubscriptionScreen() {
       >
         <View style={styles.container}>
           <View style={styles.card}>
-            <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.cardBlur,
+                {
+                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.cardBackground,
+                },
+              ]}
+            >
               <View style={styles.cardHeader}>
-                <Text style={styles.title}>Premium Subscription</Text>
+                <Text style={[styles.title, { color: theme.textPrimary }]}>
+                  Premium Subscription
+                </Text>
               </View>
 
               {loadingInfo || (Platform.OS === 'ios' && iap.loading) ? (
@@ -275,19 +291,55 @@ export default function SubscriptionScreen() {
               ) : (
                 <>
                   {successMessage && (
-                    <View style={styles.successContainer}>
-                      <Text style={styles.successText}>{successMessage}</Text>
+                    <View
+                      style={[
+                        styles.successContainer,
+                        {
+                          backgroundColor: theme.successBackground,
+                          borderColor: theme.successBorder,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.successText,
+                          { color: theme.successText },
+                        ]}
+                      >
+                        {successMessage}
+                      </Text>
                     </View>
                   )}
 
                   {error && (
-                    <View style={styles.errorContainer}>
-                      <Text style={styles.errorText}>{error}</Text>
+                    <View
+                      style={[
+                        styles.errorContainer,
+                        {
+                          backgroundColor: theme.errorBackground,
+                          borderColor: theme.errorBorder,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.errorText, { color: theme.errorText }]}
+                      >
+                        {error}
+                      </Text>
                     </View>
                   )}
 
-                  <View style={styles.statusBanner}>
-                    <Text style={styles.statusLabel}>Status:</Text>
+                  <View
+                    style={[
+                      styles.statusBanner,
+                      { backgroundColor: theme.statusBanner },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.statusLabel, { color: theme.statusLabel }]}
+                    >
+                      Status:
+                    </Text>
                     <Text
                       style={[
                         styles.statusValue,
@@ -298,44 +350,117 @@ export default function SubscriptionScreen() {
                     </Text>
                   </View>
 
-                  <View style={styles.planCard}>
+                  <View
+                    style={[
+                      styles.planCard,
+                      {
+                        backgroundColor: theme.planCardBackground,
+                        borderColor: theme.planCardBorder,
+                      },
+                    ]}
+                  >
                     <View style={styles.flowerIconContainer}>
                       <Flower type="sunflower" size={50} />
                     </View>
 
                     <View style={styles.planHeaderContainer}>
-                      <Text style={styles.planName}>{planName}</Text>
-                      <View style={styles.priceBadge}>
-                        <Text style={styles.priceBadgeText}>{planPrice}</Text>
+                      <Text
+                        style={[styles.planName, { color: theme.textPrimary }]}
+                      >
+                        {planName}
+                      </Text>
+                      <View
+                        style={[
+                          styles.priceBadge,
+                          {
+                            backgroundColor: theme.priceBadgeBackground,
+                            borderColor: theme.priceBadgeBorder,
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.priceBadgeText,
+                            { color: theme.priceBadgeText },
+                          ]}
+                        >
+                          {planPrice}
+                        </Text>
                       </View>
                     </View>
 
-                    <Text style={styles.planDescription}>
+                    <Text
+                      style={[
+                        styles.planDescription,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
                       {sandbox.description}
                     </Text>
 
                     <View style={styles.benefitsList}>
                       <View style={styles.benefitItem}>
-                        <Text style={styles.benefitCheck}>✓</Text>
-                        <Text style={styles.benefitText}>
+                        <Text
+                          style={[
+                            styles.benefitCheck,
+                            { color: theme.tabBarFocused },
+                          ]}
+                        >
+                          ✓
+                        </Text>
+                        <Text
+                          style={[
+                            styles.benefitText,
+                            { color: theme.textSecondary },
+                          ]}
+                        >
                           Premium Flower Colors
                         </Text>
                       </View>
                       <View style={styles.benefitItem}>
-                        <Text style={styles.benefitCheck}>✓</Text>
-                        <Text style={styles.benefitText}>
+                        <Text
+                          style={[
+                            styles.benefitCheck,
+                            { color: theme.tabBarFocused },
+                          ]}
+                        >
+                          ✓
+                        </Text>
+                        <Text
+                          style={[
+                            styles.benefitText,
+                            { color: theme.textSecondary },
+                          ]}
+                        >
                           Plant Up to 50 Flowers
                         </Text>
                       </View>
                       <View style={styles.benefitItem}>
-                        <Text style={styles.benefitCheck}>✓</Text>
-                        <Text style={styles.benefitText}>
+                        <Text
+                          style={[
+                            styles.benefitCheck,
+                            { color: theme.tabBarFocused },
+                          ]}
+                        >
+                          ✓
+                        </Text>
+                        <Text
+                          style={[
+                            styles.benefitText,
+                            { color: theme.textSecondary },
+                          ]}
+                        >
                           Special Flower Varieties
                         </Text>
                       </View>
                     </View>
 
-                    <Text style={styles.renewalTerms}>
+                    <Text
+                      style={[
+                        styles.renewalTerms,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
                       Auto-renewable subscription · 1 month · {planPrice}.
                       Renews automatically unless cancelled at least 24 hours
                       before the end of the current period. Manage or cancel
@@ -344,22 +469,50 @@ export default function SubscriptionScreen() {
                   </View>
 
                   {isSubscribed && (
-                    <View style={styles.statusCard}>
-                      <Text style={styles.statusTitle}>
+                    <View
+                      style={[
+                        styles.statusCard,
+                        {
+                          backgroundColor: theme.planCardBackground,
+                          borderColor: theme.planCardBorder,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.statusTitle,
+                          { color: theme.textPrimary },
+                        ]}
+                      >
                         Subscription Details
                       </Text>
 
                       <View style={styles.infoItem}>
-                        <Text style={styles.label}>Current Plan:</Text>
-                        <Text style={styles.value}>
+                        <Text
+                          style={[styles.label, { color: theme.textSecondary }]}
+                        >
+                          Current Plan:
+                        </Text>
+                        <Text
+                          style={[styles.value, { color: theme.textPrimary }]}
+                        >
                           <Text style={styles.activeStatus}>{currentPlan}</Text>
                         </Text>
                       </View>
 
                       {subscription?.current_period_end && (
                         <View style={styles.infoItem}>
-                          <Text style={styles.label}>Renews on:</Text>
-                          <Text style={styles.value}>
+                          <Text
+                            style={[
+                              styles.label,
+                              { color: theme.textSecondary },
+                            ]}
+                          >
+                            Renews on:
+                          </Text>
+                          <Text
+                            style={[styles.value, { color: theme.textPrimary }]}
+                          >
                             {formatDate(subscription.current_period_end)}
                           </Text>
                         </View>
@@ -383,37 +536,64 @@ export default function SubscriptionScreen() {
 
                   {isSubscribed && (
                     <View style={styles.thankYouContainer}>
-                      <Text style={styles.thankYouText}>
+                      <Text
+                        style={[
+                          styles.thankYouText,
+                          { color: theme.successText },
+                        ]}
+                      >
                         Thank you for your support!
                       </Text>
-                      <Text style={styles.enjoyText}>
+                      <Text
+                        style={[
+                          styles.enjoyText,
+                          { color: theme.textSecondary },
+                        ]}
+                      >
                         Enjoy your premium features!
                       </Text>
                     </View>
                   )}
 
-                  {/* Restore Purchases — required by Apple for IAP apps */}
-                  {Platform.OS === 'ios' && !isSubscribed && (
+                  {Platform.OS === 'ios' && (
                     <TouchableOpacity
                       style={styles.restoreButton}
                       onPress={handleRestore}
                     >
-                      <Text style={styles.restoreText}>Restore Purchases</Text>
+                      <Text
+                        style={[
+                          styles.restoreText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        Restore Purchases
+                      </Text>
                     </TouchableOpacity>
                   )}
 
-                  {/* Legal links — required by Apple Guideline 3.1.2 in the purchase flow */}
                   <View style={styles.legalLinks}>
                     <TouchableOpacity
                       onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
                     >
-                      <Text style={styles.legalLinkText}>Privacy Policy</Text>
+                      <Text
+                        style={[
+                          styles.legalLinkText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        Privacy Policy
+                      </Text>
                     </TouchableOpacity>
-                    <Text style={styles.legalSeparator}>·</Text>
+                    <Text style={styles.legalSeparator}>•</Text>
                     <TouchableOpacity
                       onPress={() => Linking.openURL(TERMS_OF_USE_URL)}
                     >
-                      <Text style={styles.legalLinkText}>
+                      <Text
+                        style={[
+                          styles.legalLinkText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
                         Terms of Use (EULA)
                       </Text>
                     </TouchableOpacity>
@@ -568,6 +748,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+    gap: 8,
   },
   priceBadge: {
     backgroundColor: 'rgba(255, 240, 219, 0.8)',
@@ -679,6 +860,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#1A1A1A',
+    flex: 1,
   },
   planDescription: {
     fontSize: 16,

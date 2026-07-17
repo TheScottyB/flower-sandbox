@@ -6,16 +6,20 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Flower } from '@/src/components/Flower';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 
 export default function DonationSuccessScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   const flowerPositions = isWide
     ? [
@@ -72,9 +76,11 @@ export default function DonationSuccessScreen() {
       ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundStart }]}
+    >
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
 
@@ -92,24 +98,39 @@ export default function DonationSuccessScreen() {
 
       <View style={styles.container}>
         <View style={styles.card}>
-          <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+          <BlurView
+            intensity={80}
+            tint={scheme === 'dark' ? 'dark' : 'light'}
+            style={[
+              styles.cardBlur,
+              {
+                borderColor: theme.cardBorder,
+                backgroundColor: theme.cardBackground,
+              },
+            ]}
+          >
             <View style={styles.cardInner}>
               <View style={styles.iconContainer}>
                 <Flower type="sunflower" size={80} />
               </View>
 
-              <Text style={styles.title}>Thank You! 🎉</Text>
-              <Text style={styles.message}>
+              <Text style={[styles.title, { color: theme.textPrimary }]}>
+                Thank You! 🎉
+              </Text>
+              <Text style={[styles.message, { color: theme.textSecondary }]}>
                 Your donation has been successfully processed. We truly
                 appreciate your support!
               </Text>
-              <Text style={styles.subMessage}>
+              <Text style={[styles.subMessage, { color: theme.versionText }]}>
                 More beautiful flowers will bloom in the sandbox thanks to your
                 generosity.
               </Text>
 
               <TouchableOpacity
-                style={styles.button}
+                style={[
+                  styles.button,
+                  { backgroundColor: theme.buttonBackground },
+                ]}
                 onPress={() => router.push('/')}
               >
                 <Text style={styles.buttonText}>Return to Sandbox</Text>

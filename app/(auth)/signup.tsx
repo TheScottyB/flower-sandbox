@@ -12,12 +12,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -28,6 +30,8 @@ export default function SignUpScreen() {
   const [info, setInfo] = useState<string | null>(null);
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   const handleClose = () => {
     if (Platform.OS !== 'web') {
@@ -157,7 +161,7 @@ export default function SignUpScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
 
@@ -179,39 +183,100 @@ export default function SignUpScreen() {
       >
         <View style={styles.container}>
           <View style={styles.card}>
-            <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.cardBlur,
+                {
+                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.cardBackground,
+                },
+              ]}
+            >
               <View style={styles.cardInner}>
                 <TouchableOpacity
                   onPress={handleClose}
-                  style={styles.closeButton}
+                  style={[
+                    styles.closeButton,
+                    {
+                      backgroundColor:
+                        scheme === 'dark'
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 0, 0, 0.06)',
+                    },
+                  ]}
                   accessibilityLabel="Close"
                   activeOpacity={0.7}
                 >
-                  <X size={18} color="#555" />
+                  <X size={18} color={theme.textSecondary} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.title, { color: theme.textPrimary }]}>
+                  Create Account
+                </Text>
+                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                   Join our flower sandbox community
                 </Text>
 
                 {error && (
-                  <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{error}</Text>
+                  <View
+                    style={[
+                      styles.errorContainer,
+                      {
+                        backgroundColor: theme.errorBackground,
+                        borderColor: theme.errorBorder,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={StyleSheet.flatten([
+                        styles.errorText,
+                        { color: theme.errorText },
+                      ])}
+                    >
+                      {error}
+                    </Text>
                   </View>
                 )}
 
                 {info && (
-                  <View style={styles.infoContainer}>
-                    <Text style={styles.infoText}>{info}</Text>
+                  <View
+                    style={[
+                      styles.infoContainer,
+                      {
+                        backgroundColor: theme.successBackground,
+                        borderColor: theme.successBorder,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={StyleSheet.flatten([
+                        styles.infoText,
+                        { color: theme.successText },
+                      ])}
+                    >
+                      {info}
+                    </Text>
                   </View>
                 )}
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Email</Text>
+                  <Text
+                    style={[styles.inputLabel, { color: theme.textSecondary }]}
+                  >
+                    Email
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.textInputBackground,
+                        borderColor: theme.textInputBorder,
+                        color: theme.textInputText,
+                      },
+                    ]}
                     placeholder="Enter your email"
-                    placeholderTextColor="#A0AEC0"
+                    placeholderTextColor={theme.textInputPlaceholder}
                     value={email}
                     onChangeText={setEmail}
                     autoCapitalize="none"
@@ -220,12 +285,27 @@ export default function SignUpScreen() {
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Password</Text>
-                  <View style={styles.passwordInputWrapper}>
+                  <Text
+                    style={[styles.inputLabel, { color: theme.textSecondary }]}
+                  >
+                    Password
+                  </Text>
+                  <View
+                    style={[
+                      styles.passwordInputWrapper,
+                      {
+                        backgroundColor: theme.textInputBackground,
+                        borderColor: theme.textInputBorder,
+                      },
+                    ]}
+                  >
                     <TextInput
-                      style={styles.passwordInput}
+                      style={[
+                        styles.passwordInput,
+                        { color: theme.textInputText },
+                      ]}
                       placeholder="Create a password"
-                      placeholderTextColor="#A0AEC0"
+                      placeholderTextColor={theme.textInputPlaceholder}
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
@@ -236,16 +316,20 @@ export default function SignUpScreen() {
                       activeOpacity={0.7}
                     >
                       {showPassword ? (
-                        <EyeOff size={20} color="#718096" />
+                        <EyeOff size={20} color={theme.textSecondary} />
                       ) : (
-                        <Eye size={20} color="#718096" />
+                        <Eye size={20} color={theme.textSecondary} />
                       )}
                     </TouchableOpacity>
                   </View>
                 </View>
 
                 <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
+                  style={[
+                    styles.button,
+                    { backgroundColor: theme.buttonBackground },
+                    loading && styles.buttonDisabled,
+                  ]}
                   onPress={handleSignUp}
                   disabled={loading}
                 >
@@ -257,16 +341,36 @@ export default function SignUpScreen() {
                 </TouchableOpacity>
 
                 <View style={styles.footer}>
-                  <Text style={styles.footerText}>
+                  <Text
+                    style={[styles.footerText, { color: theme.textSecondary }]}
+                  >
                     Already have an account?{' '}
                   </Text>
                   <Link href="/login" style={styles.link}>
-                    <Text style={styles.linkText}>Login</Text>
+                    <Text
+                      style={[styles.linkText, { color: theme.tabBarFocused }]}
+                    >
+                      Login
+                    </Text>
                   </Link>
                 </View>
 
-                <View style={styles.appInfo}>
-                  <Text style={styles.appInfoText}>FlowerSandbox</Text>
+                <View
+                  style={[
+                    styles.appInfo,
+                    {
+                      borderTopColor:
+                        scheme === 'dark'
+                          ? 'rgba(255, 255, 255, 0.1)'
+                          : 'rgba(0, 0, 0, 0.08)',
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[styles.appInfoText, { color: theme.textSecondary }]}
+                  >
+                    FlowerSandbox
+                  </Text>
                 </View>
               </View>
             </BlurView>

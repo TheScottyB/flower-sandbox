@@ -15,6 +15,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 
 // Custom Animated Tab Button
 function TabBarButton({
@@ -23,8 +24,10 @@ function TabBarButton({
   icon: Icon,
   onPress,
   onLongPress,
+  testID,
 }: any) {
   const scale = useSharedValue(isFocused ? 1.15 : 1);
+  const theme = useThemeColors();
 
   React.useEffect(() => {
     scale.value = withSpring(isFocused ? 1.18 : 1, {
@@ -47,14 +50,18 @@ function TabBarButton({
       onLongPress={onLongPress}
       style={styles.tabButton}
       activeOpacity={0.7}
+      testID={testID}
     >
       <Animated.View style={[styles.iconWrapper, animatedStyle]}>
-        <Icon size={24} color={isFocused ? '#007AFF' : '#718096'} />
+        <Icon
+          size={24}
+          color={isFocused ? theme.tabBarFocused : theme.tabBarUnfocused}
+        />
       </Animated.View>
       <View
         style={[
           styles.dot,
-          { backgroundColor: isFocused ? '#007AFF' : 'transparent' },
+          { backgroundColor: isFocused ? theme.tabBarFocused : 'transparent' },
         ]}
       />
     </TouchableOpacity>
@@ -64,6 +71,7 @@ function TabBarButton({
 export default function TabLayout() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const theme = useThemeColors();
 
   return (
     <Tabs
@@ -80,6 +88,8 @@ export default function TabLayout() {
               {
                 bottom:
                   Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16,
+                backgroundColor: theme.tabBarBackground,
+                borderColor: theme.tabBarBorder,
               },
             ]}
           >
@@ -122,6 +132,7 @@ export default function TabLayout() {
                       icon={Icon}
                       onPress={onPress}
                       onLongPress={onLongPress}
+                      testID={`tab-button-${route.name}`}
                     />
                   );
                 })}

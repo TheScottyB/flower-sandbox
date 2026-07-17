@@ -6,9 +6,11 @@ import {
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useThemeColors } from '../hooks/useThemeColors';
 import { Flower } from './Flower';
 import { type FlowerType, flowerTypes } from './flowerData';
 import { PetalBurst } from './PetalBurst';
@@ -57,6 +59,8 @@ export const FlowerField = ({
   style,
 }: FlowerFieldProps) => {
   const { width, height } = useWindowDimensions();
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   // State to track flowers and layout dimensions
   const [flowers, setFlowers] = useState<FlowerItem[]>([]);
@@ -189,18 +193,44 @@ export const FlowerField = ({
 
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
-      <View style={[styles.container, style]} onLayout={onLayout}>
+      <View
+        testID="flower-field"
+        style={[styles.container, style]}
+        onLayout={onLayout}
+      >
         <LinearGradient
-          colors={['#FFEBCD', '#FFF8E1']}
+          colors={[theme.backgroundStart, theme.backgroundEnd]}
           style={styles.sandbox}
         />
 
         {/* Sandbox Inner Frame (Dashed Soil border) */}
-        <View style={styles.sandboxInnerFrame} pointerEvents="none" />
+        <View
+          style={[
+            styles.sandboxInnerFrame,
+            {
+              borderColor:
+                scheme === 'dark'
+                  ? 'rgba(255, 255, 255, 0.15)'
+                  : 'rgba(140, 122, 107, 0.35)',
+            },
+          ]}
+          pointerEvents="none"
+        />
 
         {/* Sandbox Instruction Label */}
-        <View style={styles.sandboxLabel} pointerEvents="none">
-          <Text style={styles.sandboxLabelText}>
+        <View
+          style={[
+            styles.sandboxLabel,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.cardBorder,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          <Text
+            style={[styles.sandboxLabelText, { color: theme.textSecondary }]}
+          >
             🌸 Tap sandbox to plant flowers
           </Text>
         </View>

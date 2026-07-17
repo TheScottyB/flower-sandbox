@@ -14,12 +14,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -30,6 +32,8 @@ export default function LoginScreen() {
   const passwordRef = useRef<TextInput>(null);
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   const handleClose = () => {
     if (Platform.OS !== 'web') {
@@ -148,7 +152,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
 
@@ -174,31 +178,84 @@ export default function LoginScreen() {
         >
           <View style={styles.container}>
             <View style={styles.card}>
-              <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+              <BlurView
+                intensity={80}
+                tint={scheme === 'dark' ? 'dark' : 'light'}
+                style={[
+                  styles.cardBlur,
+                  {
+                    borderColor: theme.cardBorder,
+                    backgroundColor: theme.cardBackground,
+                  },
+                ]}
+              >
                 <View style={styles.cardInner}>
                   <TouchableOpacity
                     onPress={handleClose}
-                    style={styles.closeButton}
+                    style={[
+                      styles.closeButton,
+                      {
+                        backgroundColor:
+                          scheme === 'dark'
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.06)',
+                      },
+                    ]}
                     accessibilityLabel="Close"
                     activeOpacity={0.7}
                   >
-                    <X size={18} color="#555" />
+                    <X size={18} color={theme.textSecondary} />
                   </TouchableOpacity>
-                  <Text style={styles.title}>Welcome Back</Text>
-                  <Text style={styles.subtitle}>Sign in to continue</Text>
+                  <Text style={[styles.title, { color: theme.textPrimary }]}>
+                    Welcome Back
+                  </Text>
+                  <Text
+                    style={[styles.subtitle, { color: theme.textSecondary }]}
+                  >
+                    Sign in to continue
+                  </Text>
 
                   {error && (
-                    <View style={styles.errorContainer}>
-                      <Text style={styles.errorText}>{error}</Text>
+                    <View
+                      style={[
+                        styles.errorContainer,
+                        {
+                          backgroundColor: theme.errorBackground,
+                          borderColor: theme.errorBorder,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={StyleSheet.flatten([
+                          styles.errorText,
+                          { color: theme.errorText },
+                        ])}
+                      >
+                        {error}
+                      </Text>
                     </View>
                   )}
 
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>Email</Text>
+                    <Text
+                      style={[
+                        styles.inputLabel,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      Email
+                    </Text>
                     <TextInput
-                      style={styles.input}
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: theme.textInputBackground,
+                          borderColor: theme.textInputBorder,
+                          color: theme.textInputText,
+                        },
+                      ]}
                       placeholder="Enter your email"
-                      placeholderTextColor="#A0AEC0"
+                      placeholderTextColor={theme.textInputPlaceholder}
                       value={email}
                       onChangeText={setEmail}
                       autoCapitalize="none"
@@ -210,13 +267,31 @@ export default function LoginScreen() {
                   </View>
 
                   <View style={styles.inputContainer}>
-                    <Text style={styles.inputLabel}>Password</Text>
-                    <View style={styles.passwordInputWrapper}>
+                    <Text
+                      style={[
+                        styles.inputLabel,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      Password
+                    </Text>
+                    <View
+                      style={[
+                        styles.passwordInputWrapper,
+                        {
+                          backgroundColor: theme.textInputBackground,
+                          borderColor: theme.textInputBorder,
+                        },
+                      ]}
+                    >
                       <TextInput
                         ref={passwordRef}
-                        style={styles.passwordInput}
+                        style={[
+                          styles.passwordInput,
+                          { color: theme.textInputText },
+                        ]}
                         placeholder="Enter your password"
-                        placeholderTextColor="#A0AEC0"
+                        placeholderTextColor={theme.textInputPlaceholder}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry={!showPassword}
@@ -229,16 +304,20 @@ export default function LoginScreen() {
                         activeOpacity={0.7}
                       >
                         {showPassword ? (
-                          <EyeOff size={20} color="#718096" />
+                          <EyeOff size={20} color={theme.textSecondary} />
                         ) : (
-                          <Eye size={20} color="#718096" />
+                          <Eye size={20} color={theme.textSecondary} />
                         )}
                       </TouchableOpacity>
                     </View>
                   </View>
 
                   <TouchableOpacity
-                    style={[styles.button, loading && styles.buttonDisabled]}
+                    style={[
+                      styles.button,
+                      { backgroundColor: theme.buttonBackground },
+                      loading && styles.buttonDisabled,
+                    ]}
                     onPress={handleLogin}
                     disabled={loading}
                   >
@@ -250,28 +329,89 @@ export default function LoginScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.forgotPassword}>
-                    <Text style={styles.forgotPasswordText}>
+                    <Text
+                      style={[
+                        styles.forgotPasswordText,
+                        { color: theme.tabBarFocused },
+                      ]}
+                    >
                       Forgot Password?
                     </Text>
                   </TouchableOpacity>
 
                   <View style={styles.divider}>
-                    <View style={styles.dividerLine} />
-                    <Text style={styles.dividerText}>OR</Text>
-                    <View style={styles.dividerLine} />
+                    <View
+                      style={[
+                        styles.dividerLine,
+                        {
+                          backgroundColor:
+                            scheme === 'dark'
+                              ? 'rgba(255, 255, 255, 0.1)'
+                              : 'rgba(0, 0, 0, 0.08)',
+                        },
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        styles.dividerText,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      OR
+                    </Text>
+                    <View
+                      style={[
+                        styles.dividerLine,
+                        {
+                          backgroundColor:
+                            scheme === 'dark'
+                              ? 'rgba(255, 255, 255, 0.1)'
+                              : 'rgba(0, 0, 0, 0.08)',
+                        },
+                      ]}
+                    />
                   </View>
 
                   <View style={styles.footer}>
-                    <Text style={styles.footerText}>
+                    <Text
+                      style={[
+                        styles.footerText,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
                       Don't have an account?{' '}
                     </Text>
                     <Link href="/signup" style={styles.link}>
-                      <Text style={styles.linkText}>Sign up</Text>
+                      <Text
+                        style={[
+                          styles.linkText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        Sign up
+                      </Text>
                     </Link>
                   </View>
 
-                  <View style={styles.appInfo}>
-                    <Text style={styles.appInfoText}>FlowerSandbox</Text>
+                  <View
+                    style={[
+                      styles.appInfo,
+                      {
+                        borderTopColor:
+                          scheme === 'dark'
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.08)',
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.appInfoText,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      FlowerSandbox
+                    </Text>
                   </View>
                 </View>
               </BlurView>

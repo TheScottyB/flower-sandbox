@@ -1,10 +1,11 @@
 import { Path } from 'react-native-svg';
 import TestRenderer from 'react-test-renderer';
+import { vi } from 'vitest';
 import { PetalBurst } from '../PetalBurst';
 
 describe('PetalBurst', () => {
   it('renders 8 SVG Path particles, each tinted with the given color', () => {
-    const onComplete = jest.fn();
+    const onComplete = vi.fn();
     const tree = TestRenderer.create(
       <PetalBurst
         x={50}

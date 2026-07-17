@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as expoIAP from 'expo-iap';
 import type React from 'react';
 import TestRenderer from 'react-test-renderer';
+import { type Mock, vi } from 'vitest';
 import { useIAP } from '../useIAP';
 
 const HookWrapper = ({
@@ -15,7 +16,7 @@ const HookWrapper = ({
 
 describe('useIAP hook', () => {
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     await AsyncStorage.clear();
   });
 
@@ -24,8 +25,7 @@ describe('useIAP hook', () => {
     await AsyncStorage.setItem('@flowersandbox/iap_subscribed', '1');
 
     // Mock getAvailablePurchases to return active sub
-    const getAvailablePurchasesMock =
-      expoIAP.getAvailablePurchases as jest.Mock;
+    const getAvailablePurchasesMock = expoIAP.getAvailablePurchases as Mock;
     getAvailablePurchasesMock.mockResolvedValue([
       { productId: 'com.djscottyb.flowersandbox.premium.monthly' },
     ]);
@@ -75,8 +75,7 @@ describe('useIAP hook', () => {
 
   it('restores purchases and sets subscription if found', async () => {
     // Mock getAvailablePurchases to return active subscription
-    const getAvailablePurchasesMock =
-      expoIAP.getAvailablePurchases as jest.Mock;
+    const getAvailablePurchasesMock = expoIAP.getAvailablePurchases as Mock;
     getAvailablePurchasesMock.mockResolvedValue([
       { productId: 'com.djscottyb.flowersandbox.premium.monthly' },
     ]);
@@ -103,8 +102,7 @@ describe('useIAP hook', () => {
 
   it('sets error if no previous subscription found on restore', async () => {
     // Mock getAvailablePurchases to return empty array
-    const getAvailablePurchasesMock =
-      expoIAP.getAvailablePurchases as jest.Mock;
+    const getAvailablePurchasesMock = expoIAP.getAvailablePurchases as Mock;
     getAvailablePurchasesMock.mockResolvedValue([]);
 
     let hookState: any = null;

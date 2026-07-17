@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import { TouchableWithoutFeedback } from 'react-native';
 import TestRenderer from 'react-test-renderer';
+import { vi } from 'vitest';
 import { FlowerField } from '../FlowerField';
 
 // Mock PetalBurst to avoid running animation callbacks that delete bursts synchronously
-jest.mock('../PetalBurst', () => {
+vi.mock('../PetalBurst', () => {
   const React = require('react');
   return {
     PetalBurst: (props: any) => React.createElement('PetalBurst', props),
@@ -19,7 +20,7 @@ const findFlowers = (root: any) => {
 
 describe('FlowerField', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders initial flowers based on count prop', () => {
@@ -32,7 +33,7 @@ describe('FlowerField', () => {
   });
 
   it('adds a flower and a petal burst on background tap', () => {
-    const onAddFlowerMock = jest.fn();
+    const onAddFlowerMock = vi.fn();
     let tree: any;
     TestRenderer.act(() => {
       tree = TestRenderer.create(
@@ -65,7 +66,7 @@ describe('FlowerField', () => {
   });
 
   it('enforces maxFlowers cap', () => {
-    const onAddFlowerMock = jest.fn();
+    const onAddFlowerMock = vi.fn();
     let tree: any;
     // Set maxFlowers to 3, and count to 3
     TestRenderer.act(() => {

@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { Text, TextInput, TouchableOpacity } from 'react-native';
 import TestRenderer from 'react-test-renderer';
+import { type Mock, vi } from 'vitest';
 import { supabase } from '@/lib/supabase';
 import SignUpScreen from '../signup';
 
 describe('SignUpScreen', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders inputs and sign up button', () => {
@@ -27,7 +28,7 @@ describe('SignUpScreen', () => {
   });
 
   it('shows email-confirmation notice when sign up succeeds without a session', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
     signUpMock.mockResolvedValueOnce({
       data: { user: {}, session: null },
       error: null,
@@ -70,7 +71,7 @@ describe('SignUpScreen', () => {
   });
 
   it('navigates home when sign up returns an active session', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
     signUpMock.mockResolvedValueOnce({
       data: { user: {}, session: {} },
       error: null,
@@ -100,7 +101,7 @@ describe('SignUpScreen', () => {
   });
 
   it('validates empty fields without calling the server', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
 
     const tree = TestRenderer.create(<SignUpScreen />);
     const buttons = tree.root.findAllByType(TouchableOpacity);
@@ -124,7 +125,7 @@ describe('SignUpScreen', () => {
   });
 
   it('displays user-friendly error if email is already registered', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
     signUpMock.mockResolvedValueOnce({
       data: { user: null },
       error: { message: 'User already registered' },
@@ -160,7 +161,7 @@ describe('SignUpScreen', () => {
   });
 
   it('displays standard error message for other sign up failures', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
     signUpMock.mockResolvedValueOnce({
       data: { user: null },
       error: { message: 'Password should be at least 6 characters' },
@@ -196,7 +197,7 @@ describe('SignUpScreen', () => {
   });
 
   it('displays generic error message on unexpected thrown errors', async () => {
-    const signUpMock = supabase.auth.signUp as jest.Mock;
+    const signUpMock = supabase.auth.signUp as Mock;
     signUpMock.mockRejectedValueOnce(new Error('Unexpected network failure'));
 
     const tree = TestRenderer.create(<SignUpScreen />);

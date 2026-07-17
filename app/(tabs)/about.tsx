@@ -13,12 +13,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 
 export default function AboutScreen() {
@@ -29,6 +31,8 @@ export default function AboutScreen() {
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
   const appVersion = Constants.expoConfig?.version ?? '1.0.1';
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -157,7 +161,7 @@ export default function AboutScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
 
@@ -180,27 +184,55 @@ export default function AboutScreen() {
         <View style={styles.container}>
           {/* App info card */}
           <View style={styles.card}>
-            <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.cardBlur,
+                {
+                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.cardBackground,
+                },
+              ]}
+            >
               <View style={styles.cardInner}>
-                <Text style={styles.title}>FlowerSandbox</Text>
-                <Text style={styles.description}>
+                <Text style={[styles.title, { color: theme.textPrimary }]}>
+                  FlowerSandbox
+                </Text>
+                <Text
+                  style={[styles.description, { color: theme.textSecondary }]}
+                >
                   A peaceful little garden where you can plant and grow
                   beautiful flowers. Subscribe for premium colors, rare
                   varieties, and a larger garden.
                 </Text>
-                <Text style={styles.version}>Version {appVersion}</Text>
+                <Text style={[styles.version, { color: theme.versionText }]}>
+                  Version {appVersion}
+                </Text>
 
                 <View style={styles.legalLinks}>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
                   >
-                    <Text style={styles.legalLinkText}>Privacy Policy</Text>
+                    <Text
+                      style={[
+                        styles.legalLinkText,
+                        { color: theme.tabBarFocused },
+                      ]}
+                    >
+                      Privacy Policy
+                    </Text>
                   </TouchableOpacity>
                   <Text style={styles.legalSeparator}>·</Text>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(TERMS_OF_USE_URL)}
                   >
-                    <Text style={styles.legalLinkText}>
+                    <Text
+                      style={[
+                        styles.legalLinkText,
+                        { color: theme.tabBarFocused },
+                      ]}
+                    >
                       Terms of Use (EULA)
                     </Text>
                   </TouchableOpacity>
@@ -212,13 +244,42 @@ export default function AboutScreen() {
           {/* Account card — only shown when signed in */}
           {!loadingUser && user && (
             <View style={styles.card}>
-              <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+              <BlurView
+                intensity={80}
+                tint={scheme === 'dark' ? 'dark' : 'light'}
+                style={[
+                  styles.cardBlur,
+                  {
+                    borderColor: theme.cardBorder,
+                    backgroundColor: theme.cardBackground,
+                  },
+                ]}
+              >
                 <View style={styles.cardInner}>
-                  <Text style={styles.sectionTitle}>Account</Text>
+                  <Text
+                    style={[styles.sectionTitle, { color: theme.textPrimary }]}
+                  >
+                    Account
+                  </Text>
 
-                  <View style={styles.emailRow}>
-                    <Text style={styles.emailLabel}>Signed in as</Text>
-                    <Text style={styles.emailValue} numberOfLines={1}>
+                  <View
+                    style={[
+                      styles.emailRow,
+                      { backgroundColor: theme.statusBanner },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.emailLabel,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      Signed in as
+                    </Text>
+                    <Text
+                      style={[styles.emailValue, { color: theme.textPrimary }]}
+                      numberOfLines={1}
+                    >
                       {user.email}
                     </Text>
                   </View>
@@ -230,7 +291,17 @@ export default function AboutScreen() {
                     <Text style={styles.signOutText}>Sign Out</Text>
                   </TouchableOpacity>
 
-                  <View style={styles.divider} />
+                  <View
+                    style={[
+                      styles.divider,
+                      {
+                        backgroundColor:
+                          scheme === 'dark'
+                            ? 'rgba(255,255,255,0.08)'
+                            : 'rgba(0,0,0,0.08)',
+                      },
+                    ]}
+                  />
 
                   <Text style={styles.dangerLabel}>Danger Zone</Text>
                   <TouchableOpacity
@@ -247,7 +318,9 @@ export default function AboutScreen() {
                       <Text style={styles.deleteText}>Delete Account</Text>
                     )}
                   </TouchableOpacity>
-                  <Text style={styles.deleteHint}>
+                  <Text
+                    style={[styles.deleteHint, { color: theme.textSecondary }]}
+                  >
                     Permanently removes your account and all data. Cannot be
                     undone.
                   </Text>
@@ -258,10 +331,26 @@ export default function AboutScreen() {
 
           {!loadingUser && !user && (
             <View style={styles.card}>
-              <BlurView intensity={80} tint="light" style={styles.cardBlur}>
+              <BlurView
+                intensity={80}
+                tint={scheme === 'dark' ? 'dark' : 'light'}
+                style={[
+                  styles.cardBlur,
+                  {
+                    borderColor: theme.cardBorder,
+                    backgroundColor: theme.cardBackground,
+                  },
+                ]}
+              >
                 <View style={styles.cardInner}>
-                  <Text style={styles.sectionTitle}>Account</Text>
-                  <Text style={styles.description}>
+                  <Text
+                    style={[styles.sectionTitle, { color: theme.textPrimary }]}
+                  >
+                    Account
+                  </Text>
+                  <Text
+                    style={[styles.description, { color: theme.textSecondary }]}
+                  >
                     Sign in to sync your subscription and garden layout across
                     multiple devices.
                   </Text>

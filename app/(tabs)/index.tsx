@@ -20,6 +20,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -27,14 +28,21 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { FlowerField } from '@/src/components/FlowerField';
 import { useIAP } from '@/src/hooks/useIAP';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 import { products } from '@/src/stripe-config';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const theme = useThemeColors();
+  const scheme = useColorScheme();
   const { width, height } = useWindowDimensions();
   const isWide = width >= 768;
 
@@ -182,23 +190,50 @@ export default function HomeScreen() {
 
   const renderContent = () => (
     <View style={styles.panelContent}>
-      <Text style={styles.flowerCount}>
+      <Text style={[styles.flowerCount, { color: theme.textPrimary }]}>
         🌸 Flowers planted:{' '}
-        <Text style={styles.countNumber}>{flowerCount}</Text>
+        <Text style={[styles.countNumber, { color: theme.tabBarFocused }]}>
+          {flowerCount}
+        </Text>
       </Text>
 
       {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+        <View
+          style={[
+            styles.errorContainer,
+            {
+              backgroundColor: theme.errorBackground,
+              borderColor: theme.errorBorder,
+            },
+          ]}
+        >
+          <Text style={[styles.errorText, { color: theme.errorText }]}>
+            {error}
+          </Text>
         </View>
       )}
 
-      <View style={styles.featuresContainer}>
+      <View
+        style={[
+          styles.featuresContainer,
+          {
+            backgroundColor: theme.cardBackground,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
         <View style={styles.featureItem}>
           <CheckCircle2 size={18} color="#34C759" style={styles.featureIcon} />
           <View style={styles.featureTextWrapper}>
-            <Text style={styles.featureTitle}>Beautiful Flowers</Text>
-            <Text style={styles.featureDescription}>
+            <Text style={[styles.featureTitle, { color: theme.textPrimary }]}>
+              Beautiful Flowers
+            </Text>
+            <Text
+              style={[
+                styles.featureDescription,
+                { color: theme.textSecondary },
+              ]}
+            >
               Plant multiple animated flower types in your garden.
             </Text>
           </View>
@@ -211,10 +246,15 @@ export default function HomeScreen() {
             style={styles.featureIcon}
           />
           <View style={styles.featureTextWrapper}>
-            <Text style={styles.featureTitle}>
+            <Text style={[styles.featureTitle, { color: theme.textPrimary }]}>
               Premium Colors {isPremium && '(Active)'}
             </Text>
-            <Text style={styles.featureDescription}>
+            <Text
+              style={[
+                styles.featureDescription,
+                { color: theme.textSecondary },
+              ]}
+            >
               Unlock unique HSL color gradients and rare varieties.
             </Text>
           </View>
@@ -223,10 +263,15 @@ export default function HomeScreen() {
         <View style={styles.featureItem}>
           <CheckCircle2 size={18} color="#34C759" style={styles.featureIcon} />
           <View style={styles.featureTextWrapper}>
-            <Text style={styles.featureTitle}>
+            <Text style={[styles.featureTitle, { color: theme.textPrimary }]}>
               Garden Expansion {isPremium && '(Active)'}
             </Text>
-            <Text style={styles.featureDescription}>
+            <Text
+              style={[
+                styles.featureDescription,
+                { color: theme.textSecondary },
+              ]}
+            >
               Plant up to {isPremium ? '50' : '15'} flowers in your garden.
             </Text>
           </View>
@@ -271,44 +316,110 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundStart }]}
+    >
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: scheme === 'dark' ? '#111827' : '#EBF2E6' },
+        ]}
+      >
         <FlowerField
           count={isPremium ? 10 : 5}
           isPremium={isPremium}
           maxFlowers={isPremium ? 50 : 15}
           onAddFlower={handleFlowerPlanted}
           rightOffset={isWide ? 350 : 0}
-          style={
-            isWide ? styles.desktopSandboxField : styles.mobileSandboxField
-          }
+          style={[
+            isWide ? styles.desktopSandboxField : styles.mobileSandboxField,
+            {
+              borderColor: theme.sandboxBorder,
+              backgroundColor: theme.sandboxBackground,
+            },
+          ]}
         />
 
         {isWide ? (
           /* Sidebar view for Web & Tablet */
           <View style={styles.sidebarContainer}>
-            <BlurView intensity={80} tint="light" style={styles.sidebarBlur}>
-              <View style={styles.sidebarHeader}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.sidebarBlur,
+                {
+                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.cardBackground,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.sidebarHeader,
+                  {
+                    borderBottomColor:
+                      scheme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.08)'
+                        : 'rgba(0, 0, 0, 0.06)',
+                  },
+                ]}
+              >
                 <View style={styles.headerTitleRow}>
-                  <Text style={styles.titleText}>FlowerSandbox</Text>
+                  <Text
+                    style={[styles.titleText, { color: theme.textPrimary }]}
+                  >
+                    FlowerSandbox
+                  </Text>
                   {user ? (
-                    <View style={styles.userBadge}>
-                      <User size={14} color="#007AFF" />
-                      <Text style={styles.userBadgeText} numberOfLines={1}>
+                    <View
+                      style={[
+                        styles.userBadge,
+                        {
+                          backgroundColor:
+                            scheme === 'dark'
+                              ? 'rgba(59, 130, 246, 0.15)'
+                              : 'rgba(0, 122, 255, 0.08)',
+                        },
+                      ]}
+                    >
+                      <User size={14} color={theme.tabBarFocused} />
+                      <Text
+                        style={[
+                          styles.userBadgeText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                        numberOfLines={1}
+                      >
                         {user.email?.split('@')[0]}
                       </Text>
                     </View>
                   ) : (
                     <TouchableOpacity
                       onPress={() => router.push('/login')}
-                      style={styles.sidebarLoginBtn}
+                      style={[
+                        styles.sidebarLoginBtn,
+                        {
+                          backgroundColor:
+                            scheme === 'dark'
+                              ? 'rgba(59, 130, 246, 0.15)'
+                              : 'rgba(0, 122, 255, 0.1)',
+                        },
+                      ]}
                     >
-                      <LogIn size={16} color="#007AFF" />
-                      <Text style={styles.loginText}>Sync Account</Text>
+                      <LogIn size={16} color={theme.tabBarFocused} />
+                      <Text
+                        style={[
+                          styles.loginText,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        Sync Account
+                      </Text>
                     </TouchableOpacity>
                   )}
                 </View>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                   Interact with the field on the left to plant and nurture your
                   garden.
                 </Text>
@@ -323,26 +434,95 @@ export default function HomeScreen() {
           </View>
         ) : (
           /* Collapsible Bottom Drawer for Mobile */
-          <Animated.View style={[styles.drawerContainer, animatedDrawerStyle]}>
-            <BlurView intensity={85} tint="light" style={styles.drawerBlur}>
+          <Animated.View
+            style={[
+              styles.drawerContainer,
+              {
+                bottom:
+                  (Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16) +
+                  66,
+              },
+              animatedDrawerStyle,
+            ]}
+          >
+            <BlurView
+              intensity={85}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.drawerBlur,
+                {
+                  backgroundColor:
+                    Platform.OS === 'android'
+                      ? scheme === 'dark'
+                        ? 'rgba(31, 41, 55, 0.96)'
+                        : 'rgba(255, 255, 255, 0.96)'
+                      : scheme === 'dark'
+                        ? 'rgba(31, 41, 55, 0.65)'
+                        : 'rgba(255, 255, 255, 0.65)',
+                },
+              ]}
+            >
               <TouchableOpacity
                 activeOpacity={0.9}
                 onPress={toggleDrawer}
-                style={styles.drawerHeader}
+                style={[
+                  styles.drawerHeader,
+                  {
+                    borderBottomColor:
+                      scheme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.08)'
+                        : 'rgba(0, 0, 0, 0.06)',
+                  },
+                ]}
               >
-                <View style={styles.dragHandle} />
+                <View
+                  style={[
+                    styles.dragHandle,
+                    {
+                      backgroundColor:
+                        scheme === 'dark'
+                          ? 'rgba(255, 255, 255, 0.25)'
+                          : 'rgba(0, 0, 0, 0.15)',
+                    },
+                  ]}
+                />
                 <View style={styles.drawerHeaderMain}>
                   <View style={styles.drawerTitleRow}>
-                    <Text style={styles.drawerTitle}>FlowerSandbox</Text>
+                    <Text
+                      style={[styles.drawerTitle, { color: theme.textPrimary }]}
+                    >
+                      FlowerSandbox
+                    </Text>
                     {user && (
-                      <View style={styles.userBadgeMobile}>
-                        <Text style={styles.userBadgeText} numberOfLines={1}>
+                      <View
+                        style={[
+                          styles.userBadgeMobile,
+                          {
+                            backgroundColor:
+                              scheme === 'dark'
+                                ? 'rgba(59, 130, 246, 0.15)'
+                                : 'rgba(0, 122, 255, 0.08)',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.userBadgeText,
+                            { color: theme.tabBarFocused },
+                          ]}
+                          numberOfLines={1}
+                        >
                           {user.email?.split('@')[0]}
                         </Text>
                       </View>
                     )}
                   </View>
-                  <Text style={styles.drawerSubtitle}>
+                  <Text
+                    style={[
+                      styles.drawerSubtitle,
+                      { color: theme.textSecondary },
+                    ]}
+                  >
                     {flowerCount} planted •{' '}
                     {drawerExpanded ? 'Tap to close' : 'Tap to expand features'}
                   </Text>

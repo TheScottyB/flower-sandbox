@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import TestRenderer from 'react-test-renderer';
+import { type Mock, vi } from 'vitest';
 import { supabase } from '@/lib/supabase';
 import { useIAP } from '@/src/hooks/useIAP';
 import SubscriptionScreen from '../subscription';
@@ -14,29 +15,29 @@ import SubscriptionScreen from '../subscription';
 declare const global: any;
 
 // Mock expo-router router push and replace
-const mockPush = jest.fn();
-const mockReplace = jest.fn();
-const mockBack = jest.fn();
+const mockPush = vi.fn();
+const mockReplace = vi.fn();
+const mockBack = vi.fn();
 
-jest.mock('expo-router', () => {
+vi.mock('expo-router', () => {
   return {
     useRouter: () => ({
       push: mockPush,
       replace: mockReplace,
       back: mockBack,
     }),
-    useLocalSearchParams: jest.fn(),
+    useLocalSearchParams: vi.fn(),
     Link: 'Link',
   };
 });
 
 // Mock the useIAP hook
-jest.mock('@/src/hooks/useIAP', () => ({
-  useIAP: jest.fn(),
+vi.mock('@/src/hooks/useIAP', () => ({
+  useIAP: vi.fn(),
 }));
 
-const mockUseIAP = useIAP as jest.Mock;
-const mockUseLocalSearchParams = useLocalSearchParams as jest.Mock;
+const mockUseIAP = useIAP as Mock;
+const mockUseLocalSearchParams = useLocalSearchParams as Mock;
 
 // Helper to find Text nodes by content
 const findTextWithContent = (root: any, content: string) => {
@@ -55,10 +56,10 @@ const findTextWithContent = (root: any, content: string) => {
 describe('SubscriptionScreen', () => {
   const originalPlatformOS = Platform.OS;
   const originalWindow = (globalThis as any).window;
-  const mockOpenURL = jest.fn();
+  const mockOpenURL = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Set default platform and mock implementations
     Platform.OS = 'ios';
@@ -69,33 +70,33 @@ describe('SubscriptionScreen', () => {
       error: null,
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     mockUseLocalSearchParams.mockReturnValue({ success: undefined });
 
     // Mock supabase auth session
-    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    (supabase.auth.getSession as Mock).mockResolvedValue({
       data: { session: null },
       error: null,
     });
 
     // Mock supabase database query
-    const mockMaybeSingle = jest
+    const mockMaybeSingle = vi
       .fn()
       .mockResolvedValue({ data: null, error: null });
-    const mockSelect = jest
+    const mockSelect = vi
       .fn()
       .mockReturnValue({ maybeSingle: mockMaybeSingle });
-    (supabase.from as jest.Mock).mockReturnValue({ select: mockSelect });
+    (supabase.from as Mock).mockReturnValue({ select: mockSelect });
 
     // Mock Linking
-    jest.spyOn(Linking, 'openURL').mockImplementation(mockOpenURL);
+    vi.spyOn(Linking, 'openURL').mockImplementation(mockOpenURL);
     mockOpenURL.mockResolvedValue(true);
 
     // Default global fetch mock
-    (globalThis as any).fetch = jest.fn().mockResolvedValue({
+    (globalThis as any).fetch = vi.fn().mockResolvedValue({
       json: () =>
         Promise.resolve({
           url: 'https://checkout.stripe.com/pay/mock',
@@ -107,7 +108,7 @@ describe('SubscriptionScreen', () => {
   afterEach(() => {
     Platform.OS = originalPlatformOS;
     (globalThis as any).window = originalWindow;
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   // ── iOS StoreKit Tests ─────────────────────────────────────────────────────
@@ -119,8 +120,8 @@ describe('SubscriptionScreen', () => {
       error: null,
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -141,8 +142,8 @@ describe('SubscriptionScreen', () => {
       error: null,
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -177,8 +178,8 @@ describe('SubscriptionScreen', () => {
       error: null,
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -211,7 +212,7 @@ describe('SubscriptionScreen', () => {
   });
 
   it('triggers purchaseSubscription when clicking Subscribe on iOS', async () => {
-    const purchaseMock = jest.fn().mockResolvedValue(undefined);
+    const purchaseMock = vi.fn().mockResolvedValue(undefined);
     mockUseIAP.mockReturnValue({
       isSubscribed: false,
       loading: false,
@@ -219,7 +220,7 @@ describe('SubscriptionScreen', () => {
       productTitle: null,
       productPrice: null,
       purchaseSubscription: purchaseMock,
-      restorePurchases: jest.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -240,14 +241,14 @@ describe('SubscriptionScreen', () => {
   });
 
   it('triggers restorePurchases when clicking Restore on iOS', async () => {
-    const restoreMock = jest.fn().mockResolvedValue(undefined);
+    const restoreMock = vi.fn().mockResolvedValue(undefined);
     mockUseIAP.mockReturnValue({
       isSubscribed: false,
       loading: false,
       error: null,
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
+      purchaseSubscription: vi.fn(),
       restorePurchases: restoreMock,
     });
 
@@ -275,8 +276,8 @@ describe('SubscriptionScreen', () => {
       error: null,
       productTitle: 'FlowerSandbox Premium',
       productPrice: '$0.99',
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -310,8 +311,8 @@ describe('SubscriptionScreen', () => {
       error: 'Failed to connect to App Store.',
       productTitle: null,
       productPrice: null,
-      purchaseSubscription: jest.fn(),
-      restorePurchases: jest.fn(),
+      purchaseSubscription: vi.fn(),
+      restorePurchases: vi.fn(),
     });
 
     const tree = TestRenderer.create(<SubscriptionScreen />);
@@ -328,12 +329,12 @@ describe('SubscriptionScreen', () => {
     Platform.OS = 'android';
 
     const mockSession = { access_token: 'fake-token' };
-    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    (supabase.auth.getSession as Mock).mockResolvedValue({
       data: { session: mockSession },
       error: null,
     });
 
-    const mockMaybeSingle = jest.fn().mockResolvedValue({
+    const mockMaybeSingle = vi.fn().mockResolvedValue({
       data: {
         subscription_status: 'active',
         price_id: 'price_1RCQr6DesriQyUxd0aR0MNGG',
@@ -341,10 +342,10 @@ describe('SubscriptionScreen', () => {
       },
       error: null,
     });
-    const mockSelect = jest
+    const mockSelect = vi
       .fn()
       .mockReturnValue({ maybeSingle: mockMaybeSingle });
-    (supabase.from as jest.Mock).mockReturnValue({ select: mockSelect });
+    (supabase.from as Mock).mockReturnValue({ select: mockSelect });
 
     let tree: any;
     await TestRenderer.act(async () => {
@@ -366,7 +367,7 @@ describe('SubscriptionScreen', () => {
     Platform.OS = 'android';
 
     // Simulate user not logged in
-    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    (supabase.auth.getSession as Mock).mockResolvedValue({
       data: { session: null },
       error: null,
     });
@@ -396,7 +397,7 @@ describe('SubscriptionScreen', () => {
     Platform.OS = 'android';
 
     const mockSession = { access_token: 'fake-access-token' };
-    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    (supabase.auth.getSession as Mock).mockResolvedValue({
       data: { session: mockSession },
       error: null,
     });
@@ -439,7 +440,7 @@ describe('SubscriptionScreen', () => {
     Platform.OS = 'web';
 
     const mockSession = { access_token: 'fake-access-token-web' };
-    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+    (supabase.auth.getSession as Mock).mockResolvedValue({
       data: { session: mockSession },
       error: null,
     });

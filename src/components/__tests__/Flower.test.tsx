@@ -2,11 +2,12 @@ import * as Haptics from 'expo-haptics';
 import { TouchableOpacity } from 'react-native';
 import { Path } from 'react-native-svg';
 import TestRenderer from 'react-test-renderer';
+import { vi } from 'vitest';
 import { Flower } from '../Flower';
 
 describe('Flower', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders with default daisy settings', () => {
@@ -48,7 +49,7 @@ describe('Flower', () => {
   });
 
   it('handles onPress and triggers haptics', () => {
-    const onPressMock = jest.fn();
+    const onPressMock = vi.fn();
     const tree = TestRenderer.create(<Flower onPress={onPressMock} />);
     const touchable = tree.root.findByType(TouchableOpacity);
 

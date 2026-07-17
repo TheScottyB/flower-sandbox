@@ -2,7 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": ["jest", "react-test-renderer"],
+    "types": ["vitest/globals", "react-test-renderer"],
     "paths": {
       "@/*": ["./*"]
     }

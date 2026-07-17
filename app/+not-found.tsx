@@ -1,18 +1,25 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import { useThemeColors } from '@/src/hooks/useThemeColors';
 
 export default function NotFoundScreen() {
+  const theme = useThemeColors();
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <LinearGradient
-        colors={['#FFEBCD', '#FFF8E1']}
+        colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
       />
       <View style={styles.container}>
-        <Text style={styles.text}>This screen doesn't exist.</Text>
-        <Link href="/" style={styles.link}>
+        <Text style={[styles.text, { color: theme.textPrimary }]}>
+          This screen doesn't exist.
+        </Text>
+        <Link
+          href="/"
+          style={[styles.link, { backgroundColor: theme.buttonBackground }]}
+        >
           <Text style={styles.linkText}>Go to home screen!</Text>
         </Link>
       </View>
