@@ -2,7 +2,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { Eye, EyeOff, X } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -24,6 +24,7 @@ import { Flower } from '@/src/components/Flower';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -210,17 +211,30 @@ export default function LoginScreen() {
 
                   <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Password</Text>
-                    <TextInput
-                      ref={passwordRef}
-                      style={styles.input}
-                      placeholder="Enter your password"
-                      placeholderTextColor="#A0AEC0"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      returnKeyType="done"
-                      onSubmitEditing={handleLogin}
-                    />
+                    <View style={styles.passwordInputWrapper}>
+                      <TextInput
+                        ref={passwordRef}
+                        style={styles.passwordInput}
+                        placeholder="Enter your password"
+                        placeholderTextColor="#A0AEC0"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!showPassword}
+                        returnKeyType="done"
+                        onSubmitEditing={handleLogin}
+                      />
+                      <TouchableOpacity
+                        onPress={() => setShowPassword(!showPassword)}
+                        style={styles.eyeButton}
+                        activeOpacity={0.7}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={20} color="#718096" />
+                        ) : (
+                          <Eye size={20} color="#718096" />
+                        )}
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
                   <TouchableOpacity
@@ -357,6 +371,25 @@ const styles = StyleSheet.create({
     padding: 16,
     fontSize: 16,
     color: '#333333',
+  },
+  passwordInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
+    borderRadius: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 16,
+    fontSize: 16,
+    color: '#333333',
+  },
+  eyeButton: {
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
     backgroundColor: '#007AFF',
