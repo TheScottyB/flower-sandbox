@@ -13,6 +13,10 @@ const distAppDir = path.join(distDir, 'app');
 console.log('Starting custom web build for FlowerSandbox...');
 
 try {
+  // 0. Clean old dist directory
+  console.log('Clearing old dist directory...');
+  fs.rmSync(distDir, { recursive: true, force: true });
+
   // 1. Run Expo Web Export
   console.log('Running "pnpm exec expo export --platform web"...');
   const args = [
