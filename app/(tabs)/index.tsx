@@ -20,7 +20,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -35,14 +34,14 @@ import {
 import { supabase } from '@/lib/supabase';
 import { FlowerField } from '@/src/components/FlowerField';
 import { useIAP } from '@/src/hooks/useIAP';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 import { products } from '@/src/stripe-config';
 
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
   const { width, height } = useWindowDimensions();
   const isWide = width >= 768;
 
@@ -322,7 +321,7 @@ export default function HomeScreen() {
       <View
         style={[
           styles.container,
-          { backgroundColor: scheme === 'dark' ? '#111827' : '#EBF2E6' },
+          { backgroundColor: isDark ? theme.backgroundStart : '#EBF2E6' },
         ]}
       >
         <FlowerField
@@ -345,7 +344,7 @@ export default function HomeScreen() {
           <View style={styles.sidebarContainer}>
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.sidebarBlur,
                 {
@@ -358,10 +357,9 @@ export default function HomeScreen() {
                 style={[
                   styles.sidebarHeader,
                   {
-                    borderBottomColor:
-                      scheme === 'dark'
-                        ? 'rgba(255, 255, 255, 0.08)'
-                        : 'rgba(0, 0, 0, 0.06)',
+                    borderBottomColor: isDark
+                      ? 'rgba(255, 255, 255, 0.08)'
+                      : 'rgba(0, 0, 0, 0.06)',
                   },
                 ]}
               >
@@ -376,10 +374,9 @@ export default function HomeScreen() {
                       style={[
                         styles.userBadge,
                         {
-                          backgroundColor:
-                            scheme === 'dark'
-                              ? 'rgba(59, 130, 246, 0.15)'
-                              : 'rgba(0, 122, 255, 0.08)',
+                          backgroundColor: isDark
+                            ? 'rgba(59, 130, 246, 0.15)'
+                            : 'rgba(0, 122, 255, 0.08)',
                         },
                       ]}
                     >
@@ -400,10 +397,9 @@ export default function HomeScreen() {
                       style={[
                         styles.sidebarLoginBtn,
                         {
-                          backgroundColor:
-                            scheme === 'dark'
-                              ? 'rgba(59, 130, 246, 0.15)'
-                              : 'rgba(0, 122, 255, 0.1)',
+                          backgroundColor: isDark
+                            ? 'rgba(59, 130, 246, 0.15)'
+                            : 'rgba(0, 122, 255, 0.1)',
                         },
                       ]}
                     >
@@ -447,16 +443,16 @@ export default function HomeScreen() {
           >
             <BlurView
               intensity={85}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.drawerBlur,
                 {
                   backgroundColor:
                     Platform.OS === 'android'
-                      ? scheme === 'dark'
+                      ? isDark
                         ? 'rgba(31, 41, 55, 0.96)'
                         : 'rgba(255, 255, 255, 0.96)'
-                      : scheme === 'dark'
+                      : isDark
                         ? 'rgba(31, 41, 55, 0.65)'
                         : 'rgba(255, 255, 255, 0.65)',
                 },
@@ -468,10 +464,9 @@ export default function HomeScreen() {
                 style={[
                   styles.drawerHeader,
                   {
-                    borderBottomColor:
-                      scheme === 'dark'
-                        ? 'rgba(255, 255, 255, 0.08)'
-                        : 'rgba(0, 0, 0, 0.06)',
+                    borderBottomColor: isDark
+                      ? 'rgba(255, 255, 255, 0.08)'
+                      : 'rgba(0, 0, 0, 0.06)',
                   },
                 ]}
               >
@@ -479,10 +474,9 @@ export default function HomeScreen() {
                   style={[
                     styles.dragHandle,
                     {
-                      backgroundColor:
-                        scheme === 'dark'
-                          ? 'rgba(255, 255, 255, 0.25)'
-                          : 'rgba(0, 0, 0, 0.15)',
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.25)'
+                        : 'rgba(0, 0, 0, 0.15)',
                     },
                   ]}
                 />
@@ -498,10 +492,9 @@ export default function HomeScreen() {
                         style={[
                           styles.userBadgeMobile,
                           {
-                            backgroundColor:
-                              scheme === 'dark'
-                                ? 'rgba(59, 130, 246, 0.15)'
-                                : 'rgba(0, 122, 255, 0.08)',
+                            backgroundColor: isDark
+                              ? 'rgba(59, 130, 246, 0.15)'
+                              : 'rgba(0, 122, 255, 0.08)',
                           },
                         ]}
                       >

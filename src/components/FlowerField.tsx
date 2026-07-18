@@ -6,11 +6,10 @@ import {
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
-import { useThemeColors } from '../hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '../hooks/useThemeColors';
 import { Flower } from './Flower';
 import { type FlowerType, flowerTypes } from './flowerData';
 import { PetalBurst } from './PetalBurst';
@@ -60,7 +59,7 @@ export const FlowerField = ({
 }: FlowerFieldProps) => {
   const { width, height } = useWindowDimensions();
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
 
   // State to track flowers and layout dimensions
   const [flowers, setFlowers] = useState<FlowerItem[]>([]);
@@ -208,10 +207,9 @@ export const FlowerField = ({
           style={[
             styles.sandboxInnerFrame,
             {
-              borderColor:
-                scheme === 'dark'
-                  ? 'rgba(255, 255, 255, 0.15)'
-                  : 'rgba(140, 122, 107, 0.35)',
+              borderColor: isDark
+                ? 'rgba(255, 255, 255, 0.15)'
+                : 'rgba(140, 122, 107, 0.35)',
             },
           ]}
           pointerEvents="none"

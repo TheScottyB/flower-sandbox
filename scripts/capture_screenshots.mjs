@@ -1,11 +1,14 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import readline from 'node:readline';
 
 /**
- * Script to automate screenshot capture and verification for Flower Sandbox.
+ * Fully-automated screenshot capture and verification for Flower Sandbox.
+ * No manual interaction required — the script deep-links to each screen,
+ * waits for it to render, captures, verifies via OCR, and retries on failure.
  */
+
+const MAX_CAPTURE_RETRIES = 3;
 
 const DEVICE_TYPES = {
   iphone_pro_max: {
@@ -32,28 +35,32 @@ const DEVICE_TYPES = {
   },
 };
 
+// route: Expo Router path that will be deep-linked via the app URL scheme.
+// waitMs: how long to wait after navigating before capturing (ms).
+// Extra wait for subscription — StoreKit pricing loads asynchronously.
 const SCREENSHOT_SCENES = [
-  { key: 'front', suffix: '', desc: 'Garden main interactive view' },
+  {
+    key: 'front',
+    suffix: '',
+    desc: 'Garden main interactive view',
+    route: '/',
+    waitMs: 3000,
+  },
   {
     key: 'about',
     suffix: '_about',
-    desc: 'About / Information screen (tap ABOUT tab at bottom)',
+    desc: 'About / Information screen',
+    route: '/about',
+    waitMs: 2000,
   },
   {
     key: 'subscription',
     suffix: '_subscription',
-    desc: 'Premium Subscription screen (tap SUBSCRIPTION tab at bottom)',
+    desc: 'Premium Subscription screen',
+    route: '/subscription',
+    waitMs: 5000, // StoreKit pricing loads async
   },
 ];
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-function question(query) {
-  return new Promise((resolve) => rl.question(query, resolve));
-}
 
 function runCommand(cmd) {
   try {
@@ -116,6 +123,22 @@ function getBundleIdentifier() {
     return appJson?.expo?.ios?.bundleIdentifier ?? null;
   } catch (_e) {
     return null;
+  }
+}
+
+/**
+ * Read the URL scheme from app.json (expo.scheme) for deep-link navigation.
+ */
+function getUrlScheme() {
+  try {
+    const appJson = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'app.json'), 'utf-8'),
+    );
+    const scheme = appJson?.expo?.scheme;
+    // scheme can be a string or an array — take the first one.
+    return Array.isArray(scheme) ? scheme[0] : (scheme ?? 'flowersandbox');
+  } catch (_e) {
+    return 'flowersandbox';
   }
 }
 
@@ -218,31 +241,43 @@ function resizeImage(sourcePath, destPath, targetW, targetH) {
   });
 }
 
-async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
+function captureAndVerify(baseDir, deviceInfo, udid, scene) {
   const prefix = deviceInfo.filePrefix;
   const targetPath = path.join(baseDir, `${prefix}${scene.suffix}.png`);
+  const scheme = getUrlScheme();
+  const deeplink = `${scheme}:/${scene.route}`;
 
-  while (true) {
-    console.log(`\n--------------------------------------------------`);
-    console.log(`SCENE: ${scene.key.toUpperCase()} (${scene.desc})`);
-    console.log(`--------------------------------------------------`);
+  console.log(`\n--------------------------------------------------`);
+  console.log(`SCENE: ${scene.key.toUpperCase()} — ${scene.desc}`);
+  console.log(`--------------------------------------------------`);
 
-    await question(
-      `👉 Setup the app on the simulator, then press [Enter] to capture programmatically: `,
-    );
+  for (let attempt = 1; attempt <= MAX_CAPTURE_RETRIES; attempt++) {
+    if (attempt > 1) {
+      console.log(`   Retry ${attempt}/${MAX_CAPTURE_RETRIES}...`);
+    }
 
+    // Navigate to the scene via deep link.
+    console.log(`   Deep linking → ${deeplink}`);
+    runCommand(`xcrun simctl openurl ${udid} "${deeplink}"`);
+
+    // Wait for the screen to render (longer on retry).
+    const waitSec = ((scene.waitMs ?? 2500) + (attempt - 1) * 2000) / 1000;
+    console.log(`   Waiting ${waitSec}s for screen to render...`);
+    execSync(`sleep ${waitSec}`);
+
+    // Capture.
     console.log(`   Capturing screenshot...`);
     try {
       execSync(`xcrun simctl io ${udid} screenshot "${targetPath}"`, {
         stdio: 'ignore',
       });
     } catch (err) {
-      console.error(
-        `   ❌ Failed to capture screenshot from simulator: ${err.message}`,
-      );
-      console.log(
-        `   Make sure the simulator is active, booted, and running the app.`,
-      );
+      console.error(`   ❌ Capture failed: ${err.message}`);
+      if (attempt === MAX_CAPTURE_RETRIES) {
+        throw new Error(
+          `Could not capture screenshot for scene "${scene.key}" after ${MAX_CAPTURE_RETRIES} attempts.`,
+        );
+      }
       continue;
     }
 
@@ -257,7 +292,6 @@ async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
         10,
       );
       if (imgH > 0) {
-        // Crop just the bottom 15% of the image into a temp file for quick OCR.
         const tmpCrop = targetPath.replace('.png', '_bottomcrop.png');
         runCommand(
           `sips "${targetPath}" --cropOffset 0 ${Math.round(imgH * 0.85)} ` +
@@ -266,7 +300,6 @@ async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
         const bottomText =
           runCommand(`tesseract "${tmpCrop}" stdout --psm 7 2>/dev/null`) || '';
         if (tmpCrop && fs.existsSync(tmpCrop)) fs.unlinkSync(tmpCrop);
-        // If the time pattern appears in the bottom strip the image is upside-down.
         if (
           /\b9:41\b/.test(bottomText) ||
           /\b\d{1,2}:\d{2}\s*(AM|PM)\b/i.test(bottomText)
@@ -277,7 +310,7 @@ async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
       }
     }
 
-    // Standardize Alpha Channel (remove if present)
+    // Strip alpha channel if present.
     const hasAlpha =
       runCommand(
         `sips -g hasAlpha "${targetPath}" | awk '/hasAlpha/ {print $2}'`,
@@ -290,7 +323,8 @@ async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
       );
     }
 
-    // OCR Verification Check using Tesseract
+    // OCR verification.
+    let ocrIssue = null;
     const hasTesseract = runCommand('which tesseract');
     if (hasTesseract) {
       console.log(`   Running OCR verification...`);
@@ -299,72 +333,66 @@ async function captureAndVerify(baseDir, deviceInfo, udid, scene) {
       );
       const textLower = (ocrText || '').toLowerCase();
 
-      let issue = null;
       if (
         textLower.includes('calendar') &&
         textLower.includes('photos') &&
         textLower.includes('settings') &&
         textLower.includes('wallet')
       ) {
-        issue = 'iOS Simulator Home Screen (Springboard)';
+        ocrIssue = 'iOS Simulator Home Screen (Springboard)';
       } else if (
         textLower.includes('development build') ||
         textLower.includes('metro') ||
         textLower.includes('enter url manually') ||
-        textLower.includes('development servers')
+        textLower.includes('development servers') ||
+        textLower.includes('expo go')
       ) {
-        issue = 'Expo Go / Developer Launcher Menu';
+        ocrIssue = 'Expo Go / Developer Launcher — recapture from Release build';
       } else if (
         textLower.includes('would like to use your location') ||
         (textLower.includes('allow') && textLower.includes('location'))
       ) {
-        issue = 'Location Permission Alert Popup';
+        ocrIssue = 'Location Permission Alert Popup';
       } else if (textLower.includes('cancel') && textLower.includes('allow')) {
-        issue = 'Active alert dialog or system popup';
-      }
-
-      if (issue) {
-        console.log(`   🔴 REJECTED: Screenshot shows a **${issue}**.`);
-        console.log(
-          `   Please dismiss the popup/screen on the simulator and try again.`,
-        );
-        if (fs.existsSync(targetPath)) {
-          fs.unlinkSync(targetPath);
-        }
-        continue;
+        ocrIssue = 'Active system alert dialog';
       }
     } else {
-      console.log(`   ⚠️ Tesseract OCR not found. Skipping popup check.`);
+      console.log(`   ⚠️  Tesseract not found — skipping OCR check.`);
     }
 
-    console.log(
-      `   🟢 Screenshot captured clean: ${path.basename(targetPath)}`,
-    );
+    if (ocrIssue) {
+      console.log(`   🔴 REJECTED (${ocrIssue}) — re-navigating and retrying...`);
+      if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
+      if (attempt === MAX_CAPTURE_RETRIES) {
+        throw new Error(
+          `Scene "${scene.key}" was rejected after ${MAX_CAPTURE_RETRIES} attempts: ${ocrIssue}`,
+        );
+      }
+      continue;
+    }
 
-    // Generate scaled copies for other required dimensions
+    console.log(`   🟢 ${path.basename(targetPath)}`);
+
+    // Generate scaled copies.
     for (const scale of deviceInfo.scales) {
       const scalePath = path.join(
         baseDir,
         `${scale.prefix}${scene.suffix}.png`,
       );
-      console.log(
-        `   Scaling copy for ${scale.prefix} (${scale.w}x${scale.h})...`,
-      );
+      console.log(`   Scaling → ${scale.prefix} (${scale.w}×${scale.h})...`);
       resizeImage(targetPath, scalePath, scale.w, scale.h);
-
-      // Ensure no alpha channel on scaled copy
       execSync(
         `sips -s format png "${scalePath}" --setProperty formatOptions default --out "${scalePath}"`,
         { stdio: 'ignore' },
       );
     }
 
-    break;
+    return; // success
   }
 }
 
 async function main() {
-  console.log('Welcome to the Flower Sandbox Screen Capture & Scaler Tool!');
+  console.log('Welcome to the Flower Sandbox Screen Capture & Scaler Tool (Automated Mode)!');
 
   // ⚠️  RELEASE BUILD REQUIRED
   console.log(
@@ -420,7 +448,7 @@ async function main() {
     }
 
     for (const scene of SCREENSHOT_SCENES) {
-      await captureAndVerify(baseDir, deviceInfo, udid, scene);
+      captureAndVerify(baseDir, deviceInfo, udid, scene);
     }
   }
 
@@ -430,12 +458,9 @@ async function main() {
   console.log('You can now run quality control verification:');
   console.log('  pnpm run qc-screenshots');
   console.log('==================================================\n');
-
-  rl.close();
 }
 
 main().catch((err) => {
   console.error(err);
-  rl.close();
   process.exit(1);
 });

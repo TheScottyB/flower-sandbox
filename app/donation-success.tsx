@@ -6,20 +6,19 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Flower } from '@/src/components/Flower';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 
 export default function DonationSuccessScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
 
   const flowerPositions = isWide
     ? [
@@ -100,7 +99,7 @@ export default function DonationSuccessScreen() {
         <View style={styles.card}>
           <BlurView
             intensity={80}
-            tint={scheme === 'dark' ? 'dark' : 'light'}
+            tint={isDark ? 'dark' : 'light'}
             style={[
               styles.cardBlur,
               {

@@ -17,7 +17,11 @@ const ThemeContext = createContext<ThemeContextType>({
   isDark: false,
 });
 
-export function ThemeProvider({ children }: { children: React.ReactNode }): React.ReactNode {
+export function ThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactNode {
   const systemScheme = useSystemColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 
@@ -96,44 +100,44 @@ export const colors = {
     syncButtonBorder: '#007AFF',
   },
   dark: {
-    backgroundStart: '#111827', // dark slate
-    backgroundEnd: '#1F2937',
-    cardBackground: 'rgba(31, 41, 55, 0.65)', // dark gray overlay
-    cardBorder: 'rgba(255, 255, 255, 0.1)',
-    textPrimary: '#F9FAFB', // off-white
-    textSecondary: '#9CA3AF', // light gray
+    backgroundStart: '#0B1220',
+    backgroundEnd: '#172338',
+    cardBackground: 'rgba(20, 31, 49, 0.86)',
+    cardBorder: 'rgba(148, 163, 184, 0.18)',
+    textPrimary: '#F8FAFC',
+    textSecondary: '#B7C2D2',
     textHeader: '#F3F4F6',
-    buttonBackground: '#3B82F6',
+    buttonBackground: '#4C8DFF',
     buttonText: '#FFFFFF',
-    tabBarBackground: 'rgba(31, 41, 55, 0.75)',
-    tabBarBorder: 'rgba(255, 255, 255, 0.1)',
-    tabBarUnfocused: '#9CA3AF',
-    tabBarFocused: '#3B82F6',
-    statusBanner: 'rgba(255, 255, 255, 0.05)',
-    statusLabel: '#D1D5DB',
-    planCardBackground: 'rgba(55, 65, 81, 0.55)',
-    planCardBorder: 'rgba(107, 114, 128, 0.5)',
-    priceBadgeBackground: 'rgba(55, 65, 81, 0.8)',
-    priceBadgeBorder: 'rgba(75, 85, 99, 0.8)',
-    priceBadgeText: '#FBBF24', // yellow amber
-    sandboxBackground: '#1F2937',
-    sandboxBorder: '#4B5563',
-    successBackground: '#064E3B', // dark green
-    successBorder: '#047857',
+    tabBarBackground: 'rgba(15, 24, 39, 0.94)',
+    tabBarBorder: 'rgba(148, 163, 184, 0.2)',
+    tabBarUnfocused: '#A8B3C4',
+    tabBarFocused: '#60A5FA',
+    statusBanner: 'rgba(148, 163, 184, 0.1)',
+    statusLabel: '#CBD5E1',
+    planCardBackground: 'rgba(30, 43, 64, 0.82)',
+    planCardBorder: 'rgba(96, 165, 250, 0.22)',
+    priceBadgeBackground: 'rgba(245, 158, 11, 0.14)',
+    priceBadgeBorder: 'rgba(251, 191, 36, 0.32)',
+    priceBadgeText: '#FBBF24',
+    sandboxBackground: '#101A2B',
+    sandboxBorder: '#526176',
+    successBackground: '#073D32',
+    successBorder: '#0F766E',
     successText: '#A7F3D0',
-    errorBackground: '#7F1D1D', // dark red
-    errorBorder: '#B91C1C',
+    errorBackground: '#521D28',
+    errorBorder: '#9F3347',
     errorText: '#FCA5A5',
-    textInputBackground: '#374151',
-    textInputText: '#F9FAFB',
-    textInputBorder: '#4B5563',
-    textInputPlaceholder: '#9CA3AF',
-    aboutAppCardBackground: 'rgba(31, 41, 55, 0.65)',
-    aboutAppCardBorder: 'rgba(255, 255, 255, 0.1)',
+    textInputBackground: '#1C2A40',
+    textInputText: '#F8FAFC',
+    textInputBorder: '#42526A',
+    textInputPlaceholder: '#93A4B8',
+    aboutAppCardBackground: 'rgba(20, 31, 49, 0.86)',
+    aboutAppCardBorder: 'rgba(148, 163, 184, 0.18)',
     aboutTitleText: '#F3F4F6',
     aboutSubtitleText: '#D1D5DB',
-    versionText: '#9CA3AF',
-    syncButtonBorder: '#3B82F6',
+    versionText: '#A8B3C4',
+    syncButtonBorder: '#60A5FA',
   },
 };
 

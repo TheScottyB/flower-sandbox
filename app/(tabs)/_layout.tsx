@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -17,7 +16,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 
 // Custom Animated Tab Button
 function TabBarButton({
@@ -77,7 +76,7 @@ export default function TabLayout() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
 
   const isLargeScreen = width > 768;
   const tabBarWidth = isLargeScreen ? 400 : width - 40;
@@ -107,8 +106,11 @@ export default function TabLayout() {
           >
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
-              style={styles.blurContainer}
+              tint={isDark ? 'dark' : 'light'}
+              style={[
+                styles.blurContainer,
+                { backgroundColor: theme.tabBarBackground },
+              ]}
             >
               <View style={styles.tabBarContainer}>
                 {state.routes.map((route, index) => {

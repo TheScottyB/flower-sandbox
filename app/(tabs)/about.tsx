@@ -13,7 +13,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -36,8 +35,7 @@ export default function AboutScreen() {
   const isWide = width >= 768;
   const appVersion = Constants.expoConfig?.version ?? '1.0.1';
   const theme = useThemeColors();
-  const scheme = useColorScheme();
-  const { themeMode, setThemeMode } = useThemeMode();
+  const { themeMode, setThemeMode, isDark } = useThemeMode();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -193,7 +191,7 @@ export default function AboutScreen() {
           <View style={[styles.card, { borderColor: theme.cardBorder }]}>
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.cardBlur,
                 {
@@ -252,7 +250,7 @@ export default function AboutScreen() {
           <View style={[styles.card, { borderColor: theme.cardBorder }]}>
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.cardBlur,
                 {
@@ -322,7 +320,7 @@ export default function AboutScreen() {
             <View style={[styles.card, { borderColor: theme.cardBorder }]}>
               <BlurView
                 intensity={80}
-                tint={scheme === 'dark' ? 'dark' : 'light'}
+                tint={isDark ? 'dark' : 'light'}
                 style={[
                   styles.cardBlur,
                   {
@@ -371,10 +369,9 @@ export default function AboutScreen() {
                     style={[
                       styles.divider,
                       {
-                        backgroundColor:
-                          scheme === 'dark'
-                            ? 'rgba(255,255,255,0.08)'
-                            : 'rgba(0,0,0,0.08)',
+                        backgroundColor: isDark
+                          ? 'rgba(255,255,255,0.08)'
+                          : 'rgba(0,0,0,0.08)',
                       },
                     ]}
                   />
@@ -409,7 +406,7 @@ export default function AboutScreen() {
             <View style={[styles.card, { borderColor: theme.cardBorder }]}>
               <BlurView
                 intensity={80}
-                tint={scheme === 'dark' ? 'dark' : 'light'}
+                tint={isDark ? 'dark' : 'light'}
                 style={[
                   styles.cardBlur,
                   {

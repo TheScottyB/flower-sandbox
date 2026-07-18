@@ -12,14 +12,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -31,7 +30,7 @@ export default function SignUpScreen() {
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
 
   const handleClose = () => {
     if (Platform.OS !== 'web') {
@@ -187,7 +186,7 @@ export default function SignUpScreen() {
           <View style={styles.card}>
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.cardBlur,
                 {
@@ -202,10 +201,9 @@ export default function SignUpScreen() {
                   style={[
                     styles.closeButton,
                     {
-                      backgroundColor:
-                        scheme === 'dark'
-                          ? 'rgba(255, 255, 255, 0.1)'
-                          : 'rgba(0, 0, 0, 0.06)',
+                      backgroundColor: isDark
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.06)',
                     },
                   ]}
                   accessibilityLabel="Close"
@@ -361,10 +359,9 @@ export default function SignUpScreen() {
                   style={[
                     styles.appInfo,
                     {
-                      borderTopColor:
-                        scheme === 'dark'
-                          ? 'rgba(255, 255, 255, 0.1)'
-                          : 'rgba(0, 0, 0, 0.08)',
+                      borderTopColor: isDark
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.08)',
                     },
                   ]}
                 >

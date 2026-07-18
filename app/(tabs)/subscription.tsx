@@ -12,7 +12,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -20,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
 import { useIAP } from '@/src/hooks/useIAP';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 import { products } from '@/src/stripe-config';
 
@@ -36,7 +35,7 @@ export default function SubscriptionScreen() {
   const { width, height } = useWindowDimensions();
   const isWide = width >= 768;
   const theme = useThemeColors();
-  const scheme = useColorScheme();
+  const { isDark } = useThemeMode();
 
   // ── iOS: StoreKit ──────────────────────────────────────────────────────────
   const iap = useIAP();
@@ -268,7 +267,7 @@ export default function SubscriptionScreen() {
           <View style={[styles.card, { borderColor: theme.cardBorder }]}>
             <BlurView
               intensity={80}
-              tint={scheme === 'dark' ? 'dark' : 'light'}
+              tint={isDark ? 'dark' : 'light'}
               style={[
                 styles.cardBlur,
                 {
@@ -281,14 +280,12 @@ export default function SubscriptionScreen() {
                 style={[
                   styles.cardHeader,
                   {
-                    borderBottomColor:
-                      scheme === 'dark'
-                        ? 'rgba(255,255,255,0.08)'
-                        : 'rgba(0,0,0,0.06)',
-                    backgroundColor:
-                      scheme === 'dark'
-                        ? 'rgba(255,255,255,0.03)'
-                        : 'rgba(255, 255, 255, 0.35)',
+                    borderBottomColor: isDark
+                      ? 'rgba(255,255,255,0.08)'
+                      : 'rgba(0,0,0,0.06)',
+                    backgroundColor: isDark
+                      ? 'rgba(255,255,255,0.03)'
+                      : 'rgba(255, 255, 255, 0.35)',
                   },
                 ]}
               >
@@ -588,10 +585,9 @@ export default function SubscriptionScreen() {
                     style={[
                       styles.divider,
                       {
-                        backgroundColor:
-                          scheme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.08)'
-                            : 'rgba(0, 0, 0, 0.06)',
+                        backgroundColor: isDark
+                          ? 'rgba(255, 255, 255, 0.08)'
+                          : 'rgba(0, 0, 0, 0.06)',
                       },
                     ]}
                   />
