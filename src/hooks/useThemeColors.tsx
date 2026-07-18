@@ -1,4 +1,58 @@
-import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type React from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useColorScheme as useSystemColorScheme } from 'react-native';
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+interface ThemeContextType {
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
+  isDark: boolean;
+}
+
+const ThemeContext = createContext<ThemeContextType>({
+  themeMode: 'system',
+  setThemeMode: () => {},
+  isDark: false,
+});
+
+export function ThemeProvider({ children }: { children: React.ReactNode }): React.ReactNode {
+  const systemScheme = useSystemColorScheme();
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+
+  useEffect(() => {
+    AsyncStorage.getItem('themeMode')
+      .then((storedMode) => {
+        if (
+          storedMode === 'light' ||
+          storedMode === 'dark' ||
+          storedMode === 'system'
+        ) {
+          setThemeModeState(storedMode as ThemeMode);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const setThemeMode = (mode: ThemeMode) => {
+    setThemeModeState(mode);
+    AsyncStorage.setItem('themeMode', mode).catch(() => {});
+  };
+
+  const isDark =
+    themeMode === 'system' ? systemScheme === 'dark' : themeMode === 'dark';
+
+  return (
+    <ThemeContext.Provider value={{ themeMode, setThemeMode, isDark }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useThemeMode() {
+  return useContext(ThemeContext);
+}
 
 export const colors = {
   light: {
@@ -84,6 +138,6 @@ export const colors = {
 };
 
 export function useThemeColors() {
-  const scheme = useColorScheme();
-  return colors[scheme === 'dark' ? 'dark' : 'light'];
+  const { isDark } = useThemeMode();
+  return colors[isDark ? 'dark' : 'light'];
 }

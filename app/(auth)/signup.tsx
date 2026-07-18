@@ -159,7 +159,9 @@ export default function SignUpScreen() {
       ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundStart }]}
+    >
       <LinearGradient
         colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}

@@ -240,7 +240,9 @@ export default function SubscriptionScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundStart }]}
+    >
       <LinearGradient
         colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
@@ -263,22 +265,64 @@ export default function SubscriptionScreen() {
         contentContainerStyle={styles.scrollViewContent}
       >
         <View style={styles.container}>
-          <View style={styles.card}>
+          <View style={[styles.card, { borderColor: theme.cardBorder }]}>
             <BlurView
               intensity={80}
               tint={scheme === 'dark' ? 'dark' : 'light'}
               style={[
                 styles.cardBlur,
                 {
-                  borderColor: theme.cardBorder,
                   backgroundColor: theme.cardBackground,
                 },
               ]}
             >
-              <View style={styles.cardHeader}>
+              {/* Card Header */}
+              <View
+                style={[
+                  styles.cardHeader,
+                  {
+                    borderBottomColor:
+                      scheme === 'dark'
+                        ? 'rgba(255,255,255,0.08)'
+                        : 'rgba(0,0,0,0.06)',
+                    backgroundColor:
+                      scheme === 'dark'
+                        ? 'rgba(255,255,255,0.03)'
+                        : 'rgba(255, 255, 255, 0.35)',
+                  },
+                ]}
+              >
                 <Text style={[styles.title, { color: theme.textPrimary }]}>
                   Premium Subscription
                 </Text>
+                <View style={styles.statusChipContainer}>
+                  <View
+                    style={[
+                      styles.statusChip,
+                      {
+                        backgroundColor: isSubscribed
+                          ? theme.successBackground
+                          : theme.statusBanner,
+                        borderColor: isSubscribed
+                          ? theme.successBorder
+                          : theme.tabBarBorder,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.statusChipText,
+                        {
+                          color: isSubscribed
+                            ? theme.successText
+                            : theme.textSecondary,
+                        },
+                      ]}
+                    >
+                      Status: {isSubscribed ? 'Active' : 'Not Subscribed'}
+                    </Text>
+                  </View>
+                </View>
               </View>
 
               {loadingInfo || (Platform.OS === 'ios' && iap.loading) ? (
@@ -289,7 +333,7 @@ export default function SubscriptionScreen() {
                   </Text>
                 </View>
               ) : (
-                <>
+                <View style={styles.cardBody}>
                   {successMessage && (
                     <View
                       style={[
@@ -329,149 +373,110 @@ export default function SubscriptionScreen() {
                     </View>
                   )}
 
-                  <View
-                    style={[
-                      styles.statusBanner,
-                      { backgroundColor: theme.statusBanner },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.statusLabel, { color: theme.statusLabel }]}
-                    >
-                      Status:
-                    </Text>
-                    <Text
-                      style={[
-                        styles.statusValue,
-                        isSubscribed ? styles.activeText : styles.inactiveText,
-                      ]}
-                    >
-                      {isSubscribed ? 'Active' : 'Not Subscribed'}
-                    </Text>
-                  </View>
-
-                  <View
-                    style={[
-                      styles.planCard,
-                      {
-                        backgroundColor: theme.planCardBackground,
-                        borderColor: theme.planCardBorder,
-                      },
-                    ]}
-                  >
-                    <View style={styles.flowerIconContainer}>
-                      <Flower type="sunflower" size={50} />
-                    </View>
-
-                    <View style={styles.planHeaderContainer}>
+                  {/* Plan Info Section */}
+                  <View style={styles.planHeaderSection}>
+                    <Flower type="sunflower" size={32} />
+                    <View style={styles.planTitleWrapper}>
                       <Text
-                        style={[styles.planName, { color: theme.textPrimary }]}
+                        style={[
+                          styles.planNameText,
+                          { color: theme.textPrimary },
+                        ]}
                       >
                         {planName}
                       </Text>
-                      <View
+                      <Text
                         style={[
-                          styles.priceBadge,
-                          {
-                            backgroundColor: theme.priceBadgeBackground,
-                            borderColor: theme.priceBadgeBorder,
-                          },
+                          styles.planDescriptionText,
+                          { color: theme.textSecondary },
                         ]}
                       >
-                        <Text
-                          style={[
-                            styles.priceBadgeText,
-                            { color: theme.priceBadgeText },
-                          ]}
-                        >
-                          {planPrice}
-                        </Text>
-                      </View>
+                        {sandbox.description}
+                      </Text>
                     </View>
-
-                    <Text
+                    <View
                       style={[
-                        styles.planDescription,
-                        { color: theme.textSecondary },
+                        styles.priceBadge,
+                        {
+                          backgroundColor: theme.priceBadgeBackground,
+                          borderColor: theme.priceBadgeBorder,
+                        },
                       ]}
                     >
-                      {sandbox.description}
-                    </Text>
-
-                    <View style={styles.benefitsList}>
-                      <View style={styles.benefitItem}>
-                        <Text
-                          style={[
-                            styles.benefitCheck,
-                            { color: theme.tabBarFocused },
-                          ]}
-                        >
-                          ✓
-                        </Text>
-                        <Text
-                          style={[
-                            styles.benefitText,
-                            { color: theme.textSecondary },
-                          ]}
-                        >
-                          Premium Flower Colors
-                        </Text>
-                      </View>
-                      <View style={styles.benefitItem}>
-                        <Text
-                          style={[
-                            styles.benefitCheck,
-                            { color: theme.tabBarFocused },
-                          ]}
-                        >
-                          ✓
-                        </Text>
-                        <Text
-                          style={[
-                            styles.benefitText,
-                            { color: theme.textSecondary },
-                          ]}
-                        >
-                          Plant Up to 50 Flowers
-                        </Text>
-                      </View>
-                      <View style={styles.benefitItem}>
-                        <Text
-                          style={[
-                            styles.benefitCheck,
-                            { color: theme.tabBarFocused },
-                          ]}
-                        >
-                          ✓
-                        </Text>
-                        <Text
-                          style={[
-                            styles.benefitText,
-                            { color: theme.textSecondary },
-                          ]}
-                        >
-                          Special Flower Varieties
-                        </Text>
-                      </View>
+                      <Text
+                        style={[
+                          styles.priceBadgeText,
+                          { color: theme.priceBadgeText },
+                        ]}
+                      >
+                        {planPrice}
+                      </Text>
                     </View>
-
-                    <Text
-                      style={[
-                        styles.renewalTerms,
-                        { color: theme.textSecondary },
-                      ]}
-                    >
-                      Auto-renewable subscription · 1 month · {planPrice}.
-                      Renews automatically unless cancelled at least 24 hours
-                      before the end of the current period. Manage or cancel
-                      anytime in your App Store account settings.
-                    </Text>
                   </View>
 
+                  {/* Benefits List */}
+                  <View style={styles.benefitsSection}>
+                    <View style={styles.benefitItem}>
+                      <Text
+                        style={[
+                          styles.benefitCheck,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        ✓
+                      </Text>
+                      <Text
+                        style={[
+                          styles.benefitText,
+                          { color: theme.textPrimary },
+                        ]}
+                      >
+                        Premium Flower Colors
+                      </Text>
+                    </View>
+                    <View style={styles.benefitItem}>
+                      <Text
+                        style={[
+                          styles.benefitCheck,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        ✓
+                      </Text>
+                      <Text
+                        style={[
+                          styles.benefitText,
+                          { color: theme.textPrimary },
+                        ]}
+                      >
+                        Plant Up to 50 Flowers
+                      </Text>
+                    </View>
+                    <View style={styles.benefitItem}>
+                      <Text
+                        style={[
+                          styles.benefitCheck,
+                          { color: theme.tabBarFocused },
+                        ]}
+                      >
+                        ✓
+                      </Text>
+                      <Text
+                        style={[
+                          styles.benefitText,
+                          { color: theme.textPrimary },
+                        ]}
+                      >
+                        Special Flower Varieties
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Subscribed details */}
                   {isSubscribed && (
                     <View
                       style={[
-                        styles.statusCard,
+                        styles.detailsCard,
                         {
                           backgroundColor: theme.planCardBackground,
                           borderColor: theme.planCardBorder,
@@ -480,38 +485,45 @@ export default function SubscriptionScreen() {
                     >
                       <Text
                         style={[
-                          styles.statusTitle,
+                          styles.detailsTitle,
                           { color: theme.textPrimary },
                         ]}
                       >
                         Subscription Details
                       </Text>
-
-                      <View style={styles.infoItem}>
+                      <View style={styles.detailsRow}>
                         <Text
-                          style={[styles.label, { color: theme.textSecondary }]}
+                          style={[
+                            styles.detailsLabel,
+                            { color: theme.textSecondary },
+                          ]}
                         >
                           Current Plan:
                         </Text>
                         <Text
-                          style={[styles.value, { color: theme.textPrimary }]}
+                          style={[
+                            styles.detailsValue,
+                            { color: theme.successText, fontWeight: '600' },
+                          ]}
                         >
-                          <Text style={styles.activeStatus}>{currentPlan}</Text>
+                          {currentPlan}
                         </Text>
                       </View>
-
                       {subscription?.current_period_end && (
-                        <View style={styles.infoItem}>
+                        <View style={styles.detailsRow}>
                           <Text
                             style={[
-                              styles.label,
+                              styles.detailsLabel,
                               { color: theme.textSecondary },
                             ]}
                           >
                             Renews on:
                           </Text>
                           <Text
-                            style={[styles.value, { color: theme.textPrimary }]}
+                            style={[
+                              styles.detailsValue,
+                              { color: theme.textPrimary },
+                            ]}
                           >
                             {formatDate(subscription.current_period_end)}
                           </Text>
@@ -520,7 +532,8 @@ export default function SubscriptionScreen() {
                     </View>
                   )}
 
-                  {!isSubscribed && (
+                  {/* Main Action CTA */}
+                  {!isSubscribed ? (
                     <TouchableOpacity
                       style={[styles.button, loading && styles.buttonDisabled]}
                       onPress={handleSubscribe}
@@ -532,9 +545,7 @@ export default function SubscriptionScreen() {
                         <Text style={styles.buttonText}>Subscribe Now</Text>
                       )}
                     </TouchableOpacity>
-                  )}
-
-                  {isSubscribed && (
+                  ) : (
                     <View style={styles.thankYouContainer}>
                       <Text
                         style={[
@@ -555,7 +566,8 @@ export default function SubscriptionScreen() {
                     </View>
                   )}
 
-                  {Platform.OS === 'ios' && (
+                  {/* Restore button (iOS only) */}
+                  {Platform.OS === 'ios' && !isSubscribed && (
                     <TouchableOpacity
                       style={styles.restoreButton}
                       onPress={handleRestore}
@@ -571,34 +583,69 @@ export default function SubscriptionScreen() {
                     </TouchableOpacity>
                   )}
 
-                  <View style={styles.legalLinks}>
-                    <TouchableOpacity
-                      onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+                  {/* Divider to separate disclosures */}
+                  <View
+                    style={[
+                      styles.divider,
+                      {
+                        backgroundColor:
+                          scheme === 'dark'
+                            ? 'rgba(255, 255, 255, 0.08)'
+                            : 'rgba(0, 0, 0, 0.06)',
+                      },
+                    ]}
+                  />
+
+                  {/* Disclosures section */}
+                  <View style={styles.disclosuresContainer}>
+                    <Text
+                      style={[
+                        styles.renewalTermsText,
+                        { color: theme.textSecondary },
+                      ]}
                     >
+                      Auto-renewable subscription · 1 month · {planPrice}.
+                      Renews automatically unless cancelled at least 24 hours
+                      before the end of the current period. Manage or cancel
+                      anytime in your App Store account settings.
+                    </Text>
+
+                    <View style={styles.legalLinks}>
+                      <TouchableOpacity
+                        onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+                      >
+                        <Text
+                          style={[
+                            styles.legalLinkText,
+                            { color: theme.tabBarFocused },
+                          ]}
+                        >
+                          Privacy Policy
+                        </Text>
+                      </TouchableOpacity>
                       <Text
                         style={[
-                          styles.legalLinkText,
-                          { color: theme.tabBarFocused },
+                          styles.legalSeparator,
+                          { color: theme.textSecondary },
                         ]}
                       >
-                        Privacy Policy
+                        •
                       </Text>
-                    </TouchableOpacity>
-                    <Text style={styles.legalSeparator}>•</Text>
-                    <TouchableOpacity
-                      onPress={() => Linking.openURL(TERMS_OF_USE_URL)}
-                    >
-                      <Text
-                        style={[
-                          styles.legalLinkText,
-                          { color: theme.tabBarFocused },
-                        ]}
+                      <TouchableOpacity
+                        onPress={() => Linking.openURL(TERMS_OF_USE_URL)}
                       >
-                        Terms of Use (EULA)
-                      </Text>
-                    </TouchableOpacity>
+                        <Text
+                          style={[
+                            styles.legalLinkText,
+                            { color: theme.tabBarFocused },
+                          ]}
+                        >
+                          Terms of Use (EULA)
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </>
+                </View>
               )}
             </BlurView>
           </View>
@@ -631,13 +678,13 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     paddingTop: 20,
-    paddingBottom: 110,
+    paddingBottom: 150,
   },
   container: {
     flex: 1,
     padding: 16,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   card: {
     width: '100%',
@@ -675,6 +722,23 @@ const styles = StyleSheet.create({
     color: '#333333',
     textAlign: 'center',
   },
+  statusChipContainer: {
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  statusChip: {
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  statusChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  cardBody: {
+    padding: 24,
+  },
   loadingContainer: {
     padding: 40,
     alignItems: 'center',
@@ -687,7 +751,7 @@ const styles = StyleSheet.create({
   },
   successContainer: {
     backgroundColor: '#DCFCE7',
-    margin: 16,
+    marginBottom: 16,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
@@ -699,56 +763,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
   },
-  statusBanner: {
+  errorContainer: {
+    backgroundColor: '#FEE2E2',
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  planHeaderSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 12,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    marginBottom: 20,
+    gap: 12,
   },
-  statusLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#555555',
-    marginRight: 8,
+  planTitleWrapper: {
+    flex: 1,
   },
-  statusValue: {
-    fontSize: 16,
+  planNameText: {
+    fontSize: 20,
     fontWeight: 'bold',
   },
-  activeText: {
-    color: '#059669',
-  },
-  inactiveText: {
-    color: '#9CA3AF',
-  },
-  flowerIconContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  planCard: {
-    margin: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 228, 181, 0.8)',
-    shadowColor: '#E2A76F',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  planHeaderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
+  planDescriptionText: {
+    fontSize: 14,
+    marginTop: 2,
+    lineHeight: 20,
   },
   priceBadge: {
     backgroundColor: 'rgba(255, 240, 219, 0.8)',
@@ -763,67 +808,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  benefitsList: {
-    marginTop: 20,
+  benefitsSection: {
+    marginBottom: 24,
+    gap: 12,
   },
   benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
   },
   benefitCheck: {
-    color: '#10B981',
     fontWeight: 'bold',
     fontSize: 18,
     marginRight: 8,
   },
   benefitText: {
     fontSize: 16,
-    color: '#1F2937',
   },
-  statusCard: {
-    margin: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.55)',
-    borderRadius: 20,
-    padding: 20,
+  detailsCard: {
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.8)',
+    marginBottom: 20,
   },
-  statusTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 16,
-  },
-  infoItem: {
-    marginBottom: 16,
-  },
-  infoContainer: {
-    marginBottom: 24,
-  },
-  label: {
+  detailsTitle: {
     fontSize: 16,
-    color: '#64748B',
-    marginBottom: 6,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
-  value: {
-    fontSize: 18,
-    color: '#1F2937',
+  detailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  activeStatus: {
-    fontWeight: '600',
-    color: '#059669',
+  detailsLabel: {
+    fontSize: 14,
   },
-  inactiveStatus: {
-    fontWeight: '500',
-    color: '#9CA3AF',
+  detailsValue: {
+    fontSize: 14,
   },
   button: {
     backgroundColor: '#007AFF',
     borderRadius: 14,
     paddingVertical: 16,
-    margin: 16,
-    marginTop: 8,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -833,6 +859,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
+    marginBottom: 8,
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -842,37 +869,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
-  errorContainer: {
-    backgroundColor: '#FEE2E2',
-    margin: 16,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-  },
-  errorText: {
-    color: '#DC2626',
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  planName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    flex: 1,
-  },
-  planDescription: {
-    fontSize: 16,
-    color: '#64748B',
-    marginTop: 4,
-  },
-  planPrice: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0EA5E9',
-    marginTop: 12,
-  },
   thankYouContainer: {
     alignItems: 'center',
     padding: 16,
@@ -881,46 +877,45 @@ const styles = StyleSheet.create({
   thankYouText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#059669',
     marginBottom: 8,
   },
   enjoyText: {
     fontSize: 16,
-    color: '#64748B',
   },
   restoreButton: {
     alignItems: 'center',
     paddingVertical: 12,
-    marginHorizontal: 16,
     marginBottom: 16,
   },
   restoreText: {
-    color: '#007AFF',
     fontSize: 15,
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
-  renewalTerms: {
-    marginTop: 16,
-    fontSize: 13,
-    lineHeight: 18,
-    color: '#64748B',
+  divider: {
+    height: 1,
+    marginVertical: 20,
+  },
+  disclosuresContainer: {
+    gap: 12,
+  },
+  renewalTermsText: {
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
   },
   legalLinks: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 20,
     gap: 8,
   },
   legalLinkText: {
-    color: '#007AFF',
     fontSize: 14,
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
   legalSeparator: {
-    color: '#94A3B8',
     fontSize: 14,
   },
 });

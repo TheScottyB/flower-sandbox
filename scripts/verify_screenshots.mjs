@@ -26,63 +26,53 @@ for (const envFile of ['.env.local', '.env']) {
   }
 }
 
-// Define expected screenshot criteria for Apple App Store Connect based on app-store-config.json
+// Define expected screenshot criteria for Apple App Store Connect.
+// Each entry lists all dimension pairs (portrait + landscape) accepted by
+// App Store Connect for that display-size slot. Newer hardware (e.g. iPhone 16
+// Pro Max, iPad Pro M4) produces screenshots at higher resolutions than the
+// original baseline but are all accepted for the same slot.
 const DEVICE_SPECS = {
   iphone67: {
     name: 'iPhone Pro Max (6.7")',
-    width: 1290,
-    height: 2796,
-    altWidth: 2796,
-    altHeight: 1290,
+    // portrait [w, h] pairs accepted by App Store Connect for 6.7" slot
+    validSizes: [
+      [1290, 2796], // iPhone 14 / 15 Pro Max
+      [1320, 2868], // iPhone 16 Pro Max
+    ],
   },
   iphone65: {
     name: 'iPhone Pro Max (6.5")',
-    width: 1242,
-    height: 2688,
-    altWidth: 2688,
-    altHeight: 1242,
+    validSizes: [[1242, 2688]],
   },
   iphone61: {
     name: 'iPhone (6.1")',
-    width: 1179,
-    height: 2556,
-    altWidth: 2556,
-    altHeight: 1179,
+    validSizes: [
+      [1179, 2556],
+      [1170, 2532],
+    ],
   },
   iphone55: {
     name: 'iPhone (5.5")',
-    width: 1242,
-    height: 2208,
-    altWidth: 2208,
-    altHeight: 1242,
+    validSizes: [[1242, 2208]],
   },
   ipad129: {
     name: 'iPad Pro (12.9")',
-    width: 2048,
-    height: 2732,
-    altWidth: 2732,
-    altHeight: 2048,
+    validSizes: [
+      [2048, 2732], // iPad Pro 12.9" (1st–5th gen)
+      [2064, 2752], // iPad Pro 13" M4
+    ],
   },
   ipad11: {
     name: 'iPad Pro (11")',
-    width: 1668,
-    height: 2388,
-    altWidth: 2388,
-    altHeight: 1668,
+    validSizes: [[1668, 2388]],
   },
   ipad105: {
     name: 'iPad Pro (10.5")',
-    width: 1668,
-    height: 2224,
-    altWidth: 2224,
-    altHeight: 1668,
+    validSizes: [[1668, 2224]],
   },
   ipad97: {
     name: 'iPad (9.7")',
-    width: 1536,
-    height: 2048,
-    altWidth: 2048,
-    altHeight: 1536,
+    validSizes: [[1536, 2048]],
   },
 };
 
@@ -269,19 +259,22 @@ async function analyzeScreenshot(filePath, baseDir, apiKey) {
 
   if (matchedDeviceType) {
     const spec = DEVICE_SPECS[matchedDeviceType];
-    const isPortrait =
-      fileInfo.width === spec.width && fileInfo.height === spec.height;
-    const isLandscape =
-      fileInfo.width === spec.altWidth && fileInfo.height === spec.altHeight;
+    const w = fileInfo.width;
+    const h = fileInfo.height;
+    // Accept portrait OR landscape orientation for any valid size pair.
+    const matched = spec.validSizes.find(
+      ([pw, ph]) => (w === pw && h === ph) || (w === ph && h === pw),
+    );
 
-    if (!isPortrait && !isLandscape) {
+    if (!matched) {
+      const accepted = spec.validSizes
+        .map(([pw, ph]) => `\`${pw}x${ph}\` (or \`${ph}x${pw}\` landscape)`)
+        .join(', ');
       issues.push(
-        `Invalid dimensions for **${spec.name}**: Got \`${fileInfo.width}x${fileInfo.height}\`. Expected \`${spec.width}x${spec.height}\` (Portrait) or \`${spec.altWidth}x${spec.altHeight}\` (Landscape).`,
+        `Invalid dimensions for **${spec.name}**: Got \`${w}x${h}\`. Accepted: ${accepted}.`,
       );
     } else {
-      passes.push(
-        `Dimensions match ${spec.name} (\`${fileInfo.width}x${fileInfo.height}\`)`,
-      );
+      passes.push(`Dimensions match ${spec.name} (\`${w}x${h}\`)`);
     }
   } else {
     warnings.push(
@@ -307,10 +300,11 @@ async function analyzeScreenshot(filePath, baseDir, apiKey) {
       textLower.includes('development build') ||
       textLower.includes('metro') ||
       textLower.includes('enter url manually') ||
-      textLower.includes('development servers')
+      textLower.includes('development servers') ||
+      textLower.includes('expo go')
     ) {
       issues.push(
-        'Looks like a screenshot of the **Expo Development Launcher / Expo Go** screen instead of the application.',
+        'Looks like a screenshot of the **Expo Development Launcher / Expo Go** screen instead of the application. Recapture from a release or TestFlight build.',
       );
     }
 

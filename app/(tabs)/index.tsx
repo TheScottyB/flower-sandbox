@@ -539,9 +539,9 @@ export default function HomeScreen() {
                   )}
                   <View style={styles.chevronWrapper}>
                     {drawerExpanded ? (
-                      <ChevronDown size={22} color="#555" />
+                      <ChevronDown size={22} color={theme.textSecondary} />
                     ) : (
-                      <ChevronUp size={22} color="#555" />
+                      <ChevronUp size={22} color={theme.textSecondary} />
                     )}
                   </View>
                 </View>

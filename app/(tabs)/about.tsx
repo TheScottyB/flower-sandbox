@@ -20,7 +20,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 import { Flower } from '@/src/components/Flower';
-import { useThemeColors } from '@/src/hooks/useThemeColors';
+import {
+  type ThemeMode,
+  useThemeColors,
+  useThemeMode,
+} from '@/src/hooks/useThemeColors';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
 
 export default function AboutScreen() {
@@ -33,6 +37,7 @@ export default function AboutScreen() {
   const appVersion = Constants.expoConfig?.version ?? '1.0.1';
   const theme = useThemeColors();
   const scheme = useColorScheme();
+  const { themeMode, setThemeMode } = useThemeMode();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -159,7 +164,9 @@ export default function AboutScreen() {
       ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.backgroundStart }]}
+    >
       <LinearGradient
         colors={[theme.backgroundStart, theme.backgroundEnd]}
         style={styles.background}
@@ -183,7 +190,7 @@ export default function AboutScreen() {
       >
         <View style={styles.container}>
           {/* App info card */}
-          <View style={styles.card}>
+          <View style={[styles.card, { borderColor: theme.cardBorder }]}>
             <BlurView
               intensity={80}
               tint={scheme === 'dark' ? 'dark' : 'light'}
@@ -241,9 +248,78 @@ export default function AboutScreen() {
             </BlurView>
           </View>
 
+          {/* Theme Settings card */}
+          <View style={[styles.card, { borderColor: theme.cardBorder }]}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={[
+                styles.cardBlur,
+                {
+                  borderColor: theme.cardBorder,
+                  backgroundColor: theme.cardBackground,
+                },
+              ]}
+            >
+              <View style={styles.cardInner}>
+                <Text
+                  style={[styles.sectionTitle, { color: theme.textPrimary }]}
+                >
+                  Theme
+                </Text>
+
+                <View
+                  style={[
+                    styles.themeRow,
+                    {
+                      backgroundColor: theme.statusBanner,
+                      borderColor: theme.cardBorder,
+                    },
+                  ]}
+                >
+                  {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => {
+                    const isSelected = themeMode === mode;
+                    return (
+                      <TouchableOpacity
+                        key={mode}
+                        style={[
+                          styles.themeButton,
+                          isSelected && {
+                            backgroundColor: theme.buttonBackground,
+                          },
+                        ]}
+                        onPress={() => {
+                          if (Platform.OS !== 'web') {
+                            Haptics.impactAsync(
+                              Haptics.ImpactFeedbackStyle.Light,
+                            );
+                          }
+                          setThemeMode(mode);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.themeButtonText,
+                            {
+                              color: isSelected
+                                ? theme.buttonText
+                                : theme.textSecondary,
+                            },
+                          ]}
+                        >
+                          {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </BlurView>
+          </View>
+
           {/* Account card — only shown when signed in */}
           {!loadingUser && user && (
-            <View style={styles.card}>
+            <View style={[styles.card, { borderColor: theme.cardBorder }]}>
               <BlurView
                 intensity={80}
                 tint={scheme === 'dark' ? 'dark' : 'light'}
@@ -330,7 +406,7 @@ export default function AboutScreen() {
           )}
 
           {!loadingUser && !user && (
-            <View style={styles.card}>
+            <View style={[styles.card, { borderColor: theme.cardBorder }]}>
               <BlurView
                 intensity={80}
                 tint={scheme === 'dark' ? 'dark' : 'light'}
@@ -471,6 +547,23 @@ const styles = StyleSheet.create({
   legalSeparator: {
     color: '#94A3B8',
     fontSize: 14,
+  },
+  themeRow: {
+    flexDirection: 'row',
+    borderRadius: 16,
+    padding: 4,
+    borderWidth: 1,
+  },
+  themeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+  },
+  themeButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   emailRow: {
     marginBottom: 20,

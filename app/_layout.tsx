@@ -6,6 +6,12 @@ import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { ThemeProvider, useThemeMode } from '@/src/hooks/useThemeColors';
+
+function ThemeAwareStatusBar() {
+  const { isDark } = useThemeMode();
+  return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
 
 export default function RootLayout() {
   const _segments = useSegments();
@@ -82,13 +88,13 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
-    </>
+      <ThemeAwareStatusBar />
+    </ThemeProvider>
   );
 }

@@ -5,7 +5,9 @@ import React from 'react';
 import {
   Platform,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -26,11 +28,11 @@ function TabBarButton({
   onLongPress,
   testID,
 }: any) {
-  const scale = useSharedValue(isFocused ? 1.15 : 1);
+  const scale = useSharedValue(isFocused ? 1.1 : 1);
   const theme = useThemeColors();
 
   React.useEffect(() => {
-    scale.value = withSpring(isFocused ? 1.18 : 1, {
+    scale.value = withSpring(isFocused ? 1.1 : 1, {
       damping: 15,
       stiffness: 180,
     });
@@ -46,6 +48,7 @@ function TabBarButton({
     <TouchableOpacity
       accessibilityRole="button"
       accessibilityState={isFocused ? { selected: true } : {}}
+      accessibilityLabel={label}
       onPress={onPress}
       onLongPress={onLongPress}
       style={styles.tabButton}
@@ -54,16 +57,18 @@ function TabBarButton({
     >
       <Animated.View style={[styles.iconWrapper, animatedStyle]}>
         <Icon
-          size={24}
+          size={20}
           color={isFocused ? theme.tabBarFocused : theme.tabBarUnfocused}
         />
       </Animated.View>
-      <View
+      <Text
         style={[
-          styles.dot,
-          { backgroundColor: isFocused ? theme.tabBarFocused : 'transparent' },
+          styles.label,
+          { color: isFocused ? theme.tabBarFocused : theme.tabBarUnfocused },
         ]}
-      />
+      >
+        {label}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -72,6 +77,11 @@ export default function TabLayout() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
+  const scheme = useColorScheme();
+
+  const isLargeScreen = width > 768;
+  const tabBarWidth = isLargeScreen ? 400 : width - 40;
+  const tabBarLeft = (width - tabBarWidth) / 2;
 
   return (
     <Tabs
@@ -90,10 +100,16 @@ export default function TabLayout() {
                   Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16,
                 backgroundColor: theme.tabBarBackground,
                 borderColor: theme.tabBarBorder,
+                width: tabBarWidth,
+                left: tabBarLeft,
               },
             ]}
           >
-            <BlurView intensity={80} tint="light" style={styles.blurContainer}>
+            <BlurView
+              intensity={80}
+              tint={scheme === 'dark' ? 'dark' : 'light'}
+              style={styles.blurContainer}
+            >
               <View style={styles.tabBarContainer}>
                 {state.routes.map((route, index) => {
                   const { options } = descriptors[route.key];
@@ -167,18 +183,9 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBarWrapper: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    alignSelf: 'center',
-    maxWidth: 400,
     borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor:
-      Platform.OS === 'android'
-        ? 'rgba(255, 255, 255, 0.95)'
-        : 'rgba(255, 255, 255, 0.65)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
@@ -187,8 +194,8 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   blurContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
   },
   tabBarContainer: {
     flexDirection: 'row',
@@ -199,15 +206,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    paddingVertical: 4,
   },
   iconWrapper: {
-    padding: 6,
+    padding: 2,
     borderRadius: 12,
   },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 2,
+  label: {
+    fontSize: 10,
+    fontWeight: '600',
+    marginTop: 1,
+    textAlign: 'center',
   },
 });
