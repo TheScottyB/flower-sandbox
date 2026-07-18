@@ -51,7 +51,8 @@
         "appleTeamId": "3X872JR6P3",
         "sku": "FLOWERSANDBOX2026",
         "ascApiKeyId": "XT32ZS8GHR",
-        "ascApiKeyIssuerId": "69a6de80-fbba-47e3-e053-5b8c7c11a4d1"
+        "ascApiKeyIssuerId": "69a6de80-fbba-47e3-e053-5b8c7c11a4d1",
+        "ascApiKeyPath": "credentials/AuthKey_XT32ZS8GHR.p8"
       }
     }
   }
