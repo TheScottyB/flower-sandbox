@@ -347,7 +347,8 @@ function captureAndVerify(baseDir, deviceInfo, udid, scene) {
         textLower.includes('development servers') ||
         textLower.includes('expo go')
       ) {
-        ocrIssue = 'Expo Go / Developer Launcher — recapture from Release build';
+        ocrIssue =
+          'Expo Go / Developer Launcher — recapture from Release build';
       } else if (
         textLower.includes('would like to use your location') ||
         (textLower.includes('allow') && textLower.includes('location'))
@@ -361,7 +362,9 @@ function captureAndVerify(baseDir, deviceInfo, udid, scene) {
     }
 
     if (ocrIssue) {
-      console.log(`   🔴 REJECTED (${ocrIssue}) — re-navigating and retrying...`);
+      console.log(
+        `   🔴 REJECTED (${ocrIssue}) — re-navigating and retrying...`,
+      );
       if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath);
       if (attempt === MAX_CAPTURE_RETRIES) {
         throw new Error(
@@ -392,7 +395,9 @@ function captureAndVerify(baseDir, deviceInfo, udid, scene) {
 }
 
 async function main() {
-  console.log('Welcome to the Flower Sandbox Screen Capture & Scaler Tool (Automated Mode)!');
+  console.log(
+    'Welcome to the Flower Sandbox Screen Capture & Scaler Tool (Automated Mode)!',
+  );
 
   // ⚠️  RELEASE BUILD REQUIRED
   console.log(

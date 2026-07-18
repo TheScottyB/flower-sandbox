@@ -14,7 +14,7 @@ This repository is currently wired to the live Stripe account and the canonical 
 | A nice sandbox to play in | `prod_S6e967ZpzPhGdd` | `price_1RCQr6DesriQyUxd0aR0MNGG` | subscription |
 | Donation to the cause | `prod_S6eB9eAVlOPA2N` | `price_1RCQskDesriQyUxdWlqf7eQZ` | payment |
 
-The app keeps these IDs in `src/stripe-config.ts`, while `stripe-products` fetches current product and price details dynamically from Stripe.
+These IDs live in `src/stripe-config.ts`. The `stripe-products` function fetches product and price details dynamically from Stripe.
 
 ## Stripe Restricted Key
 
@@ -26,7 +26,7 @@ Use a restricted API key (`rk_live_...`) instead of a full secret key. The Edge 
 - Prices: read
 - Subscriptions: read
 
-Do not give the checkout RAK webhook write permission just to create a webhook. Create and manage webhook endpoints in the Stripe Dashboard, then store the signing secret in Supabase.
+Do not grant webhook write permission to the RAK. Manage webhooks in the Stripe Dashboard, then store the secret in Supabase.
 
 ## Webhook
 
@@ -46,7 +46,7 @@ Events:
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
 
-After creating a webhook, copy its signing secret once and set it in Supabase:
+Copy the webhook signing secret and set it in Supabase:
 
 ```bash
 supabase secrets set \
@@ -75,7 +75,7 @@ supabase secrets set \
   --project-ref srtlalaecgejgghwwfmk
 ```
 
-Check deployed secrets without revealing values:
+List deployed secrets (values remain hidden):
 
 ```bash
 supabase secrets list --project-ref srtlalaecgejgghwwfmk

@@ -60,14 +60,6 @@ playwright-report/
 test-results/
 app_store_assets/screenshots/qc_report.md
 
-# One-off local Playwright diagnostics with machine-specific paths.
-scripts/test-deployed-flow.mjs
-scripts/test-deployed-login.mjs
-scripts/test-on-port-8081.mjs
-scripts/test-subscription-flow.mjs
-scripts/validate-build.mjs
-scripts/validate-mobile-layout.mjs
-
 
 # Vercel
 .vercel/

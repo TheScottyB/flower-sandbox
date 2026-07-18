@@ -19,8 +19,7 @@ eas workflow:run test-and-build.yml
 
 ## publish-update.yml
 
-Publishes an over-the-air update when code is pushed to the `preview` branch.
-This avoids publishing OTA updates from arbitrary feature branches.
+Publishes an OTA update on pushes to the `preview` branch (prevents updates from arbitrary feature branches).
 
 ```bash
 eas workflow:run publish-update.yml
@@ -28,8 +27,7 @@ eas workflow:run publish-update.yml
 
 ## update-production.yml
 
-Publishes an EAS Update to the `production` channel for OTA delivery to
-installed builds.
+Publishes an OTA update to the `production` channel.
 
 ```bash
 eas workflow:run update-production.yml

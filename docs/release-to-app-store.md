@@ -17,8 +17,7 @@ update-production), see [eas-workflows.md](./eas-workflows.md).
 
 ## 2. One-time App Store Connect setup
 
-These steps run once per app, in the [App Store Connect web UI](https://appstoreconnect.apple.com).
-Most are already done for FlowerSandbox; checklist below for reference.
+Reference checklist for the [App Store Connect web UI](https://appstoreconnect.apple.com) (already completed for FlowerSandbox).
 
 ### 2.1 Create the app record
 
@@ -46,11 +45,7 @@ Most are already done for FlowerSandbox; checklist below for reference.
 
 ### 2.3 First IAP/subscription attachment (one-time browser step)
 
-Apple requires the first subscription or IAP for an app to be attached
-to the app version via the App Store Connect web UI before submission.
-The public Review Submission API does **not** expose a relationship for
-this attachment. The scripted release path therefore refuses to proceed
-until you've done this once.
+Apple requires attaching the first subscription/IAP to the app version via the App Store Connect web UI before submission. Because the Review Submission API doesn't support this, the scripted release path will block until this is done.
 
 1. Complete the subscription price, localization, and App Review screenshot in App Store Connect.
 2. On the app's version page (under the "In-App Purchases and Subscriptions" section), attach the subscription to the version.
@@ -123,11 +118,7 @@ Authoritative screenshot spec: <https://developer.apple.com/help/app-store-conne
 
 ## 5. Scripted release path (recommended)
 
-The `eas-app-store-kit` CLI drives end-to-end: local checks → EAS
-build + upload → App Store Connect version create/find → metadata and
-screenshot upload → build attach → review-detail upsert → submit for
-review. The package scripts fetch the pinned `v0.1.1` tag over HTTPS so
-EAS workers do not need GitHub SSH keys.
+The `eas-app-store-kit` CLI automates the release: local checks → EAS build & upload → App Store Connect setup → metadata & screenshot upload → build attachment → review submission. Scripts fetch `v0.1.1` over HTTPS (no SSH keys needed for EAS workers).
 
 ### One command:
 
@@ -210,8 +201,7 @@ Use `APP_STORE_CONNECT_PRIVATE_KEY` instead of `APP_STORE_CONNECT_PRIVATE_KEY_PA
 
 ## 6. Manual release path
 
-Prefer the scripted path unless you need to debug a single step. The
-manual path requires browser steps for the final App Review submission.
+Prefer the scripted path. The manual path requires web browser interaction to submit for review.
 
 ### Build
 
@@ -318,9 +308,7 @@ Typical wait is 5–20 minutes. If you hit the cap:
 
 ### Transient Apple 5xx errors
 
-The HTTP client retries 5xx and network errors 3 times with
-exponential backoff. If you see a hard failure, re-run the script —
-Apple's API has documented intermittent outages.
+The HTTP client retries 5xx/network errors 3 times. Re-run on hard failures (Apple's API has frequent intermittent outages).
 
 ### `--dry-run` requires credentials
 
