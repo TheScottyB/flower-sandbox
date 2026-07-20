@@ -25,14 +25,32 @@ tests + 58 app (vitest) tests + `tsc` + biome**, all green.
   `1.0.2`, update group `a1e18975-8101-44a0-a00e-fdcdc71a52db`, built with the EAS
   `production` environment. Reaches installed build-5 users on next launch.
 
-**CI deploy is broken:** `.github/workflows/deploy-and-update-env.yml` fails at the
-deploy step because `SUPABASE_PROJECT_ID` was empty. That secret is now set, but
-`SUPABASE_ACCESS_TOKEN` and the `STRIPE_*` secrets are still missing from GitHub —
-add them for CI deploys to work end-to-end.
+**CI deploy is broken:** `.github/workflows/deploy-and-update-env.yml` requires
+the following GitHub Actions secrets in the `production` (and `staging`) environment
+before CI deploys can run end-to-end. Set these at
+**Settings → Environments → production → Environment secrets**:
 
-**Manual step for L2:** subscribe the webhook endpoint to `charge.refunded` and
-`charge.dispute.created` in the Stripe Dashboard, or the refund/dispute handler
-never fires.
+| Secret | Where to find it | Status |
+|---|---|---|
+| `SUPABASE_PROJECT_ID` | Supabase Dashboard → Project Settings → General | ✅ set |
+| `SUPABASE_ACCESS_TOKEN` | supabase.com → Account → Access Tokens | ❌ missing |
+| `SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API | check |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys (live pk_live_…) | ❌ missing |
+| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys (live sk_live_…) | ❌ missing |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → `we_1TZnBlD…` → Signing secret | ❌ missing |
+| `STRIPE_TEST_SECRET_KEY` | Stripe Dashboard → Developers → API Keys (test sk_test_…) | ❌ missing |
+| `STRIPE_TEST_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks (test) → `we_1TZmIgD…` → Signing secret | ❌ missing |
+
+Until CI is unblocked, continue deploying via Supabase CLI.
+
+**L2 webhook subscription — 2026-07-20:**
+
+- **Test endpoint** (`we_1TZmIgDesriQyUxdCH8D6J4C`): ✅ subscribed to `charge.refunded`
+  and `charge.dispute.created` via CLI.
+- **Live endpoint** (`we_1TZnBlDesriQyUxdpD4Vku99`): ❌ CLI blocked (restricted key
+  lacks webhook-update permissions). Fix via Dashboard:
+  **Stripe Dashboard → Developers → Webhooks → `we_1TZnBlD…` → Add events →**
+  add `charge.refunded` and `charge.dispute.created`.
 
 **Server-side (Supabase edge functions — deploy via push→CI, no App Store round-trip):**
 
