@@ -11,10 +11,28 @@ Result: **17 confirmed** (many are the same bug seen by multiple reviewers →
 
 Severity legend: 🔴 High (real money / account safety) · 🟠 Medium · 🟡 Low.
 
-## Status: all 13 findings + P1 fixed 2026-07-19 (test-first)
+## Status: all 13 findings + P1 fixed AND deployed 2026-07-19 (test-first)
 
 Every fix was written test-first (RED → GREEN). Suite: **36 Deno edge-function
 tests + 58 app (vitest) tests + `tsc` + biome**, all green.
+
+**Deployed to production (`srtlalaecgejgghwwfmk`) 2026-07-19:**
+
+- Server fixes deployed via Supabase CLI (the GitHub Actions deploy step is broken
+  — see below): `stripe-checkout` v8, `stripe-webhook` v8, `delete-account` v2, all
+  verified live via smoke tests.
+- Client fixes shipped as an EAS Update (OTA) to the `production` branch, runtime
+  `1.0.2`, update group `a1e18975-8101-44a0-a00e-fdcdc71a52db`, built with the EAS
+  `production` environment. Reaches installed build-5 users on next launch.
+
+**CI deploy is broken:** `.github/workflows/deploy-and-update-env.yml` fails at the
+deploy step because `SUPABASE_PROJECT_ID` was empty. That secret is now set, but
+`SUPABASE_ACCESS_TOKEN` and the `STRIPE_*` secrets are still missing from GitHub —
+add them for CI deploys to work end-to-end.
+
+**Manual step for L2:** subscribe the webhook endpoint to `charge.refunded` and
+`charge.dispute.created` in the Stripe Dashboard, or the refund/dispute handler
+never fires.
 
 **Server-side (Supabase edge functions — deploy via push→CI, no App Store round-trip):**
 
