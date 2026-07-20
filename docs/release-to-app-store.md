@@ -95,7 +95,7 @@ Before triggering a release, make sure these exist:
 - [x] Encryption declaration (`ITSAppUsesNonExemptEncryption: false` in `app.json`)
 - [x] Privacy manifests for third-party SDKs
 - [x] Bundle ID: `com.djscottyb.flowersandbox`
-- [x] Build number sourced remotely (`eas.json#cli.appVersionSource: "remote"`)
+- [x] Build number sourced locally (`eas.json#cli.appVersionSource: "local"`); bump `expo.version` **and** `ios.buildNumber` in `app.json` before each release
 
 ## 4. Apple's asset requirements reference
 
@@ -174,6 +174,18 @@ pnpm run app-store:doctor
 | `--release-type=<type>` | New-version release type (default: `AFTER_APPROVAL`). |
 
 Run with `--help` to see all flags.
+
+### Required eas.json submit fields
+
+`eas.json` `submit.production.ios` **must** include `ascApiKeyPath` (relative
+path to the `.p8` file) in addition to `ascApiKeyId` and `ascApiKeyIssuerId`.
+Without it `eas submit` will fail with "must all be defined":
+
+```json
+"ascApiKeyId": "XT32ZS8GHR",
+"ascApiKeyIssuerId": "69a6de80-...",
+"ascApiKeyPath": "credentials/AuthKey_XT32ZS8GHR.p8"
+```
 
 ### Required environment
 
@@ -315,6 +327,35 @@ The HTTP client retries 5xx/network errors 3 times. Re-run on hard failures (App
 Dry-run gates POST/PATCH/DELETE only — GETs still hit the live App
 Store Connect API. You need valid `APP_STORE_CONNECT_*` env vars even
 for a dry run.
+
+### Age-rating 409 on re-submission (kit bug)
+
+When submitting a version for an app that is already live, the
+`eas-app-store-kit` will 409 on the age-rating PATCH step because
+the `AppInfo` object is immutable once approved. The age rating carries
+over automatically — you do not need to re-set it.
+
+Workaround: the kit still attaches the build and sets review details before
+failing. Run the full flow once, then submit for review directly via the
+App Store Connect API:
+
+1. Set `whatsNew` on the localization:
+   `PATCH /v1/appStoreVersionLocalizations/{id}` with `{attributes:{whatsNew:"..."}}`
+2. Add the version to a review submission:
+   `POST /v1/reviewSubmissionItems`
+3. The submission transitions to `READY_FOR_REVIEW` automatically — no
+   separate submit action is needed.
+
+### `eas build --auto-submit` prompts for Apple Team ID (EAS CLI ≤ 21.0.0)
+
+Despite `appleTeamId` being set in `eas.json` and `--non-interactive` being
+passed, EAS CLI 21.0.x may still prompt interactively during the submit
+phase. Workaround: Ctrl+C once the build is enqueued (the cloud build
+continues regardless), wait for it to finish, then run `eas submit` directly:
+
+```bash
+eas submit --platform ios --profile production --id <build-id> --non-interactive
+```
 
 ### Rejection from App Review
 
