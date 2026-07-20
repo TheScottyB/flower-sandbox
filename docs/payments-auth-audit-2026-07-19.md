@@ -37,19 +37,19 @@ and post-deployment smoke tests. CI deploys are now fully operational.
 | `SUPABASE_ACCESS_TOKEN` | ✅ set (sbp_ PAT) |
 | `SUPABASE_ANON_KEY` | ✅ set |
 | `STRIPE_PUBLISHABLE_KEY` | ✅ set |
-| `STRIPE_SECRET_KEY` | ✅ set (rk_live_ restricted key) |
+| `STRIPE_SECRET_KEY` | ✅ set (sk_live_ full key) |
 | `STRIPE_WEBHOOK_SECRET` | ✅ set (whsec_ format) |
 | `STRIPE_TEST_SECRET_KEY` | ✅ set |
 | `STRIPE_TEST_WEBHOOK_SECRET` | ✓ not required for production CI run |
 
-**L2 webhook subscription — 2026-07-20:**
+**L2 webhook subscription — 2026-07-20:** ✅ fully complete
 
-- **Test endpoint** (`we_1TZmIgDesriQyUxdCH8D6J4C`): ✅ subscribed to `charge.refunded`
-  and `charge.dispute.created` via CLI.
-- **Live endpoint** (`we_1TZnBlDesriQyUxdpD4Vku99`): ❌ CLI blocked (restricted key
-  lacks webhook-update permissions). Fix via Dashboard:
-  **Stripe Dashboard → Developers → Webhooks → `we_1TZnBlD…` → Add events →**
-  add `charge.refunded` and `charge.dispute.created`.
+- **Test endpoint** (`we_1TZmIgDesriQyUxdCH8D6J4C`): subscribed via CLI.
+- **Live endpoint** (`we_1TZnBlDesriQyUxdpD4Vku99`): subscribed via Stripe API
+  using full `sk_live_*` key. Both endpoints now receive `charge.refunded` and
+  `charge.dispute.created` in addition to the original 5 events.
+- **`STRIPE_SECRET_KEY`** GitHub Actions secret updated from restricted `rk_live_*`
+  to full `sk_live_*` key.
 
 **DB index migrations deployed 2026-07-20** (`supabase/migrations/20260720015000_*`
 and `20260720015001_*`, applied via `supabase db push --linked`):
