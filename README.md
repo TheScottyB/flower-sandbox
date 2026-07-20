@@ -49,6 +49,18 @@ Working in this repo with an AI assistant? See:
 - [CLAUDE.md](./CLAUDE.md) — project conventions for Claude (and similar coding agents)
 - [AGENTS.md](./AGENTS.md) — Stripe Projects CLI integration (auto-managed)
 
+**Supabase MCP server.** `.mcp.json` registers a project-scoped Supabase MCP
+server pointed at the canonical project (`srtlalaecgejgghwwfmk`), giving agents
+read/write access to the database, edge functions, logs, and advisors. It is
+committed to the repo so every contributor shares the same config, but each
+person must authenticate once: in a regular terminal (not the IDE extension),
+run `claude`, then `/mcp`, select **supabase**, and choose **Authenticate**.
+Credentials are stored per-user; new sessions pick them up automatically.
+
+**Agent skills.** The Supabase and Postgres best-practices skills live under
+`.agents/skills/` (installed via `npx skills add supabase/agent-skills`) and are
+symlinked into Claude Code.
+
 ## Automation
 
 ### Vercel web deployment
