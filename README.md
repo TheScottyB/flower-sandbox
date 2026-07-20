@@ -51,9 +51,25 @@ Working in this repo with an AI assistant? See:
 
 ## Automation
 
-The GitHub Actions workflow at `.github/workflows/deploy-and-update-env.yml`
-deploys all Supabase Edge Functions and synchronises Supabase secrets from
-GitHub Actions secrets.
+### Vercel web deployment
+
+The workflow at `.github/workflows/deploy-vercel.yml` builds and deploys the
+web app to Vercel production on every push to `main`. It can also be triggered
+manually via `workflow_dispatch`.
+
+Required GitHub secrets:
+
+- `VERCEL_TOKEN` — personal access token from [vercel.com/account/tokens](https://vercel.com/account/tokens)
+- `VERCEL_ORG_ID` — `team_puwUwVuFFM6UekmgKWfzvSxq`
+- `VERCEL_PROJECT_ID` — `prj_XlZBCU0tKGtVIVQQTX4NQILOAVJT`
+
+Live URLs: https://flowersandbox.com · https://flower-sandbox-thescottybes-projects.vercel.app
+
+### Supabase backend deployment
+
+The workflow at `.github/workflows/deploy-and-update-env.yml` deploys all
+Supabase Edge Functions and synchronises Supabase secrets from GitHub Actions
+secrets on pushes to `main` that touch `supabase/**`.
 
 Required GitHub secrets:
 
