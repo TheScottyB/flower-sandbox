@@ -25,34 +25,22 @@ tests + 58 app (vitest) tests + `tsc` + biome**, all green.
   `1.0.2`, update group `a1e18975-8101-44a0-a00e-fdcdc71a52db`, built with the EAS
   `production` environment. Reaches installed build-5 users on next launch.
 
-**CI status — updated 2026-07-20:**
+**CI status — fully green 2026-07-20 (run 29712858249):**
 
-All tests now pass in CI (typecheck, Deno unit tests, Playwright E2E). The deploy
-step fails because three secrets still need to be added manually in
-**Settings → Environments → production → Environment secrets**.
+All steps pass end-to-end: typecheck, Deno unit tests, Playwright E2E,
+Deploy Supabase functions, Update Supabase secrets, Verify Environment Setup,
+and post-deployment smoke tests. CI deploys are now fully operational.
 
-| Secret | Where to find it | Status |
-|---|---|---|
-| `SUPABASE_PROJECT_ID` | Supabase Dashboard → Project Settings → General | ✅ set |
-| `SUPABASE_ACCESS_TOKEN` | supabase.com/dashboard/account/tokens → Generate new token (must start with `sbp_`) | ⚠️ needs manual token |
-| `SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API | ✅ set via CLI |
-| `STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys (live `pk_live_…`) | ✅ set via CLI |
-| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys (restricted `rk_live_…`) | ✅ set via CLI |
-| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → `we_1TZnBlD…` → **Reveal** signing secret | ❌ manual only |
-| `STRIPE_TEST_SECRET_KEY` | Stripe Dashboard → Developers → API Keys (test `sk_test_…`) | ✅ set via CLI |
-| `STRIPE_TEST_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks (test) → `we_1TZmIgD…` → **Reveal** signing secret | ❌ manual only |
-
-`SUPABASE_ACCESS_TOKEN` note: the macOS Keychain stores an OAuth session token,
-not a personal access token. Generate one at
-https://supabase.com/dashboard/account/tokens — it must start with `sbp_`.
-
-`STRIPE_WEBHOOK_SECRET` / `STRIPE_TEST_WEBHOOK_SECRET` note: Stripe does not
-return signing secrets via API after creation; use the Dashboard’s **Reveal**
-button on each endpoint’s detail page.
-
-Until the three remaining secrets are set, continue deploying edge functions via
-`supabase functions deploy … --project-ref srtlalaecgejgghwwfmk` and secrets via
-`supabase secrets set … --project-ref srtlalaecgejgghwwfmk`.
+| Secret | Status |
+|---|---|
+| `SUPABASE_PROJECT_ID` | ✅ set |
+| `SUPABASE_ACCESS_TOKEN` | ✅ set (sbp_ PAT) |
+| `SUPABASE_ANON_KEY` | ✅ set |
+| `STRIPE_PUBLISHABLE_KEY` | ✅ set |
+| `STRIPE_SECRET_KEY` | ✅ set (rk_live_ restricted key) |
+| `STRIPE_WEBHOOK_SECRET` | ✅ set (whsec_ format) |
+| `STRIPE_TEST_SECRET_KEY` | ✅ set |
+| `STRIPE_TEST_WEBHOOK_SECRET` | ✓ not required for production CI run |
 
 **L2 webhook subscription — 2026-07-20:**
 
