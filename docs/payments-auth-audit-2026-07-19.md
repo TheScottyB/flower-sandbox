@@ -52,6 +52,22 @@ Until CI is unblocked, continue deploying via Supabase CLI.
   **Stripe Dashboard → Developers → Webhooks → `we_1TZnBlD…` → Add events →**
   add `charge.refunded` and `charge.dispute.created`.
 
+**DB index migrations deployed 2026-07-20** (`supabase/migrations/20260720015000_*`
+and `20260720015001_*`, applied via `supabase db push --linked`):
+
+- `stripe_orders_checkout_session_id_key` — UNIQUE index on `checkout_session_id`
+  (M2 hardening; complements application-level dedup already in the webhook).
+- `stripe_orders_payment_intent_id_idx` — plain index on `payment_intent_id`
+  (speeds up the `markOrderCanceled` UPDATE for `charge.refunded` / `charge.dispute.created`).
+- `stripe_subscriptions_one_live_per_customer` — partial UNIQUE index on
+  `customer_id WHERE status IN ('active','trialing','past_due') AND deleted_at IS NULL`
+  (H3 hardening; belt-and-suspenders given the existing full UNIQUE(customer_id)
+  constraint; documents the invariant and supports future schema evolution).
+- **Residual H3 race:** a simultaneous double-tap before any webhook fires can
+  still create two Stripe subscriptions; the DB index can't close that. True fix:
+  add a `stripe.subscriptions.list` call in `stripe-checkout` before creating a
+  session. Tracked as a follow-up.
+
 **Server-side (Supabase edge functions — deploy via push→CI, no App Store round-trip):**
 
 - **H1** — `stripe-webhook` processes synchronously and returns 5xx on failure so
@@ -62,16 +78,17 @@ Until CI is unblocked, continue deploying via Supabase CLI.
 - **H3** — `stripe-checkout` returns 409 instead of creating a second subscription
   when the existing subscription is live (`active`/`trialing`/`past_due`). Guards on
   DB-synced status — closes the cross-device/stale-UI and `past_due` cases. A pure
-  simultaneous double-tap race remains a follow-up (partial unique index on live
-  subs, or a Stripe-side check).
+  simultaneous double-tap race is partially mitigated by a partial unique index
+  (deployed 2026-07-20, see below); the Stripe-side check is tracked as a follow-up.
 - **M1** — zero-subscription sync branch: fixed the nonexistent column
   (`subscription_status` → `status`) and added the missing early `return`. Required
   by H1 — otherwise that crash would have become an infinite retry storm.
 - **M2** — one-time orders are now idempotent: the webhook skips insertion when an
-  order for the `checkout_session_id` already exists. Chose application-level dedup
-  over a DB unique index so it deploys with no migration risk against the live table
-  (which may already hold duplicate rows from the old bug). *Optional hardening:* a
-  `UNIQUE(checkout_session_id)` index after de-duplicating prod data.
+  order for the `checkout_session_id` already exists. *DB hardening deployed
+  2026-07-20:* `UNIQUE(checkout_session_id)` index added
+  (`stripe_orders_checkout_session_id_key`) — production had zero rows, no dedup
+  needed. Also added `stripe_orders_payment_intent_id_idx` for the
+  `markOrderCanceled` UPDATE path (`charge.refunded` / `charge.dispute.created`).
 - **M3** — account deletion reordered so the auth user is deleted *before* the
   customer mapping is hard-deleted; a failed auth-delete now leaves the mapping
   intact for a clean retry. (H2 already removed the double-billing risk by canceling
