@@ -1,5 +1,4 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-declare const EdgeRuntime: any;
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
@@ -44,7 +43,10 @@ export async function handler(req: Request): Promise<Response> {
       return new Response(`Webhook signature verification failed: ${error.message}`, { status: 400 });
     }
 
-    EdgeRuntime.waitUntil(handleEvent(event));
+    // Process synchronously and only ACK once the DB write succeeds. Returning a
+    // 5xx on failure lets Stripe honour its at-least-once retry contract instead
+    // of dropping the event (a paid subscription/order that never gets recorded).
+    await handleEvent(event);
 
     return Response.json({ received: true });
   } catch (error: any) {
@@ -64,12 +66,25 @@ async function handleEvent(event: StripeEvent) {
     return;
   }
 
+  // Refunds and disputes cancel a previously-recorded order. Handle these first:
+  // their object shapes differ from checkout sessions, and they must never fall
+  // through into the subscription-sync path below.
+  if (event.type === 'charge.refunded' || event.type === 'charge.dispute.created') {
+    const paymentIntentId = typeof stripeData.payment_intent === 'string' ? stripeData.payment_intent : null;
+    if (paymentIntentId) {
+      await markOrderCanceled('payment_intent_id', paymentIntentId);
+    }
+    return;
+  }
+
   if (!('customer' in stripeData)) {
     return;
   }
 
-  // for one time payments, we only listen for the checkout.session.completed event
-  if (event.type === 'payment_intent.succeeded' && event.data.object.invoice === null) {
+  // for one time payments, we only listen for the checkout.session.completed event.
+  // Use a loose null check: newer Stripe API versions omit `invoice` from
+  // PaymentIntent entirely, so `=== null` would let those fall through to sync.
+  if (event.type === 'payment_intent.succeeded' && !event.data.object.invoice) {
     return;
   }
 
@@ -104,6 +119,24 @@ async function handleEvent(event: StripeEvent) {
           currency,
         } = stripeData as StripeCheckoutSession;
 
+        // Idempotency: Stripe delivers at-least-once (retries, dashboard "Resend"),
+        // so skip if this session's order is already recorded to avoid duplicates.
+        const { data: existingOrder, error: existingOrderError } = await supabase
+          .from('stripe_orders')
+          .select('id')
+          .eq('checkout_session_id', checkout_session_id)
+          .maybeSingle();
+
+        if (existingOrderError) {
+          console.error('Error checking for existing order:', existingOrderError);
+          throw new Error('Failed to check for existing order in database');
+        }
+
+        if (existingOrder) {
+          console.info(`Order already recorded for session ${checkout_session_id}; skipping duplicate.`);
+          return;
+        }
+
         // Insert the order into the stripe_orders table
         const { error: orderError } = await supabase.from('stripe_orders').insert({
           checkout_session_id,
@@ -118,11 +151,12 @@ async function handleEvent(event: StripeEvent) {
 
         if (orderError) {
           console.error('Error inserting order:', orderError);
-          return;
+          throw new Error('Failed to insert order in database');
         }
         console.info(`Successfully processed one-time payment for session: ${checkout_session_id}`);
       } catch (error) {
         console.error('Error processing one-time payment:', error);
+        throw error;
       }
     }
   }
@@ -139,13 +173,12 @@ async function syncCustomerFromStripe(customerId: string) {
       expand: ['data.default_payment_method'],
     });
 
-    // TODO verify if needed
     if (subscriptions.data.length === 0) {
       console.info(`No active subscriptions found for customer: ${customerId}`);
       const { error: noSubError } = await supabase.from('stripe_subscriptions').upsert(
         {
           customer_id: customerId,
-          subscription_status: 'not_started',
+          status: 'not_started',
         },
         {
           onConflict: 'customer_id',
@@ -156,6 +189,7 @@ async function syncCustomerFromStripe(customerId: string) {
         console.error('Error updating subscription status:', noSubError);
         throw new Error('Failed to update subscription status in database');
       }
+      return;
     }
 
     // assumes that a customer can only have a single subscription
@@ -192,4 +226,19 @@ async function syncCustomerFromStripe(customerId: string) {
     console.error(`Failed to sync subscription for customer ${customerId}:`, error);
     throw error;
   }
+}
+
+// Mark a recorded order as canceled (refund/dispute). Matches on the given column
+// so it works whether we key by payment intent or checkout session.
+async function markOrderCanceled(column: 'payment_intent_id' | 'checkout_session_id', value: string) {
+  const { error } = await supabase
+    .from('stripe_orders')
+    .update({ status: 'canceled' })
+    .eq(column, value);
+
+  if (error) {
+    console.error('Error canceling order:', error);
+    throw new Error('Failed to cancel order in database');
+  }
+  console.info(`Marked order canceled where ${column}=${value}`);
 }

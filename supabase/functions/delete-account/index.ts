@@ -1,9 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import Stripe from 'npm:stripe@17.7.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+export const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? 'sk_test_mock');
+
+// Stripe statuses that are already terminal — no cancellation needed/possible.
+const TERMINAL_SUBSCRIPTION_STATUSES = new Set(['canceled', 'incomplete_expired']);
 
 export async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
@@ -63,6 +69,31 @@ export async function handler(req: Request): Promise<Response> {
     }
 
     if (customer?.customer_id) {
+      // Cancel any live Stripe subscriptions BEFORE destroying local data, so a
+      // deleted account can never keep getting billed. This runs first: if it
+      // fails we return 500 without touching the DB or auth user, so the account
+      // survives and the operation can be safely retried. We list from Stripe
+      // (not our DB) so hidden/duplicate subscriptions are also caught.
+      try {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customer.customer_id,
+          status: 'all',
+          limit: 100,
+        });
+
+        for (const subscription of subscriptions.data) {
+          if (!TERMINAL_SUBSCRIPTION_STATUSES.has(subscription.status)) {
+            await stripe.subscriptions.cancel(subscription.id);
+          }
+        }
+      } catch (stripeError) {
+        console.error('Error canceling Stripe subscriptions before account deletion:', stripeError);
+        return new Response(JSON.stringify({ error: 'Failed to cancel active subscription' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
+      }
+
       const deletedAt = new Date().toISOString();
 
       const { error: subscriptionsError } = await supabaseAdmin
@@ -92,19 +123,9 @@ export async function handler(req: Request): Promise<Response> {
       }
     }
 
-    const { error: customerDeleteError } = await supabaseAdmin
-      .from('stripe_customers')
-      .delete()
-      .eq('user_id', user.id);
-
-    if (customerDeleteError) {
-      console.error('Error deleting customer mapping:', customerDeleteError);
-      return new Response(JSON.stringify({ error: 'Failed to delete account data' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      });
-    }
-
+    // Delete the auth user before hard-deleting the customer mapping. If this
+    // fails, the mapping still exists so a retry can re-find the customer and
+    // finish cleanly, rather than orphaning a live account with no mapping.
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
     if (deleteError) {
@@ -113,6 +134,17 @@ export async function handler(req: Request): Promise<Response> {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
+    }
+
+    const { error: customerDeleteError } = await supabaseAdmin
+      .from('stripe_customers')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (customerDeleteError) {
+      // The user is already gone and billing already stopped; a leftover mapping
+      // row is harmless. Log it but still report success to the client.
+      console.error('Error deleting customer mapping after user deletion:', customerDeleteError);
     }
 
     return new Response(JSON.stringify({ success: true }), {

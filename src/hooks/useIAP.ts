@@ -142,7 +142,9 @@ export function useIAP(): IAPState {
     });
 
     const errorSub = purchaseErrorListener((err) => {
-      if (String(err.code) === 'UserCancelled') return;
+      // expo-iap's cancellation code is 'user-cancelled'; a normal sheet
+      // dismissal must not surface a "Purchase failed" error.
+      if (String(err.code) === 'user-cancelled') return;
       if (!cancelled) setError('Purchase failed. Please try again.');
     });
 
@@ -169,7 +171,7 @@ export function useIAP(): IAPState {
       });
       // Result delivered via purchaseUpdatedListener above
     } catch (err: any) {
-      if (String(err?.code) !== 'UserCancelled') {
+      if (String(err?.code) !== 'user-cancelled') {
         console.error('[useIAP] purchase error:', err);
         setError('Purchase failed. Please try again.');
       }

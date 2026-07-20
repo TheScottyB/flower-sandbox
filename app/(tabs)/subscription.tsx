@@ -21,7 +21,7 @@ import { Flower } from '@/src/components/Flower';
 import { useIAP } from '@/src/hooks/useIAP';
 import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from '@/src/legal';
-import { products } from '@/src/stripe-config';
+import { isEntitledStatus, products } from '@/src/stripe-config';
 
 type SubscriptionStatus = {
   subscription_status: string;
@@ -55,7 +55,7 @@ export default function SubscriptionScreen() {
   const isSubscribed =
     Platform.OS === 'ios'
       ? iap.isSubscribed
-      : subscription?.subscription_status === 'active';
+      : isEntitledStatus(subscription?.subscription_status);
 
   // On iOS, prefer the StoreKit-supplied display name and localised price so that
   // the purchase screen matches what appears in the StoreKit payment sheet

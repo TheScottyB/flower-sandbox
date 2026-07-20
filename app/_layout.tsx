@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { ThemeProvider, useThemeMode } from '@/src/hooks/useThemeColors';
+import { decidePaymentReturn } from '@/src/utils/paymentDeepLink';
 
 function ThemeAwareStatusBar() {
   const { isDark } = useThemeMode();
@@ -19,47 +20,37 @@ export default function RootLayout() {
   // Handle deep links including payment returns
   useEffect(() => {
     const handleDeepLink = (event: { url: string }) => {
-      const url = event.url;
-      console.log('Deep link received:', url);
-
       try {
-        // Verify URL is valid before parsing
-        new URL(url); // This will throw if the URL is invalid
+        // Validate before parsing (throws on invalid URLs). Do NOT log the raw
+        // URL or its params — they can carry session ids / auth tokens.
+        new URL(event.url);
 
-        // Parse the URL using Expo Linking
-        const parsedUrl = Linking.parse(url);
-        console.log('Parsed deep link:', parsedUrl);
+        const parsedUrl = Linking.parse(event.url);
+        const decision = decidePaymentReturn(
+          parsedUrl.path,
+          parsedUrl.queryParams,
+        );
 
-        // Handle successful payment return
-        if (parsedUrl.queryParams?.session_id) {
-          const sessionId = parsedUrl.queryParams.session_id;
-          console.log('Payment session ID:', sessionId);
-
-          if (parsedUrl.path?.includes('subscription')) {
-            router.replace({
-              pathname: '/subscription',
-              params: { success: 'true', session_id: sessionId },
-            });
-          } else if (parsedUrl.path?.includes('donation-success')) {
+        switch (decision.type) {
+          case 'subscription-return':
+            // Never assert success from an untrusted deep link; the screen
+            // re-verifies real subscription status before celebrating.
+            router.replace('/subscription');
+            break;
+          case 'donation-success':
             router.replace('/donation-success');
-          }
-        }
-
-        // Handle canceled payment
-        if (
-          parsedUrl.queryParams &&
-          parsedUrl.queryParams.canceled === 'true'
-        ) {
-          console.log('Payment was canceled');
-
-          if (parsedUrl.path?.includes('subscription')) {
+            break;
+          case 'canceled-subscription':
             router.replace({
               pathname: '/subscription',
               params: { success: 'false' },
             });
-          } else {
+            break;
+          case 'canceled-other':
             router.replace('/');
-          }
+            break;
+          case 'none':
+            break;
         }
       } catch (error) {
         console.error('Error handling deep link:', error);

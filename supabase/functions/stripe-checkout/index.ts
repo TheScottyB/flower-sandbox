@@ -6,6 +6,12 @@ export const supabase = createClient(Deno.env.get('SUPABASE_URL') || 'https://mo
 export const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_mock';
 export const stripe = new Stripe(stripeSecret);
 
+// Stripe statuses under which the customer already holds a live subscription.
+// Starting a new subscription-mode checkout in these states creates a second
+// concurrent subscription (double billing), so we block it. Kept in sync with
+// the client's ENTITLED_SUBSCRIPTION_STATUSES in src/stripe-config.ts.
+const LIVE_SUBSCRIPTION_STATUSES = new Set(['active', 'trialing', 'past_due']);
+
 // Helper function to create responses with CORS headers
 function corsResponse(body: string | object | null, status = 200) {
   const headers = {
@@ -113,32 +119,50 @@ export async function handler(req: Request): Promise<Response> {
           console.error('Failed to clean up after customer mapping error:', deleteError);
         }
 
-        return corsResponse({ error: 'Failed to create customer mapping' }, 500);
-      }
+        // A concurrent request (double-tap / two devices) already created the
+        // mapping — recover by reusing it instead of failing a legitimate
+        // checkout with a spurious 500.
+        if (createCustomerError.code === '23505') {
+          const { data: existingCustomer, error: refetchError } = await supabase
+            .from('stripe_customers')
+            .select('customer_id')
+            .eq('user_id', user.id)
+            .is('deleted_at', null)
+            .maybeSingle();
 
-      if (mode === 'subscription') {
-        const { error: createSubscriptionError } = await supabase.from('stripe_subscriptions').insert({
-          customer_id: newCustomer.id,
-          status: 'not_started',
-        });
-
-        if (createSubscriptionError) {
-          console.error('Failed to save subscription in the database', createSubscriptionError);
-
-          // Try to clean up the Stripe customer since we couldn't create the subscription
-          try {
-            await stripe.customers.del(newCustomer.id);
-          } catch (deleteError) {
-            console.error('Failed to delete Stripe customer after subscription creation error:', deleteError);
+          if (refetchError || !existingCustomer?.customer_id) {
+            return corsResponse({ error: 'Failed to create customer mapping' }, 500);
           }
 
-          return corsResponse({ error: 'Unable to save the subscription in the database' }, 500);
+          customerId = existingCustomer.customer_id;
+        } else {
+          return corsResponse({ error: 'Failed to create customer mapping' }, 500);
         }
+      } else {
+        if (mode === 'subscription') {
+          const { error: createSubscriptionError } = await supabase.from('stripe_subscriptions').insert({
+            customer_id: newCustomer.id,
+            status: 'not_started',
+          });
+
+          if (createSubscriptionError) {
+            console.error('Failed to save subscription in the database', createSubscriptionError);
+
+            // Try to clean up the Stripe customer since we couldn't create the subscription
+            try {
+              await stripe.customers.del(newCustomer.id);
+            } catch (deleteError) {
+              console.error('Failed to delete Stripe customer after subscription creation error:', deleteError);
+            }
+
+            return corsResponse({ error: 'Unable to save the subscription in the database' }, 500);
+          }
+        }
+
+        customerId = newCustomer.id;
+
+        console.log(`Successfully set up new customer ${customerId} with subscription record`);
       }
-
-      customerId = newCustomer.id;
-
-      console.log(`Successfully set up new customer ${customerId} with subscription record`);
     } else {
       customerId = customer.customer_id;
 
@@ -154,6 +178,12 @@ export async function handler(req: Request): Promise<Response> {
           console.error('Failed to fetch subscription information from the database', getSubscriptionError);
 
           return corsResponse({ error: 'Failed to fetch subscription information' }, 500);
+        }
+
+        // Block a second subscription while one is already live, so the customer
+        // is never double-billed (the DB row can only track a single subscription).
+        if (subscription && LIVE_SUBSCRIPTION_STATUSES.has(subscription.status)) {
+          return corsResponse({ error: 'You already have an active subscription.' }, 409);
         }
 
         if (!subscription) {

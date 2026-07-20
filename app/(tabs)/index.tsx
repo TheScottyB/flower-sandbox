@@ -35,7 +35,7 @@ import { supabase } from '@/lib/supabase';
 import { FlowerField } from '@/src/components/FlowerField';
 import { useIAP } from '@/src/hooks/useIAP';
 import { useThemeColors, useThemeMode } from '@/src/hooks/useThemeColors';
-import { products } from '@/src/stripe-config';
+import { isEntitledStatus, products } from '@/src/stripe-config';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -71,7 +71,7 @@ export default function HomeScreen() {
               .maybeSingle();
 
             setStripeIsPremium(
-              subscriptionData?.subscription_status === 'active',
+              isEntitledStatus(subscriptionData?.subscription_status),
             );
           } catch (error) {
             console.error('Error checking subscription status:', error);

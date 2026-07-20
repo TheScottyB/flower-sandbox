@@ -100,6 +100,38 @@ describe('useIAP hook', () => {
     expect(hookState.error).toBeNull();
   });
 
+  it('does not show an error banner when the user cancels the purchase sheet', async () => {
+    let capturedErrorCb: ((err: any) => void) | undefined;
+    (expoIAP.purchaseErrorListener as Mock).mockImplementation((cb: any) => {
+      capturedErrorCb = cb;
+      return { remove: vi.fn() };
+    });
+
+    let hookState: any = null;
+    await TestRenderer.act(async () => {
+      TestRenderer.create(
+        <HookWrapper>
+          {(state) => {
+            hookState = state;
+            return null;
+          }}
+        </HookWrapper>,
+      );
+    });
+
+    // expo-iap's real cancellation code is 'user-cancelled'.
+    await TestRenderer.act(async () => {
+      capturedErrorCb?.({ code: 'user-cancelled' });
+    });
+    expect(hookState.error).toBeNull();
+
+    // A genuine failure still surfaces an error.
+    await TestRenderer.act(async () => {
+      capturedErrorCb?.({ code: 'network-error' });
+    });
+    expect(hookState.error).toBe('Purchase failed. Please try again.');
+  });
+
   it('sets error if no previous subscription found on restore', async () => {
     // Mock getAvailablePurchases to return empty array
     const getAvailablePurchasesMock = expoIAP.getAvailablePurchases as Mock;

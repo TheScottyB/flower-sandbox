@@ -363,6 +363,45 @@ describe('SubscriptionScreen', () => {
     expect(renewsLabelNode).toBeDefined();
   });
 
+  it('treats a past_due subscription as subscribed on Android (no Subscribe button)', async () => {
+    Platform.OS = 'android';
+
+    const mockSession = { access_token: 'fake-token' };
+    (supabase.auth.getSession as Mock).mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
+    });
+
+    const mockMaybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        subscription_status: 'past_due',
+        price_id: 'price_1RCQr6DesriQyUxd0aR0MNGG',
+        current_period_end: 1774320000,
+      },
+      error: null,
+    });
+    const mockSelect = vi
+      .fn()
+      .mockReturnValue({ maybeSingle: mockMaybeSingle });
+    (supabase.from as Mock).mockReturnValue({ select: mockSelect });
+
+    let tree: any;
+    await TestRenderer.act(async () => {
+      tree = TestRenderer.create(<SubscriptionScreen />);
+    });
+
+    // Still live during dunning → entitled → no re-subscribe prompt.
+    const buttons = tree.root.findAllByType(TouchableOpacity);
+    const subscribeBtn = buttons.find((b: any) => {
+      try {
+        return b.findByType(Text).props.children === 'Subscribe Now';
+      } catch {
+        return false;
+      }
+    });
+    expect(subscribeBtn).toBeUndefined();
+  });
+
   it('triggers login redirection when subscribing on Android while not logged in', async () => {
     Platform.OS = 'android';
 
